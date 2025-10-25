@@ -33,30 +33,30 @@ window.loginMenuModule = async function () {
         bilgilerimBtn?.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
             dropdown.style.display = 'none';
-            location.href = siteUrl +"/sigortapiri/bilgilerim/";
+            location.href = siteUrl +"/bilgilerim/";
         });
 
         varliklarimBtn?.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
             dropdown.style.display = 'none';
-            location.href = siteUrl+"/sigortapiri/varliklarim/";
+            location.href = siteUrl+"/varliklarim/";
         });
 
         tekliflerimBtn?.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
             dropdown.style.display = 'none';
-            location.href = siteUrl+"/sigortapiri/tekliflerim/";
+            location.href = siteUrl+"/tekliflerim/";
         });
 
         policelerimBtn?.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
             dropdown.style.display = 'none';
-            location.href = siteUrl+"/sigortapiri/policelerim/";
+            location.href = siteUrl+"/policelerim/";
         });
 
         loginBtn?.addEventListener('click', e => {
             localStorage.removeItem('state');
-            location.href = siteUrl + "/sigortapiri/login-register/";
+            location.href = siteUrl + "/login-register/";
         });
 
         // Sayfa herhangi bir yere tıklayınca dropdown kapanacak
@@ -67,7 +67,7 @@ window.loginMenuModule = async function () {
             e.preventDefault();
             e.stopPropagation();
             localStorage.removeItem('state');
-            window.location.href = siteUrl + "/sigortapiri/login-register/";
+            window.location.href = siteUrl + "/login-register/";
         });
 
         document.addEventListener("click", function () {
@@ -81,7 +81,7 @@ window.loginMenuModule = async function () {
 
 
         loginBtn?.addEventListener('click', function () {
-            window.location.href = siteUrl + "/sigortapiri/login-register/";
+            window.location.href = siteUrl + "/login-register/";
         });
     }
 };

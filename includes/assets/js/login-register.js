@@ -4,7 +4,7 @@ window.loadLoginRegisterModule = async function () {
     const token = state?.token.accessToken;
 
     if (token) {
-        window.location.href = window.location.origin + "/sigortapiri/";
+        window.location.href = window.location.origin + "/";
     }
 
 
@@ -119,7 +119,7 @@ window.loadLoginRegisterModule = async function () {
                     submitBtn.disabled = true;
                     await showMessage('Doğrulama başarılı! Yönlendiriliyorsunuz...', 'success');
                     setTimeout(() => {
-                        window.location.href = window.location.origin + "/sigortapiri/";
+                        window.location.href = window.location.origin + "/dashboard/";
                     }, 1500);
                 } else {
                     console.log("res.ok:", res.ok, "json:", json);
