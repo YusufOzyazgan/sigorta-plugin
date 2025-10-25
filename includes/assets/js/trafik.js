@@ -2,7 +2,7 @@
 
 let selectedVehicleId = null;
 window.loadTrafikModule = async function () {
-    console.log("xx trafik teklif module geldi.")
+    console.log("Trafik teklif modulü çalıştı.");
     const addProposalBtn = document.querySelector('#addProposal');
     let customer = null;
 

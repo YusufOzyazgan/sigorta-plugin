@@ -50,75 +50,7 @@ function user_avatar_dropdown_shortcode()
         });
     </script>
 
-    <style>
-        .dashboard-topbar {
-            display: flex;
-            justify-content: center;
-            /* sağa yasla, dilersen center yapabilirsin */
-            align-items: center;
-            /* dikey ortala */
-            padding: 10px 20px;
-            /* background-color: #fff; */
-            /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            /* dikey ortala */
-            justify-content: center;
-            /* yatay ortala */
-            gap: 10px;
-            position: relative;
-        }
-
-        .user-avatar {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* avatar içindeki svg ortalansın */
-        }
-
-
-        .user-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            /* background: #fff; */
-            /* border: 1px solid #ddd; */
-            border-radius: 6px;
-            /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); */
-            min-width: 150px;
-            padding: 5px 0;
-            z-index: 1000;
-        }
-
-        .user-dropdown a {
-            display: block;
-            padding: 8px 15px;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .user-dropdown a:hover {
-            background-color: #f2f2f2;
-        }
-
-        #loginBtn.btn-login {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 6px;
-            background: #00A4FF;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-        }
-    </style>
+   
     <?php
     return ob_get_clean();
 }

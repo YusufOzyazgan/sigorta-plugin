@@ -119,7 +119,7 @@ window.loadLoginRegisterModule = async function () {
                     submitBtn.disabled = true;
                     await showMessage('Doğrulama başarılı! Yönlendiriliyorsunuz...', 'success');
                     setTimeout(() => {
-                        window.location.href = window.location.origin + "/dashboard/";
+                        window.location.href = window.location.origin + "/panel/";
                     }, 1500);
                 } else {
                     console.log("res.ok:", res.ok, "json:", json);
