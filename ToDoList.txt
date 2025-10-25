@@ -1,0 +1,6 @@
+Yapılacaklar listesi yapılan görevlerin yanına + koyalım
+
+
+trafik bölümünde kullanıcı giriş yaptıktan sonra araçlar listelenmiyor
+linkler güncellenecek 
+
