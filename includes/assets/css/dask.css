@@ -1,0 +1,98 @@
+.step-card {
+        transition: all 0.5s ease;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #stepProgress {
+        margin-bottom: 30px;
+        display: flex;
+        gap: 10px;
+    }
+
+    #stepProgress .step {
+        text-align: center;
+        flex: 1;
+        position: relative;
+    }
+
+    #stepProgress .step:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: -50%;
+        height: 2px;
+        width: 100%;
+        background: #ddd;
+        z-index: -1;
+    }
+
+    #stepProgress .step:last-child:after {
+        display: none;
+    }
+
+    #stepProgress .step.active .step-icon {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    #stepProgress .step-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid #0d6efd;
+        margin: 0 auto 5px;
+        line-height: 26px;
+        font-weight: bold;
+        color: #0d6efd;
+        background: #fff;
+        transition: all 0.3s ease;
+    }
+
+    #stepProgress .step-label {
+        font-size: 0.9rem;
+    }
+
+
+    #propertyModal .form-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    #propertyModal .form-control,
+    #propertyModal .form-select {
+        height: 38px;
+        font-size: 0.875rem;
+    }
+
+    #propertyModal .modal-body {
+        padding: 1rem 1.5rem;
+    }
+
+    #propertyModal .btn-primary {
+        padding: 0.4rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+
+    @media (max-width: 768px) {
+        #propertyModal .col-md-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }

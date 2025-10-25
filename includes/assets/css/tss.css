@@ -1,0 +1,98 @@
+.step-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.5s ease;
+    margin-bottom: 1.5rem;
+}
+
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+#stepProgress {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+#stepProgress .step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+#stepProgress .step:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -50%;
+    height: 2px;
+    width: 100%;
+    background: #ddd;
+    z-index: -1;
+}
+#stepProgress .step:last-child:after { display: none; }
+
+#stepProgress .step .step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #0d6efd;
+    margin: 0 auto 5px;
+    line-height: 28px;
+    font-weight: bold;
+    color: #0d6efd;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+#stepProgress .step.active .step-icon {
+    background: #0d6efd;
+    color: #fff;
+}
+
+#stepProgress .step-label {
+    font-size: 0.9rem;
+}
+
+
+.step-card .form-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+.step-card .form-control,
+.step-card .form-select {
+    height: 38px;
+    font-size: 0.875rem;
+}
+
+
+.step-card .btn-primary, 
+.step-card .btn-secondary {
+    padding: 0.45rem 1.2rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .step-card .row > [class*='col-'] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    #stepProgress {
+        flex-direction: column;
+        gap: 15px;
+    }
+    #stepProgress .step:after {
+        display: none;
+    }
+}
+
