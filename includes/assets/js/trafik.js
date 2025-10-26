@@ -71,7 +71,7 @@ async function renderProposalResults(products, proposalId) {
 
     for (const product of products) {
         //var warranties = await apiGetFetch(`proposals/${proposalId}/products/${product.id}/coverage`);
-    var cashOrNot = apiGetFetch(`proposals/${proposalId}/products/${product.id}/premiums/${product.premiums[0].installmentNumber}`);
+    var cashOrNot = await apiGetFetch(`proposals/${proposalId}/products/${product.id}/premiums/${product.premiums[0].installmentNumber}`);
     console.log("cashOrNot: ", cashOrNot);
                                 //proposals/{proposalId}/products/{proposalProductId}/premiums/{installmentNumber}
         var fiyat = product.premiums[0]?.grossPremium ?? 0;
@@ -81,7 +81,7 @@ async function renderProposalResults(products, proposalId) {
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <img style="width: 60px; height: 40px; object-fit: contain;" 
+                                    <img style="width: 100px; height: 60px; object-fit: contain;" 
                                          src="${product.insuranceCompanyLogo || ''}" 
                                          alt="${product.insuranceCompanyName} Logo" 
                                          class="company-logo">
@@ -97,7 +97,7 @@ async function renderProposalResults(products, proposalId) {
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <span class="badge bg-success">${product.paymentType || 'Peşin'}</span>
+                                    <span class="badge bg-success">${product.premiums[0].cashOrNot == "1" ? 'Peşin' : 'Taksit'}</span>
                                 </div>
                                 
                                 <div class="d-grid gap-2">
@@ -107,7 +107,7 @@ async function renderProposalResults(products, proposalId) {
                                             style="cursor: pointer; font-size: 0.8rem;">
                                         Teminatları Gör
                                     </a>
-                                    <button class="btn primary-button-outline">Satın Al</button>
+                                    <button id="buyButton" data-product-id="${product.id} " data-proposal-id="${proposalId}" class="btn btn-outline-primary">Satın Al</button>
                                 </div>
                             </div>
                         </div>
@@ -146,7 +146,8 @@ async function renderProposalResults(products, proposalId) {
 
 async function loadProposalDetails(proposalId) {
     let offerResults = document.getElementById("offerResults");
-    offerResults.innerHTML = `
+    let loadingResults = document.getElementById("loadingResults");
+    loadingResults.innerHTML = `
                 <div class="text-center">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Yükleniyor...</span>
@@ -165,8 +166,11 @@ async function loadProposalDetails(proposalId) {
         let requestCount = 0;
 
         var activeProducts = products.filter(p => p.state === "ACTIVE");
-
+        
         while (waitedCount > 0 && requestCount < 35) {
+            
+            var oldActiveProductCount = activeProducts.length;
+
             console.log("aktif ürün sayısı = ", activeProducts.length, "\nBekleyen ürün sayısı = ", waitedCount, "\nYapılan İstek Sayısı = ", requestCount);
             await new Promise(resolve => setTimeout(resolve, 4000));
             response = await apiGetFetch("proposals/" + proposalId);
@@ -174,8 +178,10 @@ async function loadProposalDetails(proposalId) {
             waitedCount = products.filter(p => p.state === "WAITING").length;
             requestCount++;
 
-            activeProducts = products.filter(p => p.state === "ACTIVE")
-            offerResults.innerHTML = `
+            activeProducts = products.filter(p => p.state === "ACTIVE");
+
+
+            loadingResults.innerHTML = `
             <div class="text-center">
             <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Yükleniyor...</span>
@@ -183,7 +189,9 @@ async function loadProposalDetails(proposalId) {
             <p class="mt-2">Teklifler hazırlanıyor... </p>
             </div>
             `;
-            if (activeProducts.length > 0) {
+            
+            if (activeProducts.length > oldActiveProductCount && activeProducts.length > 0) {
+                offerResults.innerHTML = "";
                 await renderProposalResults(activeProducts, proposalId);
             }
         }
@@ -191,6 +199,7 @@ async function loadProposalDetails(proposalId) {
         // ACTIVE durumundaki ürünleri filtrele
 
         if (activeProducts.length === 0) {
+            loadingResults.innerHTML = "";
             offerResults.innerHTML = `
                         <div class="alert alert-warning text-center">
                             <h5>Üzgünüz!</h5>
@@ -200,12 +209,12 @@ async function loadProposalDetails(proposalId) {
             return;
         }
 
-        // Başarılı teklifleri göster
-        offerResults.innerHTML = "";
-        await renderProposalResults(activeProducts, proposalId);
+        // Loading'i temizle
+        loadingResults.innerHTML = "";
 
     } catch (error) {
         console.error(error);
+        loadingResults.innerHTML = "";
         offerResults.innerHTML = `
                     <div class="alert alert-danger text-center">
                         <h5>Hata!</h5>
@@ -290,6 +299,9 @@ async function showStep(step) {
 }
 async function firstStep() {
     console.log("first step başladı.");
+
+    var covarageByCompany = await apiGetFetch("coverage-choices:kasko");
+    console.log("covarageByCompany: ", covarageByCompany);
     const step1 = document.getElementById("step1");
     const step2 = document.getElementById("step2");
     const step3 = document.getElementById("step3");

@@ -75,7 +75,10 @@ function trafik_teklif_form_shortcode()
         </div>
 
         <div class="card shadow p-4 mb-4 step-card d-none" id="step3">
-            <div id="offerResults"></div>
+        <div id="loadingResults"></div>
+            
+        <div id="offerResults"></div>
+
         </div>
 
         <!-- Modal -->
