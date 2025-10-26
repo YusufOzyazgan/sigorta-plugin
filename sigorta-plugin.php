@@ -86,6 +86,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/pages/tss.php';
 require_once plugin_dir_path(__FILE__) . 'includes/pages/dask.php';
 require_once plugin_dir_path(__FILE__) . 'includes/pages/konut.php';
 require_once plugin_dir_path(__FILE__) . 'includes/pages/kasko.php';
+require_once plugin_dir_path(__FILE__) . 'includes/pages/callback.php';
 
 require_once plugin_dir_path(__FILE__) . 'includes/pages/dashboard.php';
 require_once plugin_dir_path(__FILE__) . 'includes/loginMenu.php';

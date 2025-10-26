@@ -71,8 +71,7 @@ async function renderProposalResults(products, proposalId) {
 
     for (const product of products) {
         //var warranties = await apiGetFetch(`proposals/${proposalId}/products/${product.id}/coverage`);
-    var cashOrNot = await apiGetFetch(`proposals/${proposalId}/products/${product.id}/premiums/${product.premiums[0].installmentNumber}`);
-    console.log("cashOrNot: ", cashOrNot);
+
                                 //proposals/{proposalId}/products/{proposalProductId}/premiums/{installmentNumber}
         var fiyat = product.premiums[0]?.grossPremium ?? 0;
         var formatliFiyat = Number(fiyat).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
@@ -97,17 +96,17 @@ async function renderProposalResults(products, proposalId) {
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <span class="badge bg-success">${product.premiums[0].cashOrNot == "1" ? 'Peşin' : 'Taksit'}</span>
+                                    <span class="badge bg-success">${product.premiums[0].installmentNumber == 1 ? 'Peşin' : 'Taksit'}</span>
                                 </div>
                                 
                                 <div class="d-grid gap-2">
                                     <a class="toggle-warranties text-center text-decoration-none text-primary small" 
-                                            data-product-id="${product.id}"
-                                            data-proposal-id="${proposalId}"
+                                            data-product-id="${product.productId}"
+                                            data-proposal-id="${product.premiums[0]?.insuranceCompanyProposalNumber}"
                                             style="cursor: pointer; font-size: 0.8rem;">
                                         Teminatları Gör
                                     </a>
-                                    <button id="buyButton" data-product-id="${product.id} " data-proposal-id="${proposalId}" class="btn btn-outline-primary">Satın Al</button>
+                                    <button id="buyButton" data-product-id="${product.productId} " data-proposal-id="${product.premiums[0]?.insuranceCompanyProposalNumber}" class="btn btn-outline-primary">Satın Al</button>
                                 </div>
                             </div>
                         </div>
@@ -142,6 +141,67 @@ async function renderProposalResults(products, proposalId) {
             }
         });
     });
+
+    // Satın alma butonlarına event listener ekle
+    document.querySelectorAll('#buyButton').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.getAttribute('data-product-id');
+            const proposalId = this.getAttribute('data-proposal-id');
+            
+            // Ödeme işlemini başlat
+            initiatePurchase(proposalId, productId);
+        });
+    });
+}
+
+// Ödeme işlemini başlatan fonksiyon
+async function initiatePurchase(proposalId, productId) {
+    let tc = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')).user.tc : null;
+    
+    try {
+        // Ödeme sayfasına yönlendirme mesajı göster
+        await showMessage("Ödeme sayfasına yönlendiriliyorsunuz...", "info");
+
+        let customer = await apiGetFetch("customers/me");
+        productId = productId.trim();
+        // Callback URL'i oluştur
+        const callbackUrl = `${window.location.origin}/payment-callback/?proposalId=${proposalId}&productId=${productId}&installmentNumber=1`;
+        
+        // Ödeme verilerini hazırla
+        const paymentData = {
+            "$type": "3d-secure",
+            "card": {
+                "identityNumber": customer.identityNumber.toString(),
+                "number": "",
+                "cvc": "",
+                "expiryMonth": "",
+                "expiryYear": "",
+                "holderName": ""
+            },
+            "proposalId": proposalId,
+            "proposalProductId": productId,
+            "installmentNumber": 1,
+            "callbackUrl": callbackUrl
+        };
+
+        // API isteğini gönder
+        const response = await apiPostFetch(`proposals/${proposalId}/products/${productId}/purchase/async`, paymentData);
+        
+        if (response && response.redirectUrl) {
+            // Başarılı mesaj göster
+            await showMessage("Ödeme sayfasına yönlendiriliyorsunuz...", "success");
+            
+            // 2 saniye sonra yönlendir
+            setTimeout(() => {
+                window.location.href = response.redirectUrl;
+            }, 2000);
+        } else {
+            await showMessage("Ödeme işlemi başlatılamadı!", "error");
+        }
+    } catch (error) {
+        console.error('Ödeme hatası:', error);
+        await showMessage("Ödeme işlemi sırasında bir hata oluştu!", "error");
+    }
 }
 
 async function loadProposalDetails(proposalId) {
@@ -384,7 +444,7 @@ async function firstStep() {
 
         tcInput.disabled = false;
         phoneInput.disabled = false;
-        //loadCities2();
+        
     }
 
 
