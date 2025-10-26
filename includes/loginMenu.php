@@ -5,7 +5,15 @@ if (!defined('ABSPATH'))
 
 function loginMenu_enqueue_scripts()
 {
-    // city.js
+    // CSS ekle
+    wp_enqueue_style(
+        'loginMenu-css',
+        plugin_dir_url(__FILE__) . 'assets/css/styles.css',
+        array(),
+        '1.0.0'
+    );
+    
+    // JavaScript
     wp_enqueue_script(
         'loginMenu-js',
          plugin_dir_url(__FILE__) . 'assets/js/loginMenu.js',

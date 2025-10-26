@@ -292,6 +292,7 @@ async function showStep(step) {
     if (step === step2) await updateProgress(2);
     if (step === step3) await updateProgress(3);
 
+
 }
 async function firstStep() {
     console.log("first step başladı.");
@@ -364,6 +365,7 @@ async function firstStep() {
             if (customer.identityNumber && customer.fullName && customer.primaryPhoneNumber?.number && customer.primaryEmail && customer.birthDate && customer.city?.value) {
                 await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
                 await showStep(step2);
+                await showVehicles();
 
             }
 
@@ -408,6 +410,7 @@ async function firstStep() {
             if (!isInfoChange) {
 
                 await showStep(step2);
+
             }
             else {
 

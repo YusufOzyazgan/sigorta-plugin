@@ -2,6 +2,15 @@
 if (!defined('ABSPATH'))
     exit;
 function login_register_enqueue_scripts() {
+    // CSS ekle
+    wp_enqueue_style(
+        'login-register-css',
+        plugin_dir_url(dirname(__FILE__)) . 'assets/css/styles.css',
+        array(),
+        '1.0.0'
+    );
+    
+    // JavaScript
     wp_enqueue_script(
         'login-register-js',
         plugin_dir_url(dirname(__FILE__)) . 'assets/js/login-register.js',
