@@ -71,7 +71,7 @@ function trafik_teklif_form_shortcode()
             </div>
             <hr>
             <div id="vehiclesList" class="row g-3 mt-3 mb-3"></div>
-            <button id="addProposal" class="btn primary-button mt-2 m-3 float-end">Teklif Al</button>
+            <button id="addProposal" class="btn btn-primary mt-2 m-3 float-end">Teklif Al</button>
         </div>
 
         <div class="card shadow p-4 mb-4 step-card d-none" id="step3">

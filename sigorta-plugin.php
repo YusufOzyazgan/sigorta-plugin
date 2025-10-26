@@ -89,4 +89,5 @@ require_once plugin_dir_path(__FILE__) . 'includes/pages/kasko.php';
 
 require_once plugin_dir_path(__FILE__) . 'includes/pages/dashboard.php';
 require_once plugin_dir_path(__FILE__) . 'includes/loginMenu.php';
+require_once plugin_dir_path(__FILE__) . 'includes/assets/components/warrantiesModal.php';
 

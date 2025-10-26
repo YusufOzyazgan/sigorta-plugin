@@ -199,10 +199,12 @@ window.loadDaskModule = async function (container) {
                 <div class="text-center mb-3"><h4 class="text-primary mb-1">${p.premiums?.totalPremium || 'Fiyat bilgisi yok'} ₺</h4><small class="text-muted">${p.taxesIncluded ? 'Vergiler Dahil' : 'Vergiler Hariç'}</small></div>
                 <div class="mb-3"><span class="badge bg-success">${p.paymentType || 'Peşin'}</span></div>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary btn-sm toggle-warranties" data-product-id="${p.id}">Teminatları Gör</button>
+                    <a class="toggle-warranties text-decoration-none text-primary small" 
+                            data-product-id="${p.id}" 
+                            data-proposal-id="${proposalId}"
+                            style="cursor: pointer; font-size: 0.8rem;">Teminatları Gör</a>
                     <button class="btn btn-primary">Satın Al</button>
                 </div>
-                <div class="warranties mt-3" style="display:none" id="warranties-${p.id}"><h6 class="text-primary">Teminatlar:</h6><ul class="list-unstyled small">${address}</ul></div>
             </div></div></div>`;
             });
 
@@ -211,9 +213,15 @@ window.loadDaskModule = async function (container) {
 
             container.querySelectorAll('.toggle-warranties').forEach(btn => {
                 btn.addEventListener('click', function () {
-                    const wDiv = container.querySelector(`#warranties-${this.dataset.productId}`);
-                    if (wDiv.style.display === 'block') { wDiv.style.display = 'none'; this.textContent = 'Teminatları Gör'; }
-                    else { wDiv.style.display = 'block'; this.textContent = 'Teminatları Gizle'; }
+                    const productId = this.getAttribute('data-product-id');
+                    const proposalId = this.getAttribute('data-proposal-id');
+                    
+                    // Global modal fonksiyonunu çağır
+                    if (window.showWarrantiesModal) {
+                        window.showWarrantiesModal(proposalId, productId);
+                    } else {
+                        console.error('showWarrantiesModal fonksiyonu bulunamadı!');
+                    }
                 });
             });
         }

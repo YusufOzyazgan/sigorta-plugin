@@ -65,12 +65,15 @@ async function renderProposalResults(products, proposalId) {
                     <p class="text-muted">Size en uygun trafik sigortası tekliflerini karşılaştırın.</p>
                 </div>
                 <div class="row g-4">
+                
+
             `;
 
     for (const product of products) {
         //var warranties = await apiGetFetch(`proposals/${proposalId}/products/${product.id}/coverage`);
-        var warranties = null;
-        console.log("warranties: ", warranties);
+    var cashOrNot = apiGetFetch(`proposals/${proposalId}/products/${product.id}/premiums/${product.premiums[0].installmentNumber}`);
+    console.log("cashOrNot: ", cashOrNot);
+                                //proposals/{proposalId}/products/{proposalProductId}/premiums/{installmentNumber}
         var fiyat = product.premiums[0]?.grossPremium ?? 0;
         var formatliFiyat = Number(fiyat).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
         productsHtml += `
@@ -98,22 +101,13 @@ async function renderProposalResults(products, proposalId) {
                                 </div>
                                 
                                 <div class="d-grid gap-2">
-                                    <button class="btn primary-button btn-sm toggle-warranties" 
-                                            data-product-id="${product.id}">
+                                    <a class="toggle-warranties text-center text-decoration-none text-primary small" 
+                                            data-product-id="${product.id}"
+                                            data-proposal-id="${proposalId}"
+                                            style="cursor: pointer; font-size: 0.8rem;">
                                         Teminatları Gör
-                                    </button>
-                                    <button class="btn bg-primary">Satın Al</button>
-                                </div>
-                                
-                                <div class="warranties mt-3" style="display: none;" id="warranties-${product.id}">
-                                    <h6 class="text-primary">Teminatlar:</h6>
-                                    <ul class="list-unstyled small">
-                                        ${warranties ? warranties.map(warranty => `
-                                            <li class="mb-1">
-                                                <i class="fas fa-check text-success me-2"></i>${warranty}
-                                            </li>
-                                        `).join('') : '<li>Teminat bilgisi bulunamadı</li>'}
-                                    </ul>
+                                    </a>
+                                    <button class="btn primary-button-outline">Satın Al</button>
                                 </div>
                             </div>
                         </div>
@@ -138,14 +132,13 @@ async function renderProposalResults(products, proposalId) {
     document.querySelectorAll('.toggle-warranties').forEach(button => {
         button.addEventListener('click', function () {
             const productId = this.getAttribute('data-product-id');
-            const warrantiesDiv = document.querySelector(`#warranties-${productId}`);
+            const proposalId = this.getAttribute('data-proposal-id');
 
-            if (warrantiesDiv.style.display === 'block') {
-                warrantiesDiv.style.display = 'none';
-                this.textContent = 'Teminatları Gör';
+            // Global modal fonksiyonunu çağır
+            if (window.showWarrantiesModal) {
+                window.showWarrantiesModal(proposalId, productId);
             } else {
-                warrantiesDiv.style.display = 'block';
-                this.textContent = 'Teminatları Gizle';
+                console.error('showWarrantiesModal fonksiyonu bulunamadı!');
             }
         });
     });
@@ -158,6 +151,7 @@ async function loadProposalDetails(proposalId) {
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Yükleniyor...</span>
                     </div>
+                    
                     <p class="mt-2">Teklifler hazırlanıyor...</p>
                 </div>
             `;
@@ -398,7 +392,7 @@ async function firstStep() {
 
 
     personalForm.addEventListener('submit', async e => {
-        
+
         e.preventDefault();
         isInfoChange = checkInfoChanged();
 
@@ -476,16 +470,16 @@ async function firstStep() {
                             state.user.custumerId = me.id;
                             state.user.fullName = me.fullName;
                         }
-                        customer =me;
+                        customer = me;
                         localStorage.setItem('state', JSON.stringify(state));
-                        
+
                         //
                         mfaAreaTraffic.style.display = "none";
-                        infoAfterLogin.style.display ="block";
+                        infoAfterLogin.style.display = "block";
                         // loadCities2();
                         await window.loginMenuModule();
                         firstStep();
-                        
+
                         // backStepBtn.classList.add('d-none');
 
                     } else {

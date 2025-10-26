@@ -84,18 +84,14 @@ window.loadTeklifDetayModule = async function (container, proposalId) {
                             </div>
                             
                             <div class="d-grid gap-2">
-                                <button class="btn btn-outline-primary toggle-warranties" data-product-id="${product.id}">
+                                <a class="toggle-warranties text-decoration-none text-primary small" 
+                                        data-product-id="${product.id}"
+                                        data-proposal-id="${proposalId}"
+                                        style="cursor: pointer; font-size: 0.8rem;">
                                     Teminatlar
-                                </button>
+                                </a>
                                 <input type="hidden" value="${product.id}">
-                                <button class="btn btn-primary">Satın Al</button>
-                            </div>
-                            
-                            <div class="warranties" style="display: none;" id="warranties-${product.id}">
-                                <h6 class="mt-3">Teminatlar:</h6>
-                                <ul>
-                                    ${product.warranties.map(warranty => `<li>${warranty}</li>`).join('')}
-                                </ul>
+                                <button class="btn btn-primary-outline ">Satın Al</button>
                             </div>
                         </div>
                     </div>
@@ -108,14 +104,13 @@ window.loadTeklifDetayModule = async function (container, proposalId) {
         document.querySelectorAll('.toggle-warranties').forEach(button => {
             button.addEventListener('click', function () {
                 const productId = this.getAttribute('data-product-id');
-                const warrantiesDiv = document.getElementById(`warranties-${productId}`);
-
-                if (warrantiesDiv.style.display === 'block') {
-                    warrantiesDiv.style.display = 'none';
-                    this.textContent = 'Teminatlar';
+                const proposalId = this.getAttribute('data-proposal-id');
+                
+                // Global modal fonksiyonunu çağır
+                if (window.showWarrantiesModal) {
+                    window.showWarrantiesModal(proposalId, productId);
                 } else {
-                    warrantiesDiv.style.display = 'block';
-                    this.textContent = 'Teminatları Gizle';
+                    console.error('showWarrantiesModal fonksiyonu bulunamadı!');
                 }
             });
         });

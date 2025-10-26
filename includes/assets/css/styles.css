@@ -253,6 +253,133 @@
         color: black !important;
     }
 
+    /* BUTTON COLORS */
+    
+    /* Primary Buttons */
+    .btn-primary {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: white !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0b5ed7 !important;
+        border-color: #0a58ca !important;
+        color: white !important;
+    }
+    
+    .btn-outline-primary {
+        color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        background-color: transparent !important;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: white !important;
+    }
+    
+    /* Danger Buttons */
+    .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+    }
+    
+    .btn-danger:hover {
+        background-color: #bb2d3b !important;
+        border-color: #b02a37 !important;
+        color: white !important;
+    }
+    
+    .btn-outline-danger {
+        color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        background-color: transparent !important;
+    }
+    
+    .btn-outline-danger:hover {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+    }
+    
+    /* Warning Buttons */
+    .btn-warning {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #000 !important;
+    }
+    
+    .btn-warning:hover {
+        background-color: #ffca2c !important;
+        border-color: #ffc720 !important;
+        color: #000 !important;
+    }
+    
+    .btn-outline-warning {
+        color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        background-color: transparent !important;
+    }
+    
+    .btn-outline-warning:hover {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #000 !important;
+    }
+    
+    /* Secondary Buttons */
+    .btn-secondary {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: white !important;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #5c636a !important;
+        border-color: #565e64 !important;
+        color: white !important;
+    }
+    
+    .btn-outline-secondary {
+        color: #6c757d !important;
+        border-color: #6c757d !important;
+        background-color: transparent !important;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: white !important;
+    }
+    
+    /* Success Buttons */
+    .btn-success {
+        background-color: #198754 !important;
+        border-color: #198754 !important;
+        color: white !important;
+    }
+    
+    .btn-success:hover {
+        background-color: #157347 !important;
+        border-color: #146c43 !important;
+        color: white !important;
+    }
+    
+    .btn-outline-success {
+        color: #198754 !important;
+        border-color: #198754 !important;
+        background-color: transparent !important;
+    }
+    
+    .btn-outline-success:hover {
+        background-color: #198754 !important;
+        border-color: #198754 !important;
+        color: white !important;
+    }
+
     .dashboard-topbar {
         display: flex;
         justify-content: center;
