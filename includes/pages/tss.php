@@ -32,7 +32,6 @@ function tss_form_shortcode()
     ?>
     <div id="tssModuleContainer">
         <div class="card shadow p-4 mb-4">
-            <h2 class="text-center mb-4">Tamamlayıcı Sağlık Sigortası</h2>
             <div class="d-flex justify-content-between mb-4" id="stepProgress">
                 <div class="step active" data-step="1">
                     <div class="step-icon">1</div>
@@ -63,7 +62,7 @@ function tss_form_shortcode()
                                 required></div>
                     </div>
                     <div class="mt-3 d-flex justify-content-between">
-                        <button type="button" class="btn warning-button" id="backStepBtn">Geri</button>
+                        <button type="button" class="btn warning-button" id="backStepTss">Geri</button>
                         <button type="submit" class="btn primary-button" id="nextStep2">İlerle</button>
                     </div>
                 </form>

@@ -100,13 +100,13 @@ async function renderProposalResults(products, proposalId) {
                                 </div>
                                 
                                 <div class="d-grid gap-2">
-                                    <a class="toggle-warranties text-center text-decoration-none text-primary small" 
-                                            data-product-id="${product.productId}"
-                                            data-proposal-id="${product.premiums[0]?.insuranceCompanyProposalNumber}"
+                                    <a class="toggle-warranties text-center text-decoration-none text-warning small" 
+                                            data-product-id="${product.id}"
+                                            data-proposal-id="${proposalId}"
                                             style="cursor: pointer; font-size: 0.8rem;">
                                         Teminatları Gör
                                     </a>
-                                    <button id="buyButton" data-product-id="${product.productId} " data-proposal-id="${product.premiums[0]?.insuranceCompanyProposalNumber}" class="btn btn-outline-primary">Satın Al</button>
+                                    <button id="buyButton" data-product-id="${product.id} " data-proposal-id="${proposalId}" class="btn btn-outline-primary">Satın Al</button>
                                 </div>
                             </div>
                         </div>
@@ -164,12 +164,16 @@ async function initiatePurchase(proposalId, productId) {
 
         let customer = await apiGetFetch("customers/me");
         productId = productId.trim();
+
+        if (proposalId.includes('/')) {
+            proposalId = proposalId.split('/')[0];
+        }
         // Callback URL'i oluştur
         const callbackUrl = `${window.location.origin}/payment-callback/?proposalId=${proposalId}&productId=${productId}&installmentNumber=1`;
         
         // Ödeme verilerini hazırla
         const paymentData = {
-            "$type": "3d-secure",
+            "$type": "insurance-company-redirect",
             "card": {
                 "identityNumber": customer.identityNumber.toString(),
                 "number": "",
@@ -431,7 +435,8 @@ async function firstStep() {
             if (customer.identityNumber && customer.fullName && customer.primaryPhoneNumber?.number && customer.primaryEmail && customer.birthDate && customer.city?.value) {
                 await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
                 await showStep(step2);
-                await showVehicles();
+                
+               // await showVehicles();
 
             }
 
@@ -453,7 +458,13 @@ async function firstStep() {
         console.log("crate vehicle butonu çalıştı. ");
         const vehicleModal = document.getElementById('vehicleModal');
         vehicleModal.style.display = "flex";
-        await createVehicle();
+        var aracOlustur = await createVehicle();
+        if (!aracOlustur) {
+            return;
+        }
+        else {
+            loadTrafikModule();
+        }
 
 
         return;
@@ -604,7 +615,7 @@ async function firstStep() {
 
 
     });
-    console.log("xx firs stepin sonu");
+    
 }
 async function loadCities2() {
     const citySelect = document.getElementById("cityTraffic");

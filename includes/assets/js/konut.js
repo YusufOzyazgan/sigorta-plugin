@@ -46,7 +46,7 @@ window.loadKonutModule = async function (container) {
 
         await firstStep();
         console.log("First step çağırıldı.");
-        loadProperties();
+        await loadProperties();
 
 
 

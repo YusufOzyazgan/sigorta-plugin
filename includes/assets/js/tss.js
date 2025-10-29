@@ -1,33 +1,66 @@
 window.loadTssModule = async function (container) {
-    
 
-  const addProposalBtn = document.querySelector('#addProposal');
-  const step2Form = document.querySelector('#step2Form');
-    let customer = null;
-    const backStepBtn = document.getElementById('backStepBtn');
+
+    const step2Form = container.querySelector('#step2Form');
+
+    console.log("first step çalıştı - tss.js");
     await firstStep();
-    backStepBtn.addEventListener('click', async () => {
-        await backStepFunction();
-    });
+
+    if (!step2Form) {
+        console.warn('tss.js: #step2Form bulunamadı');
+        return;
+    }
 
     step2Form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const height = container.querySelector("#height").value;
-        const weight = container.querySelector("#weight").value;
+
+        const state = JSON.parse(localStorage.getItem("state")) || {};
+        const customerId = state.user?.costumerId || "";
+
+        const formData = {
+            $type: "tss",
+            vehicleId: "",
+            productBranch: "TSS",
+            insurerCustomerId: customerId,
+            insuredCustomerId: customerId,
+            coverageGroupIds: [""],
+            coverageTable: null,
+            channel: "WEBSITE"
+        };
 
         try {
-            const offer = await apiPostFetch("tss-offer", {
-                customerId: customer.id,
-                height,
-                weight
-            });
-            container.querySelector("#offerResult").innerHTML = `<pre>${JSON.stringify(offer, null, 2)}</pre>`;
-            showStep(3);
-        } catch (err) { console.error(err); alert("Teklif alınamadı."); }
+            const response = await apiPostFetch("proposals", formData);
+            if (response?.status === 200) {
+                await showMessage("Teklif oluşturuldu. ", "success");
+                const resultsEl = container.querySelector("#offerResults");
+                if (!resultsEl) console.warn('tss.js: #offerResults bulunamadı');
+                else resultsEl.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                if (typeof showStep === 'function') showStep(3);
+            } else {
+                await showMessage("Teklif oluşturulamadı.", "error");
+                container.innerHTML = `
+                <div class="alert alert-danger text-center mt-5">
+                    <h4>Teklif oluşturulamadı.</h4>
+                    <p>Lütfen bilgilerinizi kontrol edip tekrar deneyin.</p>
+                    <button id="backToStep1" class="btn btn-primary mt-3">Yeniden Dene</button>
+                </div>
+                `;
+                document.getElementById('backToStep1').addEventListener('click', async () => {
+                    window.location.reload();
+                });
+            }
+        } catch (err) {
+            console.error('tss.js: proposals isteği hata', err);
+            await showMessage("Teklif oluşturulamadı.", "error");
+        }
     });
 
 
-    container.querySelector("#backStep2").addEventListener("click", () => showStep(1));
+    const backStepTssBtn = document.getElementById('backStepTss');
+    backStepTssBtn?.addEventListener('click', async () => {
+        console.log('geri butonu çalıştı');
+        await backStepFunction();
+    });
 
-   //S await showStep(step1);
+    //S await showStep(step1);
 };

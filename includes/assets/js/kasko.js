@@ -8,11 +8,11 @@ window.loadkaskoModule = async function (container) {
 
 
 
-    const step1 = document.querySelector("#step1");
-    const step2 = document.querySelector("#step2");
+ 
+    const addVehicleBtn = document.getElementById('addVehicleBtn');
+    const backStepBtn = document.getElementById('backStepBtn');
     const step3 = document.querySelector("#step3");
-    const progressSteps = document.querySelectorAll("#stepProgress .step");
-    const propertyAlert = document.querySelector("#propertyAlert");
+   
     const addProposalBtn = document.getElementById('addProposal');
                                                      
     
@@ -39,7 +39,7 @@ window.loadkaskoModule = async function (container) {
         }
         else {
             
-            loadKaskoModule(container);
+            await window.loadkaskoModule(container);
         }
         
         return;
@@ -65,6 +65,7 @@ window.loadkaskoModule = async function (container) {
         const id = state.user?.costumerId || null;
         const formData = {
             $type: "kasko",
+            coverage:null,
             channel: "WEBSITE",
             coverageGroupIds: null,
             insuredCustomerId: id,
@@ -73,14 +74,28 @@ window.loadkaskoModule = async function (container) {
             vehicleId: selectedVehicleId
         };
         const proposal = await apiPostFetch("proposals", formData);
-        if (proposal?.proposalId) {
+        if (proposal?.status === 200) {
             await showMessage("Teklif oluşturuldu. ", "success");
             await loadProposalDetails(proposal.proposalId);
         } else {
             await showMessage("Teklif oluşturulamadı.", "error");
+            container.innerHTML = `
+                <div class="alert alert-danger text-center mt-5">
+                    <h4>Teklif oluşturulamadı.</h4>
+                    <p>Lütfen bilgilerinizi kontrol edip tekrar deneyin.</p>
+                    <button id="backToStep1" class="btn btn-primary mt-3">Yeniden Dene</button>
+                </div>
+            `;
+            document.getElementById('backToStep1').addEventListener('click', async () => {
+                window.location.reload();
+            });
+            
+            
         }
     });
 
 
 }
+
+window.loadKaskoModule = window.loadkaskoModule;
 

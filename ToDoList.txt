@@ -1,6 +1,20 @@
 Yapılacaklar listesi yapılan görevlerin yanına + koyalım
+Öncelikliler *
 
 
-trafik bölümünde kullanıcı giriş yaptıktan sonra araçlar listelenmiyor
-linkler güncellenecek 
-
++ 1 trafik bölümünde kullanıcı giriş yaptıktan sonra araçlar listelenmiyor
++ 1 linkler güncellenecek 
++ 3 login butonunun renk sorunu çözüldü
+2 trafikten giriş yaparken bazen geç gösteriyor bildirimi
+2 kullanıcı teklif alma sayfalarından birine geldiği zaman kaydı yoksa lütfen oturum açınız yazısı kaldırılacak
+(daha sonra) teklifin taksit işlemleri Yapılacaklar
+teklifler hazırlanıyor alanının yazıları eklenecek 
+teklif no alianz sigortasının yanınına 
+teminatların ön gürünümü 
+state içindeki user'a bilgiler gelmiyor tekliflerden giriş yapıldığında 
+hataların gösterimi için 422 400 ve 500 hata kontrolü fonksiyonu yazılacak
+eklenen araç için düzenleme modalı yapılacak
+araç eklemede tramer sorgulamaya şehir zorunluluğu gerilecek
+tramer sorgulamada hata var insurup ile görüşülecek
+kasko teklifi alırken oluşan hata konuşulacak - "Lütfen bu teklif için geçerli teminat grupları veya teminat tablosu sağlayın"
+    

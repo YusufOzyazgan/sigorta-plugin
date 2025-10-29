@@ -916,15 +916,26 @@ async function createVehicle() {
 
 
     document.getElementById('tramerBtn').addEventListener('click', async function () {
-
+        
+        if (!id) {
+            const me = await apiGetFetch('customers/me');
+            state.user.costumerId = me.id;
+            id = me.id;
+            localStorage.setItem('state', JSON.stringify(state));
+        }
         const customerId = id;
         const plate = document.getElementById('plateInput').value.trim();
         const city = parseInt(document.getElementById('citySelectPlakali').value);
+        
         const documentSerial = {
             code: document.getElementById('documentSeries').value.trim(),
             number: document.getElementById('documentNo').value.trim()
         }
-
+        
+        if (!city || !plate || !documentSerial.code || !documentSerial.number) {
+            showMessage("Lütfen tüm alanları doldurunuz.", "warning", 4);
+            return;
+        }
         // Veri yapısını oluştur
         const requestData = {
             customerId: customerId,
