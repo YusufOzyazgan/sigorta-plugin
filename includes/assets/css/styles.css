@@ -447,3 +447,130 @@
         cursor: pointer !important;
         font-size: 14px !important;
     }
+
+    /* ===== Sigorta Plugin Admin: Info List Styling ===== */
+    .sigorta-plugin-info-list {
+        counter-reset: sigortaInfoItem;
+        list-style: none;
+        margin-top: 15px;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr; /* desktop dahil tek sütun */
+    }
+
+    .sigorta-plugin-info-list li {
+        position: relative;
+        padding: 14px 16px 14px 56px;
+        background: #fff;
+        border: 1px solid #eef0f6;
+        border-radius: 12px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+        color: #2f3a66;
+    }
+
+    .sigorta-plugin-info-list li::before {
+        content: counter(sigortaInfoItem, decimal-leading-zero);
+        counter-increment: sigortaInfoItem;
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #2f6fef;
+        color: #fff;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        box-shadow: 0 6px 14px rgba(47, 111, 239, 0.35);
+    }
+
+    .sigorta-plugin-info-list b { color: #1f2a55; }
+
+    /* Bilgiler listesi desktop'ta da tek sütun kalsın */
+    @media (min-width: 768px) {
+        .sigorta-plugin-info-list { grid-template-columns: 1fr; }
+    }
+    @media (min-width: 1280px) {
+        .sigorta-plugin-info-list { grid-template-columns: 1fr; }
+    }
+
+    /* Küçük ekran optimizasyonları */
+    @media (max-width: 767px) {
+        .sigorta-plugin-info-list { gap: 10px; }
+        .sigorta-plugin-info-list li {
+            padding: 12px 14px 12px 52px;
+        }
+        .sigorta-plugin-info-list li::before {
+            width: 26px; height: 26px; font-size: 11px;
+            left: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .sigorta-plugin-info-list li {
+            padding: 10px 12px 10px 48px;
+        }
+        .sigorta-plugin-info-list li::before {
+            width: 24px; height: 24px; font-size: 10px;
+            left: 12px;
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .sigorta-plugin-info-list li {
+            background: #111418;
+            border-color: #1a1f27;
+            color: #e9eef7;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+        }
+        .sigorta-plugin-info-list b { color: #fff; }
+    }
+
+    /* ===== Plugin Admin Sayfası - Görsel İyileştirmeler ===== */
+    .wrap h2, .wrap h3 {
+        letter-spacing: .2px;
+        color: #1f2a55;
+        margin-top: 0;
+    }
+    .wrap h2 { font-size: 22px; }
+    .wrap h3 { font-size: 18px; }
+
+    /* Kartlar arası boşluk iyileştirme */
+    .sigorta-card { border: 1px solid #eef0f6; }
+
+    /* Widefat tablo güzelleştirme (sadece bu sayfada enqueued) */
+    .wrap .widefat {
+        border: 1px solid #e7eaf3;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+    }
+    .wrap .widefat thead th {
+        background: linear-gradient(180deg, #f7f9ff 0%, #eef2ff 100%);
+        color: #2f3a66;
+        border-bottom: 1px solid #e7eaf3;
+        font-weight: 700;
+    }
+    .wrap .widefat tbody tr:nth-child(odd) td { background: #fcfdff; }
+    .wrap .widefat tbody tr:hover td { background: #f4f7ff; }
+
+    /* Buton görünümleri */
+    .wrap .button.button-primary {
+        background: #2f6fef;
+        border-color: #2f6fef;
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(47,111,239,0.28);
+    }
+    .wrap .button.button-primary:hover { filter: brightness(.95); }
+    .wrap .button {
+        border-radius: 8px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .wrap h2, .wrap h3 { color: #fff; }
+    }

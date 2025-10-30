@@ -364,8 +364,8 @@ async function showStep(step) {
 async function firstStep() {
     console.log("first step başladı.");
 
-    var covarageByCompany = await apiGetFetch("coverage-choices:kasko");
-    console.log("covarageByCompany: ", covarageByCompany);
+    // var covarageByCompany = await apiGetFetch("coverage-choices:kasko");
+    // console.log("covarageByCompany: ", covarageByCompany);
     const step1 = document.getElementById("step1");
     const step2 = document.getElementById("step2");
     const step3 = document.getElementById("step3");
@@ -522,6 +522,7 @@ async function firstStep() {
             }
         }
         else {
+
             if (mfaAreaTraffic.style.display === 'block') {
                 if (!mfaCodeTraffic.value) { await showMessage('Lütfen SMS kodunu giriniz.', "success"); return; }
                 try {
@@ -549,11 +550,11 @@ async function firstStep() {
                         localStorage.setItem('state', JSON.stringify(state));
 
                         const me = await apiGetFetch('customers/me');
-                        if (!me) {
+                        if (me) {
                             state.user.custumerId = me.id;
                             state.user.fullName = me.fullName;
+                            customer = me;
                         }
-                        customer = me;
                         localStorage.setItem('state', JSON.stringify(state));
 
                         //

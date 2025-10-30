@@ -67,14 +67,14 @@ window.loadkaskoModule = async function (container) {
             $type: "kasko",
             coverage:null,
             channel: "WEBSITE",
-            coverageGroupIds: null,
+            coverageGroupIds: ["69033fc2760289c8c92b1059"],
             insuredCustomerId: id,
             insurerCustomerId: id,
             productBranch: "Kasko",
             vehicleId: selectedVehicleId
         };
         const proposal = await apiPostFetch("proposals", formData);
-        if (proposal?.status === 200) {
+        if (proposal?.proposalId) {
             await showMessage("Teklif oluşturuldu. ", "success");
             await loadProposalDetails(proposal.proposalId);
         } else {

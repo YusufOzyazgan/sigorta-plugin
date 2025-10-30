@@ -42,6 +42,14 @@ window.loginMenuModule = async function () {
             location.href = siteUrl+"/varliklarim/";
         });
 
+        panelBtn?.addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            dropdown.style.display = 'none';
+            location.href = siteUrl+"/panel/";
+        });
+        
+        
+
         tekliflerimBtn?.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
             dropdown.style.display = 'none';

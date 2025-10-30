@@ -3,7 +3,7 @@
 Plugin Name: Sigorta Plugin
 Description: Sigorta API tabanlı dashboard ve sayfalar.
 Version: 1.0
-Author: Y-B
+Author: WithSolver
 */
 
 if (!defined('ABSPATH'))
@@ -52,6 +52,28 @@ add_action('wp_enqueue_scripts', 'sigorta_enqueue_scripts');
 
 add_action('wp_ajax_sigorta_get_data', 'sigorta_get_data');
 add_action('wp_ajax_nopriv_sigorta_get_data', 'sigorta_get_data');
+
+// Admin sayfasında plugin CSS'ini yükle
+function sigorta_enqueue_admin_assets($hook_suffix)
+{
+    // Sadece eklenti admin sayfasında yükle
+    $is_sigorta_admin = isset($_GET['page']) && $_GET['page'] === 'sigorta-plugin-welcome';
+    if (!$is_sigorta_admin) {
+        return;
+    }
+
+    // Fontlar ve temel CSS gerekirse
+    wp_enqueue_style(
+        'nunito-sans',
+        'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap',
+        array(),
+        null
+    );
+
+    // Plugin genel stilleri (bilgiler listesi tasarımı burada)
+    wp_enqueue_style('sigorta-style', plugin_dir_url(__FILE__) . 'includes/assets/css/styles.css', array(), null);
+}
+add_action('admin_enqueue_scripts', 'sigorta_enqueue_admin_assets');
 
 function sigorta_get_data()
 {
@@ -127,6 +149,9 @@ function sigorta_plugin_render_admin_page()
             #footer-thankyou,
             .wrap .notice,
             .wrap .update-nag { display: none !important; }
+            /* Footer'ı aşağı sabitle ve içerik çakışmasını önle */
+            #wpcontent { padding-bottom: 60px !important; }
+            #wpfooter { position: fixed; left: 0; right: 0; bottom: 0; }
             .sigorta-hero {background: linear-gradient(135deg, #2f6fef 0%, #7aa6ff 100%); color: #fff; border-radius: 14px; padding: 28px; display:flex; align-items:center; justify-content:space-between; gap:24px; box-shadow:0 10px 30px rgba(47,111,239,0.25);}            
             .sigorta-hero h1 { margin: 0; font-size: 26px; }
             .sigorta-hero p { margin: 6px 0 0; opacity: .95; }
@@ -250,6 +275,7 @@ function sigorta_plugin_render_admin_page()
                     <li><strong>Header</strong>/menü bölgesine <code>[user_avatar_dropdown]</code> ekleyerek kullanıcı menüsünü gösterin.</li>
                     <li>Tema <strong>footer</strong>’ına bir kez <code>[warranties_modal]</code> ekleyin.</li>
                 </ol>
+                <hr>
                 <h3>Önerilen Sayfalar</h3>
                 <ul style="margin-top:6px;">
                     <li>Giriş: <code>[tc_phone_login]</code></li>
@@ -258,7 +284,29 @@ function sigorta_plugin_render_admin_page()
                     <li>Tekliflerim/Policelerim: <code>[tekliflerim]</code>, <code>[policelerim]</code></li>
                     <li>Varlıklarım/Hesabım: <code>[varliklarim]</code>, <code>[bilgilerim]</code></li>
                 </ul>
+                <!-- Admin sayfasında sadece kendi ekranında info kutusu göster -->
+                 <hr style="margin-top:15px;">
+                <h2 style="margin-top:30px;">Bilgiler</h2>
+                <ol class="sigorta-plugin-info-list">
+                    <li>
+                        <b>Eklenti, WordPress sitenizde sitenizin seçili yazı tipini (fontunu) otomatik olarak kullanır.</b><br>
+                        Tasarım bütünlüğünü bozmadan, mevcut tema tipografisi ile uyumlu şekilde çalışır. Ekstra bir ayar yapmanıza gerek yoktur.
+                    </li>
+                    <li>
+                        Mobil ve masaüstü uyumludur, responsive tasarım kullanır.
+                    </li>
+                    <li>
+                        Kendi özel tıklama/kopyala kolaylığı ile kısa kodlar bir tıkla kopyalanabilir.
+                    </li>
+                    <li>
+                        Kullandığınız temanın renklerini ve komponentlerini bozmaz, kendi alanında çalışır.
+                    </li>
+                    <li>
+                        Her bir kısa kodu sadece ilgili sayfada bir kez eklemeniz yeterlidir.
+                    </li>
+                </ol>
             </div>
+            
         </div>
 
             <div style="margin-top:24px;">
