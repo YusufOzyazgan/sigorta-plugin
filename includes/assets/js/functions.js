@@ -10,10 +10,8 @@ async function apiGetFetch(endpoint, isRetry = false) {
 
     let state = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')) : null;
     let token = state ? state.token.accessToken : null;
-    if (!token) {
-        await showMessage('Oturum yok. Lütfen giriş yapın.', "warning");
-        return;
-    }
+    if (!token) { return; }
+    
     try {
         const res = await fetch('https://api.insurup.com/api/' + endpoint, {
             method: 'GET',

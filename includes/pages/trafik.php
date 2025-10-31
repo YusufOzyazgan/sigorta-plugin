@@ -40,16 +40,16 @@ function trafik_teklif_form_shortcode()
     <div id="trafikTeklifForm" style="display: flex;" class="container my-5 card shadow p-3">
         
         <!-- Progress Bar -->
-        <div class="d-flex justify-content-between mb-4" id="stepProgress">
-            <div class="step active" data-step="1">
+        <div class="d-flex flex-nowrap flex-row justify-content-between align-items-center mb-4 w-100" id="stepProgress" style="flex-wrap: nowrap !important;">
+            <div class="step active flex-grow-1" data-step="1" style="flex: 1 1 0% !important; min-width: 0;">
                 <div class="step-icon">1</div>
                 <div class="step-label">Kişisel Bilgiler</div>
             </div>
-            <div class="step" data-step="2">
+            <div class="step flex-grow-1" data-step="2" style="flex: 1 1 0% !important; min-width: 0;">
                 <div class="step-icon">2</div>
                 <div class="step-label">Araç Bilgileri</div>
             </div>
-            <div class="step" data-step="3">
+            <div class="step flex-grow-1" data-step="3" style="flex: 1 1 0% !important; min-width: 0;">
                 <div class="step-icon">3</div>
                 <div class="step-label">Teklif Bilgileri</div>
             </div>

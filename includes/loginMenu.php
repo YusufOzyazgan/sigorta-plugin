@@ -36,6 +36,7 @@ function user_avatar_dropdown_shortcode()
                    
                     <a href="#" id="panelBtn"><?php echo call_icon("insurance2", 20, 20, "dashboard") ?> Dashboard</a>
                     <a href="#" id="bilgilerimBtn"><?php echo call_icon("user", 20, 20, "user") ?>  Bilgilerim</a>
+                    <a href="#" id="varliklarimBtn"><?php echo call_icon("home", 20, 20, "home") ?> Varlıklarım</a>
                     <a href="#" id="tekliflerimBtn"><?php echo call_icon("teklifler", 20, 20, "teklifler") ?>  Tekliflerim</a>
                     <a href="#" id="policelerimBtn"><?php echo call_icon("insurance", 20, 20, "user") ?>  Poliçelerim</a>
                     <a href="#" id="logoutBtn">Güvenli Çıkış <?php echo call_icon("logout", 20, 20, "logout"); ?></a>

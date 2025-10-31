@@ -40,7 +40,8 @@ async function createProposal(selectedVehicleId) {
     const formData = {
         $type: "trafik",
         channel: "WEBSITE",
-        coverageGroupIds: null,
+        // coverageGroupIds: ["69033fc2760289c8c92b1059"],
+        coverageGroupIds: ["69033fc2760289c8c92b1059"],
         insuredCustomerId: customer.id,
         insurerCustomerId: customer.id,
         productBranch: "Trafik",

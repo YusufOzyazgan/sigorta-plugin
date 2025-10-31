@@ -20,14 +20,20 @@
 
     #stepProgress {
         margin-bottom: 30px;
-        display: flex;
+        display: flex !important;
+        flex-wrap: nowrap !important;
         gap: 10px;
+        width: 100%;
     }
 
     #stepProgress .step {
         text-align: center;
-        flex: 1;
+        flex: 1 1 auto !important;
+        flex-shrink: 1 !important;
+        flex-basis: 0 !important;
         position: relative;
+        min-width: 0;
+        max-width: 100%;
     }
 
     #stepProgress .step:after {
@@ -65,6 +71,119 @@
 
     #stepProgress .step-label {
         font-size: 0.9rem;
+    }
+
+    /* Responsive tasarım - Step Progress - Bootstrap ile yan yana */
+    /* Tüm ekran boyutlarında yan yana kalması için */
+    @media screen and (max-width: 1400px) {
+        #stepProgress {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            flex-direction: row !important;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        #stepProgress .step {
+            flex: 1 1 0% !important;
+            flex-shrink: 1 !important;
+            flex-basis: 0 !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+        }
+
+        #stepProgress .step:after {
+            right: -30%;
+            width: 60%;
+        }
+
+        #stepProgress .step-icon {
+            width: 24px;
+            height: 24px;
+            line-height: 20px;
+            font-size: 0.75rem;
+            border-width: 1.5px;
+        }
+
+        #stepProgress .step-label {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            line-height: 1.2;
+            word-break: break-word;
+            white-space: normal;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        #stepProgress {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            flex-direction: row !important;
+            gap: 3px;
+            margin-bottom: 15px;
+        }
+
+        #stepProgress .step {
+            flex: 1 1 0% !important;
+            flex-shrink: 1 !important;
+            flex-basis: 0 !important;
+            min-width: 0 !important;
+            max-width: 33.333% !important;
+        }
+
+        #stepProgress .step:after {
+            right: -25%;
+            width: 50%;
+        }
+
+        #stepProgress .step-icon {
+            width: 20px;
+            height: 20px;
+            line-height: 16px;
+            font-size: 0.65rem;
+        }
+
+        #stepProgress .step-label {
+            font-size: 0.65rem;
+            margin-top: 2px;
+            white-space: normal;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        #stepProgress {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            flex-direction: row !important;
+            gap: 2px;
+            margin-bottom: 12px;
+        }
+
+        #stepProgress .step {
+            flex: 1 1 0% !important;
+            flex-shrink: 1 !important;
+            flex-basis: 0 !important;
+            min-width: 0 !important;
+            max-width: 33.333% !important;
+        }
+
+        #stepProgress .step:after {
+            right: -20%;
+            width: 40%;
+        }
+
+        #stepProgress .step-icon {
+            width: 18px;
+            height: 18px;
+            line-height: 14px;
+            font-size: 0.6rem;
+        }
+
+        #stepProgress .step-label {
+            font-size: 0.6rem;
+            margin-top: 1px;
+            white-space: normal;
+        }
     }
 
 

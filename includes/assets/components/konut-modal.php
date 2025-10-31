@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) exit;
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="konutModalLabel">Konut Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button  type="button" class="btn-close bg-light text-dark" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
       <div class="modal-body">
 <?php include plugin_dir_path(dirname(__DIR__)) . 'pages/konut-modal-content.php'; ?>
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) exit;
 
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     // bootstrap-select varsa yeniden başlat
     if (typeof jQuery !== 'undefined' && jQuery.fn.selectpicker) {
         jQuery('.selectpicker').selectpicker('refresh');
