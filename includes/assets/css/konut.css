@@ -89,6 +89,35 @@
         font-size: 0.9rem;
     }
 
+
+/* Tüm select ve bootstrap-select dropdown'larını beyaz tema ile eşitle */
+.bootstrap-select > .dropdown-toggle,
+select,
+select.form-select,
+select.w-100,
+select.form-control {
+    background-color: #fff !important;
+    color: #000 !important;
+    border: 1px solid #ccc !important;
+    border-radius: 5px !important;
+    padding: 6px 10px !important;
+    box-sizing: border-box !important;
+}
+
+/* Dropdown içi yazıları da siyah yap */
+.bootstrap-select .dropdown-menu li a span.text {
+    color: #000 !important;
+}
+
+/* Devre dışı select'ler (disabled) için gri görünüm */
+select:disabled,
+.bootstrap-select.disabled > .dropdown-toggle {
+    background-color: #f5f5f5 !important;
+    color: #777 !important;
+    cursor: not-allowed;
+}
+
+
     /* Responsive: mobilde alt alta düşsün */
     @media (max-width: 768px) {
         #propertyModal .col-md-4 {
