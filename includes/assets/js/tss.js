@@ -16,6 +16,13 @@ window.loadTssModule = async function (container) {
 
         const state = JSON.parse(localStorage.getItem("state")) || {};
         const customerId = state.user?.costumerId || "";
+        if(customerId === ""){
+            const me = await apiGetFetch("customers/me");
+            state.user.costumerId = me.id;
+            localStorage.setItem("state", JSON.stringify(state));
+            customerId = me.id;
+            localStorage.setItem("state", JSON.stringify({ ...state, user: { ...state.user, costumerId: customerId } }));
+        }
 
         const formData = {
             $type: "tss",
@@ -23,9 +30,12 @@ window.loadTssModule = async function (container) {
             productBranch: "TSS",
             insurerCustomerId: customerId,
             insuredCustomerId: customerId,
-            coverageGroupIds: [""],
+            coverageGroupIds: null,
             coverageTable: null,
+            height: document.getElementById("height").value,
+
             channel: "WEBSITE"
+
         };
 
         try {

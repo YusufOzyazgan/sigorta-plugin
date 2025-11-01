@@ -42,7 +42,7 @@ function dask_shortcode()
 
 
 
-    <div id="dask-container">
+    <div id="dask-container" >
         <div class="container my-4">
             <h1 class="text-center mb-4">DASK Sigortası Teklifi Al</h1>
 
@@ -63,6 +63,7 @@ function dask_shortcode()
             </div>
 
             <!-- Step 1 -->
+            
         <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
             
 
@@ -75,10 +76,10 @@ function dask_shortcode()
                 <button class="btn success-button mb-2 btn-sm ms-2" data-bs-toggle="modal" style="width:20%"
                     data-bs-target="#konutModal">Konut Ekle</button>
                 <div id="propertiesList" class="row g-3 mb-3"></div>
-                <div class="d-flex justify-content-between mt-3">
-                    <button type="button" class="btn warning-button" id="backStep2">Geri</button>
-                    <button type="button" class="btn primary-button" id="nextStep2">Teklif Al</button>
-                </div>
+                <div class="mt-3 d-flex flex-column flex-md-row justify-content-between gap-2">
+                        <button type="button" class="btn warning-button flex-grow-1 flex-md-grow-0" id="backStep2" style="white-space: nowrap;">Geri</button>
+                        <button type="submit" class="btn primary-button flex-grow-1 flex-md-grow-0" id="nextStep2" style="white-space: nowrap;">İlerle</button>
+                    </div>
             </div>
 
             <!-- Step 3 -->

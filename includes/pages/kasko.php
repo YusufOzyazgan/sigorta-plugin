@@ -63,11 +63,11 @@ function kasko_teklif_form_shortcode()
 
             <!-- Step 2 -->
             <div id="step2" class="d-none p-3">
-                <div class="d-flex mb-3 justify-content-between">
-                    <h3>Araçlarınız</h3>
-                    <div>
-                        <button id="backStepBtn" class="warning-button btn-sm me-2">Geri</button>
-                        <button id="addVehicleBtn" class="success-button btn-sm">Araç Ekle</button>
+                <div class="d-flex flex-column flex-md-row mb-3 justify-content-between align-items-start align-items-md-center gap-2">
+                    <h3 class="mb-0" style="white-space: nowrap;">Araçlarınız</h3>
+                    <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-md-end">
+                        <button id="backStepBtn" class="btn warning-button btn-sm flex-grow-1 flex-md-grow-0" style="white-space: nowrap;">Geri</button>
+                        <button id="addVehicleBtn" class="btn success-button btn-sm flex-grow-1 flex-md-grow-0" style="white-space: nowrap;">Araç Ekle</button>
                     </div>
                 </div>
                 <hr>

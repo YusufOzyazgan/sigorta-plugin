@@ -212,80 +212,195 @@ async function initiatePurchase(proposalId, productId) {
 async function loadProposalDetails(proposalId) {
     let offerResults = document.getElementById("offerResults");
     let loadingResults = document.getElementById("loadingResults");
+    
+    // Mesaj zamanlayıcısı için değişken
+    let messageInterval = null;
+    
+    // İlk yükleme mesajı
+    const initialMessage = "🚀 Sigorta teklifleriniz için hazırlık yapıyoruz...";
     loadingResults.innerHTML = `
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Yükleniyor...</span>
-                    </div>
-                    
-                    <p class="mt-2">Teklifler hazırlanıyor...</p>
-                </div>
-            `;
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Yükleniyor...</span>
+            </div>
+            <p class="mt-3 mb-2" id="loadingMessage" style="font-size: 1.1rem; margin:20px; font-weight: 500; color:rgb(253, 177, 13);">
+                ${initialMessage}
+            </p>
+            <p class="text-muted small mb-3">Teklifler hazırlanıyor...</p>
+            <div class="progress mt-2" style="height: 28px; border-radius: 15px;">
+                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" 
+                     style="width: 0%; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; justify-content: center;">0%</div>
+            </div>
+        </div>
+    `;
 
     try {
         let response = await apiGetFetch("proposals/" + proposalId);
         let products = response.products;
 
-        // WAITING durumundaki ürünler için bekle
-        let waitedCount = products.filter(p => p.state === "WAITING").length;
-        let requestCount = 0;
-
-        var activeProducts = products.filter(p => p.state === "ACTIVE");
+        // Toplam ürün sayısını al
+        const totalProductsCount = products.length;
         
-        while (waitedCount > 0 && requestCount < 35) {
-            
-            var oldActiveProductCount = activeProducts.length;
-
-            console.log("aktif ürün sayısı = ", activeProducts.length, "\nBekleyen ürün sayısı = ", waitedCount, "\nYapılan İstek Sayısı = ", requestCount);
-            await new Promise(resolve => setTimeout(resolve, 4000));
-            response = await apiGetFetch("proposals/" + proposalId);
-            products = response.products;
-            waitedCount = products.filter(p => p.state === "WAITING").length;
-            requestCount++;
-
-            activeProducts = products.filter(p => p.state === "ACTIVE");
-
-
-            loadingResults.innerHTML = `
-            <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Yükleniyor...</span>
-            </div>
-            <p class="mt-2">Teklifler hazırlanıyor... </p>
-            </div>
-            `;
-            
-            if (activeProducts.length > oldActiveProductCount && activeProducts.length > 0) {
-                offerResults.innerHTML = "";
-                await renderProposalResults(activeProducts, proposalId);
-            }
-        }
-
-        // ACTIVE durumundaki ürünleri filtrele
-
-        if (activeProducts.length === 0) {
+        if (totalProductsCount === 0) {
             loadingResults.innerHTML = "";
             offerResults.innerHTML = `
-                        <div class="alert alert-warning text-center">
-                            <h5>Üzgünüz!</h5>
-                            <p>Maalesef bu araç için uygun teklif bulunamadı. Lütfen farklı bir araç deneyin.</p>
-                        </div>
-                    `;
+                <div class="alert alert-warning text-center">
+                    <h5>Üzgünüz!</h5>
+                    <p>Maalesef bu araç için uygun teklif bulunamadı. Lütfen farklı bir araç deneyin.</p>
+                </div>
+            `;
             return;
         }
 
-        // Loading'i temizle
+        // WAITING olmayan ürünleri say ve yüzdeyi hesapla
+        function getCompletedProducts(products) {
+            return products.filter(p => p.state !== "WAITING");
+        }
+
+        function calculatePercentage(completedCount, totalCount) {
+            return Math.round((completedCount / totalCount) * 100);
+        }
+
+        function updateProgressBar(percentage) {
+            const progressBar = document.getElementById("progressBar");
+            if (progressBar) {
+                progressBar.style.width = percentage + "%";
+                progressBar.textContent = percentage + "%";
+            }
+        }
+
+        // Sigorta ile ilgili dikkat çekici mesajlar - Her 5 saniyede bir değişir
+        const messages = [
+            "Türkiye'de her 5 araçtan 1'inin kaskosu yok, peki ya sizin aracınız?",
+            "Bir sigorta poliçesi, saniyede 3 kişinin hayatını kolaylaştırıyor.",
+            "Dünyada ilk sigorta, milattan önce 1750 yılında yapılmıştı!",
+            "Bir evin ortalama onarım masrafı, yıllık konut sigortası priminin 12 katı.",
+            "Kasko sahibi sürücüler, hasar sonrası ortalama 9 kat daha az maddi kayıp yaşıyor.",
+            "Her 2 kazadan 1'i evden 5 kilometre uzaklıkta oluyor.",
+            "Deprem sigortası olan konut sayısı, son 5 yılda iki kat arttı.",
+            "Dünyanın en pahalı sigortası, bir futbolcunun bacakları için yapıldı!",
+            "Sigorta yaptıranların %82'si, ilk hasar sonrası poliçesinin önemini fark ettiğini söylüyor.",
+            "Küçük bir primle büyük bir felaketi önlemek mümkün!",
+            "Her 10 kişiden 7'si, sigorta yaptırmadığı için beklenmedik masraflarla karşılaşıyor.",
+            "Bir sağlık sigortası, ortalama 3 hastane faturası kadar tasarruf sağlıyor.",
+            "Sigortasız araçların kazalarda oluşturduğu zarar, yıllık 2 milyar TL'yi geçiyor.",
+            "Ev kazaları, tüm kazaların %40'ını oluşturuyor. Konut sigortası fark yaratır.",
+            "Bir sel felaketinde ortalama hasar maliyeti 150.000 TL'yi bulabiliyor.",
+            "Yapay zekâ destekli sigortalar artık hasar tespitini dakikalar içinde yapıyor.",
+            "DASK, bugüne kadar 500 binden fazla konuta ödeme yaptı.",
+            "Bir poliçe iptali, beklenmedik bir olayda 10 yıllık birikimi silebilir.",
+            "Sigorta yaptırmak, geleceğe duyulan güvenin en somut hâlidir.",
+            "Dünyada her saniye 45 sigorta poliçesi düzenleniyor!"
+        ];
+
+        // Mesaj indeksi - her 5 saniyede bir artacak
+        let messageIndex = 0;
+
+        // Mesajı güncelleme fonksiyonu
+        function updateLoadingMessage() {
+            const loadingMessageEl = document.getElementById("loadingMessage");
+            if (loadingMessageEl) {
+                loadingMessageEl.textContent = messages[messageIndex % messages.length];
+                messageIndex++;
+            }
+        }
+
+        // Mesajları 5 saniyede bir değiştiren zamanlayıcıyı başlat
+        messageInterval = setInterval(updateLoadingMessage, 5000);
+
+        let requestCount = 0;
+        let completedProducts = getCompletedProducts(products);
+        let percentage = calculatePercentage(completedProducts.length, totalProductsCount);
+        updateProgressBar(percentage);
+
+        console.log(`Toplam ürün: ${totalProductsCount}, Tamamlanan: ${completedProducts.length}, Yüzde: ${percentage}%`);
+
+        // WAITING olan ürünler varsa ve maksimum istek sayısına ulaşmadıysak bekle
+        while (percentage < 100 && requestCount < 35) {
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            
+            response = await apiGetFetch("proposals/" + proposalId);
+            products = response.products;
+            requestCount++;
+
+            completedProducts = getCompletedProducts(products);
+            percentage = calculatePercentage(completedProducts.length, totalProductsCount);
+            updateProgressBar(percentage);
+
+            console.log(`Tamamlanan: ${completedProducts.length}/${totalProductsCount}, Yüzde: ${percentage}%, İstek: ${requestCount}`);
+
+            // Progress bar'ı güncelle (mesaj zamanlayıcı tarafından otomatik güncelleniyor)
+            const currentMessage = messages[messageIndex % messages.length];
+            loadingResults.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3 my-4" id="loadingMessage" style="margin:20px; font-size: 1.1rem; font-weight: 500; color:rgb(253, 177, 13); min-height: 2rem;">
+                        ${currentMessage}
+                    </p>
+                   
+                    <div class="progress mt-2" style="height: 28px; border-radius: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: ${percentage}%; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; background: linear-gradient(45deg, #0d6efd, #0a58ca);">${percentage}%</div>
+                    </div>
+                    ${percentage >= 90 ? '<p class="mt-3 text-success"><strong>🎉 Neredeyse tamamlandı!</strong></p>' : ''}
+                </div>
+            `;
+        }
+
+        // Zamanlayıcıyı temizle
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
+
+        // Sadece %100 olduğunda veya maksimum istek sayısına ulaşıldığında ürünleri göster
+        const finalActiveProducts = products.filter(p => p.state === "ACTIVE");
+
+        if (finalActiveProducts.length === 0) {
+            // Zamanlayıcıyı temizle
+            if (messageInterval) {
+                clearInterval(messageInterval);
+                messageInterval = null;
+            }
+            loadingResults.innerHTML = "";
+            offerResults.innerHTML = `
+                <div class="alert alert-warning text-center">
+                    <h5>Üzgünüz!</h5>
+                    <p>Maalesef bu araç için uygun teklif bulunamadı. Lütfen farklı bir araç deneyin.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Zamanlayıcıyı temizle (başarılı tamamlanma)
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
+
+        // Loading'i temizle ve sonuçları göster
         loadingResults.innerHTML = "";
+        offerResults.innerHTML = "";
+        await renderProposalResults(finalActiveProducts, proposalId);
 
     } catch (error) {
+        // Hata durumunda zamanlayıcıyı temizle
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
         console.error(error);
         loadingResults.innerHTML = "";
         offerResults.innerHTML = `
-                    <div class="alert alert-danger text-center">
-                        <h5>Hata!</h5>
-                        <p>Teklifler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</p>
-                    </div>
-                `;
+            <div class="alert alert-danger text-center">
+                <h5>Hata!</h5>
+                <p>Teklifler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</p>
+            </div>
+        `;
     }
 }
 

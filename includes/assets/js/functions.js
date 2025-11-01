@@ -2,6 +2,105 @@
 
 
 
+// Hata kontrol ve mesaj gösterme fonksiyonu
+async function handleApiError(response) {
+    try {
+        const errorData = await response.json().catch(() => ({}));
+        const status = response.status;
+        let errorMessage = '';
+        
+        // 400 Bad Request - Özel hata yapısı
+        if (status === 400) {
+            if (errorData.detail) {
+                errorMessage = errorData.detail;
+            } else if (errorData.title) {
+                errorMessage = errorData.title;
+            } else if (errorData.codes && errorData.codes.length > 0) {
+                errorMessage = errorData.codes.join(', ');
+            } else if (errorData.validationErrors) {
+                const validationMessages = Object.entries(errorData.validationErrors)
+                    .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+                    .join('\n');
+                errorMessage = validationMessages || 'Doğrulama hatası oluştu.';
+            } else {
+                errorMessage = 'Geçersiz istek. Lütfen girdiğiniz bilgileri kontrol edin.';
+            }
+        }
+        // 422 Unprocessable Entity - Özel hata yapısı
+        else if (status === 422) {
+            if (errorData.detail) {
+                errorMessage = errorData.detail;
+            } else if (errorData.validationErrors) {
+                const validationMessages = Object.entries(errorData.validationErrors)
+                    .map(([field, errors]) => {
+                        const fieldName = field.replace(/([A-Z])/g, ' $1').trim();
+                        const errorText = Array.isArray(errors) ? errors.join(', ') : errors;
+                        return `${fieldName}: ${errorText}`;
+                    })
+                    .join('\n');
+                errorMessage = validationMessages || 'Girilen bilgiler geçersiz.';
+            } else if (errorData.title) {
+                errorMessage = errorData.title;
+            } else if (errorData.codes && errorData.codes.length > 0) {
+                errorMessage = errorData.codes.join(', ');
+            } else {
+                errorMessage = 'İşlenemeyen veri. Lütfen girdiğiniz bilgileri kontrol edin.';
+            }
+        }
+        // 401 Unauthorized
+        else if (status === 401) {
+            errorMessage = 'Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.';
+        }
+        // 403 Forbidden
+        else if (status === 403) {
+            errorMessage = errorData.detail || errorData.title || 'Bu işlem için yetkiniz bulunmamaktadır.';
+        }
+        // 404 Not Found
+        else if (status === 404) {
+            errorMessage = errorData.detail || errorData.title || 'İstenen kaynak bulunamadı.';
+        }
+        // 409 Conflict
+        else if (status === 409) {
+            errorMessage = errorData.detail || errorData.title || 'Bu işlem çakışma yaratıyor. Lütfen tekrar deneyin.';
+        }
+        // 500 Internal Server Error
+        else if (status === 500) {
+            errorMessage = errorData.detail || errorData.title || 'Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.';
+        }
+        // 502 Bad Gateway
+        else if (status === 502) {
+            errorMessage = 'Sunucu bağlantı hatası. Lütfen daha sonra tekrar deneyin.';
+        }
+        // 503 Service Unavailable
+        else if (status === 503) {
+            errorMessage = 'Servis şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.';
+        }
+        // Diğer hatalar için genel mesaj
+        else {
+            errorMessage = errorData.detail || errorData.title || errorData.message || `Bir hata oluştu (${status}). Lütfen tekrar deneyin.`;
+        }
+        
+        // Hata mesajını göster
+        await showMessage(errorMessage, 'error', 10);
+        
+        // Console'a detaylı hata bilgisi yaz
+        console.error('API Hatası:', {
+            status: status,
+            statusText: response.statusText,
+            errorData: errorData,
+            traceId: errorData.traceId,
+            instance: errorData.instance
+        });
+        
+        return errorData;
+    } catch (parseError) {
+        // JSON parse hatası durumunda
+        const fallbackMessage = `Sunucu hatası (${response.status}). Lütfen daha sonra tekrar deneyin.`;
+        await showMessage(fallbackMessage, 'error', 10);
+        console.error('Response parse hatası:', parseError);
+        return null;
+    }
+}
 
 //Requests
 async function apiGetFetch(endpoint, isRetry = false) {
@@ -36,8 +135,8 @@ async function apiGetFetch(endpoint, isRetry = false) {
             }
         }
         if (!res.ok) {
-            await showMessage('API Hatası: ' + res.status, "error");
-            return
+            await handleApiError(res);
+            return null;
         }
         return await res.json();
     } catch (err) {
@@ -84,9 +183,8 @@ async function apiPostFetch(endpoint, data, isRetry = false) {
             }
         }
         if (!res.ok) {
-
-            await showMessage('API Hatası: ' + res.status, "error");
-            return
+            await handleApiError(res);
+            return null;
         }
         return await res.json();
     } catch (err) {
@@ -135,13 +233,13 @@ async function apiPutFetch(endpoint, data, isRetry = false) {
             }
         }
         if (!res.ok) {
-            await showMessage('API Hatası: ' + res.status, "error");
-            return
+            await handleApiError(res);
+            return null;
         }
 
         return true;
     } catch (err) {
-        alert(err.message);
+       
         return null;
     }
 }

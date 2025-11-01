@@ -124,8 +124,12 @@ window.loadKonutModule = async function (container) {
             coverageGroupIds: null,
             insuredCustomerId: customerId,
             insurerCustomerId: customerId,
-            productBranch: "Konut",
-            propertyId: propertyId
+            productBranch: "KONUT",
+            propertyId: propertyId,
+            electronicDevicePrice: 0,
+            furniturePrice: 0,
+            insulationPrice: 0,
+            windowPrice: 0,
         };
 
         try {
@@ -134,8 +138,9 @@ window.loadKonutModule = async function (container) {
                 showStep(step3);
                 await loadProposalDetails(proposal.proposalId);
             } else {
-                alert("Teklif oluşturulamadı!");
+              return;
             }
+
         } catch (err) {
             console.error(err);
             alert("Teklif alınamadı!");
@@ -143,85 +148,85 @@ window.loadKonutModule = async function (container) {
     });
 
     // --- Teklif detaylarını yükleme ---
-    async function loadProposalDetails(proposalId) {
-        const offerResults = container.querySelector("#offerResults");
-        offerResults.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div><p class="mt-2">Teklifler hazırlanıyor...</p></div>`;
+    // async function loadProposalDetails(proposalId) {
+    //     const offerResults = container.querySelector("#offerResults");
+    //     offerResults.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div><p class="mt-2">Teklifler hazırlanıyor...</p></div>`;
 
-        try {
-            let response = await apiGetFetch("proposals/" + proposalId);
-            let products = response.products;
+    //     try {
+    //         let response = await apiGetFetch("proposals/" + proposalId);
+    //         let products = response.products;
 
-            let waitedCount = products.filter(p => p.state === "WAITING").length;
-            let requestCount = 0;
+    //         let waitedCount = products.filter(p => p.state === "WAITING").length;
+    //         let requestCount = 0;
 
-            while (waitedCount > 2 && requestCount < 10) {
-                await new Promise(r => setTimeout(r, 2000));
-                response = await apiGetFetch("proposals/" + proposalId);
-                products = response.products;
-                waitedCount = products.filter(p => p.state === "WAITING").length;
-                requestCount++;
+    //         while (waitedCount > 2 && requestCount < 10) {
+    //             await new Promise(r => setTimeout(r, 2000));
+    //             response = await apiGetFetch("proposals/" + proposalId);
+    //             products = response.products;
+    //             waitedCount = products.filter(p => p.state === "WAITING").length;
+    //             requestCount++;
 
-                offerResults.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div><p class="mt-2">Teklifler hazırlanıyor... (${requestCount}/10)</p></div>`;
-            }
+    //             offerResults.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div><p class="mt-2">Teklifler hazırlanıyor... (${requestCount}/10)</p></div>`;
+    //         }
 
-            const activeProducts = products.filter(p => p.state === "ACTIVE");
-            if (!activeProducts.length) {
-                offerResults.innerHTML = `<div class="alert alert-warning text-center"><h5>Üzgünüz!</h5><p>Maalesef bu konut için uygun teklif bulunamadı.</p></div>`;
-                return;
-            }
+    //         const activeProducts = products.filter(p => p.state === "ACTIVE");
+    //         if (!activeProducts.length) {
+    //             offerResults.innerHTML = `<div class="alert alert-warning text-center"><h5>Üzgünüz!</h5><p>Maalesef bu konut için uygun teklif bulunamadı.</p></div>`;
+    //             return;
+    //         }
 
-            renderProposalResults(activeProducts);
+    //         renderProposalResults(activeProducts);
 
-        } catch (err) {
-            console.error(err);
-            offerResults.innerHTML = `<div class="alert alert-danger text-center"><h5>Hata!</h5><p>Teklifler yüklenirken bir hata oluştu.</p></div>`;
-        }
-    }
+    //     } catch (err) {
+    //         console.error(err);
+    //         offerResults.innerHTML = `<div class="alert alert-danger text-center"><h5>Hata!</h5><p>Teklifler yüklenirken bir hata oluştu.</p></div>`;
+    //     }
+    // }
 
     // --- Teklifleri render et ---
-    function renderProposalResults(products) {
-        const offerResults = container.querySelector("#offerResults");
-        let html = `<div class="mb-4"><h5 class="text-success">🎉 ${products.length} Adet Teklif Bulundu!</h5><p class="text-muted">Size en uygun konut sigortası tekliflerini karşılaştırın.</p></div><div class="row g-4">`;
+    // function renderProposalResults(products) {
+    //     const offerResults = container.querySelector("#offerResults");
+    //     let html = `<div class="mb-4"><h5 class="text-success">🎉 ${products.length} Adet Teklif Bulundu!</h5><p class="text-muted">Size en uygun konut sigortası tekliflerini karşılaştırın.</p></div><div class="row g-4">`;
 
-        products.forEach(p => {
-            const address = p.warranties
-                ? p.warranties.map(w => `<li class="mb-1"><i class="fas fa-check text-success me-2"></i>${w}</li>`).join('')
-                : '<li>Teminat bilgisi bulunamadı</li>';
-            html += `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm"><div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <img style="width:60px;height:40px;object-fit:contain;" src="${p.insuranceCompanyLogo || ''}" alt="${p.insuranceCompanyName} Logo" class="company-logo">
-                    <span class="badge bg-primary">${p.insuranceCompanyName}</span>
-                </div>
-                <h6 class="card-title">${p.insuranceCompanyName}</h6>
-                <p class="card-text text-muted small">Teklif No: ${p.offerNo || 'N/A'}</p>
-                <div class="text-center mb-3"><h4 class="text-primary mb-1">${p.premiums?.totalPremium || 'Fiyat bilgisi yok'} ₺</h4><small class="text-muted">${p.taxesIncluded ? 'Vergiler Dahil' : 'Vergiler Hariç'}</small></div>
-                <div class="mb-3"><span class="badge bg-success">${p.paymentType || 'Peşin'}</span></div>
-                <div class="d-grid gap-2">
-                    <a class="toggle-warranties text-decoration-none text-primary small" 
-                            data-product-id="${p.id}" 
-                            data-proposal-id="${proposalId}"
-                            style="cursor: pointer; font-size: 0.8rem;">Teminatları Gör</a>
-                    <button class="btn btn-primary">Satın Al</button>
-                </div>
-            </div></div></div>`;
-        });
+    //     products.forEach(p => {
+    //         const address = p.warranties
+    //             ? p.warranties.map(w => `<li class="mb-1"><i class="fas fa-check text-success me-2"></i>${w}</li>`).join('')
+    //             : '<li>Teminat bilgisi bulunamadı</li>';
+    //         html += `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm"><div class="card-body">
+    //             <div class="d-flex justify-content-between align-items-center mb-3">
+    //                 <img style="width:60px;height:40px;object-fit:contain;" src="${p.insuranceCompanyLogo || ''}" alt="${p.insuranceCompanyName} Logo" class="company-logo">
+    //                 <span class="badge bg-primary">${p.insuranceCompanyName}</span>
+    //             </div>
+    //             <h6 class="card-title">${p.insuranceCompanyName}</h6>
+    //             <p class="card-text text-muted small">Teklif No: ${p.offerNo || 'N/A'}</p>
+    //             <div class="text-center mb-3"><h4 class="text-primary mb-1">${p.premiums?.totalPremium || 'Fiyat bilgisi yok'} ₺</h4><small class="text-muted">${p.taxesIncluded ? 'Vergiler Dahil' : 'Vergiler Hariç'}</small></div>
+    //             <div class="mb-3"><span class="badge bg-success">${p.paymentType || 'Peşin'}</span></div>
+    //             <div class="d-grid gap-2">
+    //                 <a class="toggle-warranties text-decoration-none text-primary small" 
+    //                         data-product-id="${p.id}" 
+    //                         data-proposal-id="${proposalId}"
+    //                         style="cursor: pointer; font-size: 0.8rem;">Teminatları Gör</a>
+    //                 <button class="btn btn-primary">Satın Al</button>
+    //             </div>
+    //         </div></div></div>`;
+    //     });
 
-        html += `</div><div class="mt-5 pt-4 border-top"><h5 class="mb-3">Konut Sigortası Hakkında</h5><p class="text-muted">Konut sigortası, evinizi doğal afetler, hırsızlık, yangın gibi risklere karşı korur. Yukarıdaki tekliflerden size uygun olanı seçerek hemen satın alabilirsiniz.</p></div>`;
-        offerResults.innerHTML = html;
+    //     html += `</div><div class="mt-5 pt-4 border-top"><h5 class="mb-3">Konut Sigortası Hakkında</h5><p class="text-muted">Konut sigortası, evinizi doğal afetler, hırsızlık, yangın gibi risklere karşı korur. Yukarıdaki tekliflerden size uygun olanı seçerek hemen satın alabilirsiniz.</p></div>`;
+    //     offerResults.innerHTML = html;
 
-        container.querySelectorAll('.toggle-warranties').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const productId = this.getAttribute('data-product-id');
-                const proposalId = this.getAttribute('data-proposal-id');
+    //     container.querySelectorAll('.toggle-warranties').forEach(btn => {
+    //         btn.addEventListener('click', function () {
+    //             const productId = this.getAttribute('data-product-id');
+    //             const proposalId = this.getAttribute('data-proposal-id');
                 
-                if (window.showWarrantiesModal) {
-                    window.showWarrantiesModal(proposalId, productId);
-                } else {
-                    console.error('showWarrantiesModal fonksiyonu bulunamadı!');
-                }
-            });
-        });
-    }
+    //             if (window.showWarrantiesModal) {
+    //                 window.showWarrantiesModal(proposalId, productId);
+    //             } else {
+    //                 console.error('showWarrantiesModal fonksiyonu bulunamadı!');
+    //             }
+    //         });
+    //     });
+    // }
 
     // --- Modal açıldığında şehir dropdownlarını yükle ---
     $('#konutModal').on('shown.bs.modal', async function () {

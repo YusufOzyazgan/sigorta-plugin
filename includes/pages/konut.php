@@ -47,9 +47,9 @@ function konut_shortcode()
 {
     ob_start(); ?>
 
-    <div id="konut-container">
+    <h1 class="text-center mb-4">Konut Sigortası Teklifi Al</h1>
+    <div id="konut-container" style="display: flex;" class="container my-5 card shadow p-3">
         <div class="container my-4">
-            <h1 class="text-center mb-4">Konut Sigortası Teklifi Al</h1>
 
             <!-- Progress Bar -->
             <div class="d-flex justify-content-between mb-4" id="stepProgress">
@@ -71,7 +71,7 @@ function konut_shortcode()
             <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
 
             <!-- Step 2 -->
-            <div class="card shadow p-4 mb-4 step-card d-none" id="step2">
+            <div class="d-none" id="step2">
                 <div id="propertyAlert" class="alert alert-warning d-none">
                     Henüz konut eklenmemiş. Lütfen "Konut Ekle" butonuna tıklayın.
                 </div>
@@ -81,7 +81,7 @@ function konut_shortcode()
                         style="width:20%"
                         data-bs-toggle="modal"
                         data-bs-target="#konutModal">
-                    Konut Ekle
+                    <span style="white-space: nowrap;">Konut Ekle</span>
                 </button>
 
                 <div id="propertiesList" class="row g-3 mb-3"></div>

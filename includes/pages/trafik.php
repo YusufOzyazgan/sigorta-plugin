@@ -37,36 +37,36 @@ function trafik_teklif_form_shortcode()
     
     
     
-    <div id="trafikTeklifForm" style="display: flex;" class="container my-5 card shadow p-3">
-        
-        <!-- Progress Bar -->
-        <div class="d-flex flex-nowrap flex-row justify-content-between align-items-center mb-4 w-100" id="stepProgress" style="flex-wrap: nowrap !important;">
-            <div class="step active flex-grow-1" data-step="1" style="flex: 1 1 0% !important; min-width: 0;">
-                <div class="step-icon">1</div>
-                <div class="step-label">Kişisel Bilgiler</div>
-            </div>
-            <div class="step flex-grow-1" data-step="2" style="flex: 1 1 0% !important; min-width: 0;">
-                <div class="step-icon">2</div>
-                <div class="step-label">Araç Bilgileri</div>
-            </div>
-            <div class="step flex-grow-1" data-step="3" style="flex: 1 1 0% !important; min-width: 0;">
-                <div class="step-icon">3</div>
-                <div class="step-label">Teklif Bilgileri</div>
-            </div>
-            
+    
+    <!-- Progress Bar -->
+    <div class="d-flex flex-nowrap flex-row justify-content-between align-items-center mb-4 w-100" id="stepProgress" style="flex-wrap: nowrap !important;">
+        <div class="step active flex-grow-1" data-step="1" style="flex: 1 1 0% !important; min-width: 0;">
+            <div class="step-icon">1</div>
+            <div class="step-label">Kişisel Bilgiler</div>
+        </div>
+        <div class="step flex-grow-1" data-step="2" style="flex: 1 1 0% !important; min-width: 0;">
+            <div class="step-icon">2</div>
+            <div class="step-label">Araç Bilgileri</div>
+        </div>
+        <div class="step flex-grow-1" data-step="3" style="flex: 1 1 0% !important; min-width: 0;">
+            <div class="step-icon">3</div>
+            <div class="step-label">Teklif Bilgileri</div>
         </div>
         
+    </div>
+    
+    <div id="trafikTeklifForm" style="display: flex;" class="container my-5 card shadow p-3">
         <!-- Step 1 -->
         
         <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
         
         <!-- Step 2 -->
         <div id="step2" class="d-none p-3">
-            <div class="d-flex mb-3 justify-content-between">
-                <h3>Araçlarınız</h3>
-                <div>
-                    <button id="backStepBtn" class="btn warning-button btn-sm me-2">Geri</button>
-                    <button id="addVehicleBtn" class="btn success-button btn-sm">Araç Ekle</button>
+            <div class="d-flex flex-column flex-md-row mb-3 justify-content-between align-items-start align-items-md-center gap-2">
+                <h3 class="mb-0" style="white-space: nowrap;">Araçlarınız</h3>
+                <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-md-end">
+                    <button id="backStepBtn" class="btn warning-button btn-sm flex-grow-1 flex-md-grow-0" style="white-space: nowrap;">Geri</button>
+                    <button id="addVehicleBtn" class="btn success-button btn-sm flex-grow-1 flex-md-grow-0" style="white-space: nowrap;">Araç Ekle</button>
                 </div>
             </div>
             <hr>

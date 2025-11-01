@@ -61,9 +61,9 @@ function tss_form_shortcode()
                         <div class="col-md-6"><label>Kilo (kg)</label><input type="number" class="form-control" id="weight"
                                 required></div>
                     </div>
-                    <div class="mt-3 d-flex justify-content-between">
-                        <button type="button" class="btn warning-button" id="backStepTss">Geri</button>
-                        <button type="submit" class="btn primary-button" id="nextStep2">İlerle</button>
+                    <div class="mt-3 d-flex flex-column flex-md-row justify-content-between gap-2">
+                        <button type="button" class="btn warning-button flex-grow-1 flex-md-grow-0" id="backStepTss" style="white-space: nowrap;">Geri</button>
+                        <button type="submit" class="btn primary-button flex-grow-1 flex-md-grow-0" id="nextStep2" style="white-space: nowrap;">İlerle</button>
                     </div>
                 </form>
             </div>
