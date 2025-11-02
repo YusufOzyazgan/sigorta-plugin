@@ -68,7 +68,7 @@ function konut_shortcode()
             </div>
 
             <!-- Step 1 -->
-            <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
+            <?php include dirname(__DIR__) . '/assets/components/personalForm.php'; ?>
 
             <!-- Step 2 -->
             <div class="d-none" id="step2">
@@ -97,7 +97,7 @@ function konut_shortcode()
             </div>
 
             <!-- KONUT MODAL (Component olarak dahil edildi) -->
-            <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/konut-modal.php'; ?>
+            <?php include dirname(__DIR__) . '/assets/components/konut-modal.php'; ?>
 
             <!-- Bildirim Alanı -->
             <div id="notif"

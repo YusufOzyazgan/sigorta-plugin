@@ -16,7 +16,7 @@ function varliklarim_enqueue_scripts()
     // icon path’i JS’e gönder
     wp_localize_script('varliklarim-js', 'varliklarimIcons', [
         'home' => plugin_dir_url(dirname(__FILE__)) . 'assets/icons/home.svg',
-        'car' => plugin_dir_url(dirname(__FILE__)) . 'assets/icons/carColored.svg'
+        'car' => plugin_dir_url(dirname(__FILE__)) . 'assets/icons/car.svg'
     ]);
 
 }
@@ -38,7 +38,7 @@ function varliklarim_shortcode()
     ?>
 
     <div id="varliklarim-container">
-        <h2>Varlıklarım <button id="addVarlikBtn" class="btn success-button shadow-sm border-1 mb-1">Yeni
+        <h2 >Varlıklarım <button id="addVarlikBtn" class="btn btn-primary shadow-sm border-1 mb-1">Yeni
                 Varlık Ekle</button> </h2>
         <hr>
         <div id="varliklarimModule"></div>
@@ -47,17 +47,24 @@ function varliklarim_shortcode()
         <div id="varlikEkleModal"
             style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999; overflow:auto;">
             <div style="background:#fff; width:600px; max-width:90%; border-radius:10px; padding:20px; position:relative;">
-                <h3>Yeni Varlık Ekle</h3>
-                <!-- <button id="closeVarlikModal" style="position:absolute; top:10px; right:10px;">✖</button> -->
+                <h3 class="text-center">Yeni Varlık Ekle</h3>
                 <button type="button" class="btn-close bg-light text-dark position-absolute top-0 end-0 m-3"
                     aria-label="Close" onclick="document.getElementById('varlikEkleModal').style.display='none'">
                 </button>
 
-                <div style="display:flex; gap:20px; margin-top:20px; justify-content:center;">
-                    <button id="selectVehicle" class="btn btn-primary bg-primary">Araç</button>
-                    <button type="button" id="selectProperty" class="btn btn-success bg-success" data-bs-toggle="modal"
-                        data-bs-target="#konutModal">
-                        Mülk</button>
+                <div class="varlik-cards-container" style="display:flex; gap:20px; margin-top:20px; justify-content:center; flex-wrap: wrap;">
+                    <div class="varlik-card" id="selectVehicle">
+                        <div class="varlik-icon">
+                            <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/icons/car.svg'; ?>" alt="Araç" />
+                        </div>
+                        <h4 class="varlik-title">Araç</h4>
+                    </div>
+                    <div class="varlik-card" id="selectProperty" data-bs-toggle="modal" data-bs-target="#konutModal">
+                        <div class="varlik-icon">
+                            <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/icons/home.svg'; ?>" alt="Mülk" />
+                        </div>
+                        <h4 class="varlik-title">Mülk</h4>
+                    </div>
                 </div>
             </div>
         </div>

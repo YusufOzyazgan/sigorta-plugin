@@ -64,7 +64,7 @@ function dask_shortcode()
 
             <!-- Step 1 -->
             
-        <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
+        <?php include dirname(__DIR__) . '/assets/components/personalForm.php'; ?>
             
 
             <!-- Step 2 -->
@@ -96,7 +96,7 @@ function dask_shortcode()
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <?php include plugin_dir_path(__FILE__) . 'konut-modal-content.php'; ?>
+                            <?php include __DIR__ . '/konut-modal-content.php'; ?>
                         </div>
                     </div>
                 </div>

@@ -17,9 +17,15 @@ function trafik_enqueue_scripts()
         '1.0.0',
         true
     );
-    // icon path’i JS’e gönder
+    // icon path'i JS'e gönder
     wp_localize_script('trafik-js', 'traficIcons', [
         'car' => plugin_dir_url(dirname(__FILE__)) . 'assets/icons/car.svg'
+    ]);
+    
+    // AJAX URL ve nonce ekle
+    wp_localize_script('trafik-js', 'sigortaAjax', [
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('sigorta_ajax_nonce')
     ]);
 
 }
@@ -35,31 +41,31 @@ function trafik_teklif_form_shortcode()
     <div id="trafikTeklifContainer"></div>
     <h2 class="text-center mb-4">Trafik Sigortası ile Yolda Güvende Kalın</h2>
 
-    <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/createVehicle.php'; ?>
+    <?php include dirname(__DIR__) . '/assets/components/createVehicle.php'; ?>
     
     
     
-    
-    <!-- Progress Bar -->
+        
+        <!-- Progress Bar -->
     <div class="d-flex flex-nowrap flex-row justify-content-between align-items-center mb-4 w-100" id="stepProgress" style="flex-wrap: nowrap !important;">
         <div class="step active flex-grow-1" data-step="1" style="flex: 1 1 0% !important; min-width: 0;">
-            <div class="step-icon">1</div>
-            <div class="step-label">Kişisel Bilgiler</div>
-        </div>
+                <div class="step-icon">1</div>
+                <div class="step-label">Kişisel Bilgiler</div>
+            </div>
         <div class="step flex-grow-1" data-step="2" style="flex: 1 1 0% !important; min-width: 0;">
-            <div class="step-icon">2</div>
-            <div class="step-label">Araç Bilgileri</div>
-        </div>
+                <div class="step-icon">2</div>
+                <div class="step-label">Araç Bilgileri</div>
+            </div>
         <div class="step flex-grow-1" data-step="3" style="flex: 1 1 0% !important; min-width: 0;">
-            <div class="step-icon">3</div>
-            <div class="step-label">Teklif Bilgileri</div>
+                <div class="step-icon">3</div>
+                <div class="step-label">Teklif Bilgileri</div>
+            </div>
+            
         </div>
-        
-    </div>
     <div id="trafikTeklifForm" style="display: flex;" class="container my-5 card shadow p-3">
         <!-- Step 1 -->
         
-        <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
+        <?php include dirname(__DIR__) . '/assets/components/personalForm.php'; ?>
         
         <!-- Step 2 -->
         <div id="step2" class="d-none p-3">

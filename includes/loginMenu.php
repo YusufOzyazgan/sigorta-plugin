@@ -31,10 +31,14 @@ function user_avatar_dropdown_shortcode()
     <div class="dashboard-topbar" >
         <div class="header-right">
             <div id="onLogin" style="display:none;">
-                <div class="user-avatar"  id="userAvatar"><?php echo call_icon('user', 32, 32, 'Kullanıcı'); ?></div>
+                <div class="user-info-container">
+                    <div class="user-avatar"  id="userAvatar"><?php echo call_icon('user', 32, 32, 'Kullanıcı'); ?></div>
+                    <span id="userName"></span>
+                </div>
+                
                 <div class="user-dropdown" id="userDropdown">
                    
-                    <a href="#" id="panelBtn"><?php echo call_icon("insurance2", 20, 20, "dashboard") ?> Dashboard</a>
+                    <a href="#" id="panelBtn"><?php echo call_icon("insurance2", 20, 20, "dashboard") ?> Panel</a>
                     <a href="#" id="bilgilerimBtn"><?php echo call_icon("user", 20, 20, "user") ?>  Bilgilerim</a>
                     <a href="#" id="varliklarimBtn"><?php echo call_icon("home", 20, 20, "home") ?> Varlıklarım</a>
                     <a href="#" id="tekliflerimBtn"><?php echo call_icon("teklifler", 20, 20, "teklifler") ?>  Tekliflerim</a>

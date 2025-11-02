@@ -101,13 +101,13 @@ async function renderProposalResults(products, proposalId) {
                                 </div>
                                 
                                 <div class="d-grid gap-2">
-                                    <a class="toggle-warranties text-center text-decoration-none text-warning small" 
+                                    <a class="toggle-warranties text-center  small" 
                                             data-product-id="${product.id}"
                                             data-proposal-id="${proposalId}"
                                             style="cursor: pointer; font-size: 0.8rem;">
                                         Teminatları Gör
                                     </a>
-                                    <button id="buyButton" data-product-id="${product.id} " data-proposal-id="${proposalId}" class="btn btn-outline-primary">Satın Al</button>
+                                    <button class="buyButton btn btn-outline-primary" data-product-id="${product.id}" data-proposal-id="${proposalId}">Teklifi Al</button>
                                 </div>
                             </div>
                         </div>
@@ -145,19 +145,87 @@ async function renderProposalResults(products, proposalId) {
     });
 
     // Satın alma butonlarına event listener ekle
-    document.querySelectorAll('#buyButton').forEach(button => {
-        button.addEventListener('click', function () {
-            const productId = this.getAttribute('data-product-id');
-            const proposalId = this.getAttribute('data-proposal-id');
+    document.querySelectorAll('.buyButton').forEach(button => {
+        button.addEventListener('click', async function() {
+            const productId = this.getAttribute('data-product-id')?.trim();
+            const proposalId = this.getAttribute('data-proposal-id')?.trim();
             
-            // Ödeme işlemini başlat
-            initiatePurchase(proposalId, productId);
+            if (!productId || !proposalId) {
+                await showMessage('Teklif bilgileri bulunamadı!', 'error');
+                return;
+            }
+            
+            try {
+                // Müşteri bilgilerini al
+                const customer = await apiGetFetch("customers/me");
+                if (!customer) {
+                    await showMessage('Müşteri bilgileri alınamadı!', 'error');
+                    return;
+                }
+                
+                // Teklif bilgilerini al
+                const proposalResponse = await apiGetFetch(`proposals/${proposalId}`);
+                if (!proposalResponse || !proposalResponse.products) {
+                    await showMessage('Teklif bilgileri alınamadı!', 'error');
+                    return;
+                }
+                
+                // İlgili ürünü bul
+                const product = proposalResponse.products.find(p => p.id === productId);
+                if (!product) {
+                    await showMessage('Ürün bilgisi bulunamadı!', 'error');
+                    return;
+                }
+                
+                // Premium bilgisi
+                const premium = product.premiums && product.premiums[0] ? product.premiums[0].grossPremium : 0;
+                
+                // Teklif verilerini hazırla
+                const proposalData = {
+                    insuranceCompanyName: product.insuranceCompanyName || '',
+                    insuranceCompanyLogo: product.insuranceCompanyLogo || '',
+                    premium: premium,
+                    grossPremium: premium,
+                    installmentNumber: product.premiums && product.premiums[0] ? product.premiums[0].installmentNumber : 1,
+                    taxesIncluded: product.taxesIncluded || false,
+                    insuranceCompanyProposalNumber: product.premiums && product.premiums[0] ? product.premiums[0].insuranceCompanyProposalNumber : ''
+                };
+                
+                // WordPress AJAX ile kaydet
+                if (typeof sigortaAjax !== 'undefined') {
+                    const formData = new FormData();
+                    formData.append('action', 'sigorta_save_bekleyen_teklif');
+                    formData.append('proposal_id', proposalId);
+                    formData.append('product_id', productId);
+                    formData.append('customer_data', JSON.stringify(customer));
+                    formData.append('proposal_data', JSON.stringify(proposalData));
+                    
+                    const response = await fetch(sigortaAjax.ajaxurl, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        await showMessage('Teklif başarıyla kaydedildi!', 'success');
+                    } else {
+                        await showMessage(result.data?.message || 'Teklif kaydedilemedi!', 'error');
+                    }
+                } else {
+                    await showMessage('AJAX yapılandırması bulunamadı!', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Teklif kaydetme hatası:', error);
+                await showMessage('Teklif kaydedilirken bir hata oluştu!', 'error');
+            }
         });
     });
 }
 
-// Ödeme işlemini başlatan fonksiyon
-async function initiatePurchase(proposalId, productId) {
+// Ödeme işlemini başlatan fonksiyon (daha sonra aktif olacak)
+async function WebServicePayment(proposalId, productId) {
     let tc = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')).user.tc : null;
     
     try {
@@ -556,7 +624,7 @@ async function firstStep() {
                 await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
                 await showStep(step2);
                 
-               // await showVehicles();
+                await showVehicles();
 
             }
 
@@ -673,6 +741,14 @@ async function firstStep() {
                         if (me) {
                             state.user.custumerId = me.id;
                             state.user.fullName = me.fullName;
+                            state.user.identityNumber = me.identityNumber || null;
+                            state.user.primaryPhoneNumber = me.primaryPhoneNumber?.number || null;
+                            state.user.primaryEmail = me.primaryEmail || null;
+                            state.user.birthDate = me.birthDate || null;
+                            // API'den dönen diğer kullanıcı bilgilerini de ekleyebiliriz
+                            if (me.address) state.user.address = me.address;
+                            if (me.city) state.user.city = me.city;
+                            if (me.district) state.user.district = me.district;
                             customer = me;
                         }
                         localStorage.setItem('state', JSON.stringify(state));

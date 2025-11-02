@@ -16,6 +16,13 @@ window.loginMenuModule = async function () {
         document.getElementById("onLogin").style.display = "block";
         document.getElementById("onLogout").style.display = "none";
 
+        // Kullanıcı ismini göster
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl && state?.user?.fullName) {
+            userNameEl.textContent = state.user.fullName;
+            userNameEl.style.display = 'inline-block';
+        }
+
         const dropdown = document.getElementById('userDropdown');
         const bilgilerimBtn = document.getElementById("bilgilerimBtn");
         const varliklarimBtn = document.getElementById("varliklarimBtn");
@@ -23,11 +30,14 @@ window.loginMenuModule = async function () {
         const policelerimBtn = document.getElementById("policelerimBtn");
         const loginBtn = document.getElementById("loginBtn");
 
-        // Dropdown toggle
-        document.getElementById('userAvatar')?.addEventListener('click', e => {
-            e.stopPropagation();
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-        });
+        // Dropdown toggle - user-info-container'a tıklandığında açılsın
+        const userInfoContainer = document.querySelector('.user-info-container');
+        if (userInfoContainer) {
+            userInfoContainer.addEventListener('click', e => {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            });
+        }
 
         // Linkler
         bilgilerimBtn?.addEventListener('click', e => {

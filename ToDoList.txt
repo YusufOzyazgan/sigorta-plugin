@@ -19,3 +19,16 @@ tramer sorgulamada hata var insurup ile görüşülecek
 + kasko teklifi alırken oluşan hata konuşulacak - "Lütfen bu teklif için geçerli teminat grupları veya teminat tablosu sağlayın"
 Satın al butonu iletişime geç olacak 
 + responsive design yapıldı, konut kısmındaki teklif almada eksik yerler giderildi+ teklif alma kısmı değişti ve yaılar eklendi
++tss araç bilgileri sağlık olacak
+(yayınlandıktan sonra)sigortapiri mobil tasarımı güzelleşecek
+    
++ikonlar değişecek 
+(değer önerisi) dashborad sayfasına hızlı teklif al
++varlıklarım içeriklerinin başlıklarını kalın yap valueların başına baoşluk ver 
++varlıklarım grid yapsının 3e düşür 
++VARLIK EKLE MODALININ İÇİNE İKON KOY VE KART YAPISINA GETİR 
+araç ekleme kısmındaki yakıt türü alanı radio button fakat yan yana
+uavt no nedir nasıl alınır 
+sayfadan çıkmaması için uyarı ver
+teminatları gör siyah ve çizgili 
++teklifler wp admine göndeirldi

@@ -110,9 +110,17 @@ window.loadLoginRegisterModule = async function () {
                     localStorage.setItem('state', JSON.stringify(state));
 
                     const me = await apiGetFetch('customers/me');
-                    if (!me) {
+                    if (me) {
                         state.user.custumerId = me.id;
                         state.user.fullName = me.fullName;
+                        state.user.identityNumber = me.identityNumber || null;
+                        state.user.primaryPhoneNumber = me.primaryPhoneNumber?.number || null;
+                        state.user.primaryEmail = me.primaryEmail || null;
+                        state.user.birthDate = me.birthDate || null;
+                        // API'den dönen diğer kullanıcı bilgilerini de ekleyebiliriz
+                        if (me.address) state.user.address = me.address;
+                        if (me.city) state.user.city = me.city;
+                        if (me.district) state.user.district = me.district;
                     }
                     localStorage.setItem('state', JSON.stringify(state));
 

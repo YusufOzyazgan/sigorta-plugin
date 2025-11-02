@@ -129,6 +129,28 @@ function sigorta_plugin_register_admin_page()
         'dashicons-shield',
         56
     );
+    
+    // Bekleyen Teklifler alt menüsü
+    add_submenu_page(
+        'sigorta-plugin-welcome',
+        'Bekleyen Teklifler',
+        'Bekleyen Teklifler',
+        'manage_options',
+        'sigorta-bekleyen-teklifler',
+        'sigorta_bekleyen_teklifler_render_page'
+    );
+    
+    // Tablo oluşturma test sayfası (gizli, sadece admin için)
+    if (current_user_can('manage_options')) {
+        add_submenu_page(
+            null, // Parent slug - gizli sayfa
+            'Tablo Oluştur',
+            'Tablo Oluştur',
+            'manage_options',
+            'sigorta-create-table',
+            'sigorta_create_table_manual'
+        );
+    }
 }
 add_action('admin_menu', 'sigorta_plugin_register_admin_page');
 
@@ -380,6 +402,484 @@ function sigorta_plugin_render_admin_page()
                 } catch(_) {}
             })();
         </script>
+    </div>
+    <?php
+}
+
+// Plugin aktif edildiğinde tabloyu oluştur
+register_activation_hook(__FILE__, 'sigorta_create_bekleyen_teklifler_table');
+
+// Plugin her yüklendiğinde tabloyu kontrol et ve yoksa oluştur
+add_action('plugins_loaded', 'sigorta_create_bekleyen_teklifler_table');
+
+// Admin init'te de kontrol et (ekstra güvenlik için)
+add_action('admin_init', 'sigorta_create_bekleyen_teklifler_table');
+
+// Admin sayfası render fonksiyonu
+function sigorta_bekleyen_teklifler_render_page() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'sigorta_bekleyen_teklifler';
+    
+    // jQuery ve AJAX URL'yi localize et
+    wp_enqueue_script('jquery');
+    wp_localize_script('jquery', 'ajaxurl', admin_url('admin-ajax.php'));
+    
+    // Önce tabloyu kontrol et ve yoksa oluştur
+    $table_created = sigorta_create_bekleyen_teklifler_table();
+    $table_exists = sigorta_table_exists($table_name);
+    
+    // Bekleyen teklifleri getir
+    $teklifler = [];
+    if ($table_exists) {
+        $teklifler = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC", ARRAY_A);
+    }
+    
+    ?>
+    <div class="wrap">
+        <h1>Bekleyen Teklifler</h1>
+        
+        <?php if (!$table_exists): ?>
+            <div class="notice notice-error">
+                <p><strong>Hata:</strong> Veritabanı tablosu oluşturulamadı!</p>
+                <p>Tablo Adı: <code><?php echo esc_html($table_name); ?></code></p>
+                <p>Hata: <code><?php echo esc_html($wpdb->last_error ?: 'Bilinmeyen hata'); ?></code></p>
+                <p>
+                    <a href="<?php echo admin_url('admin.php?page=sigorta-create-table'); ?>" class="button">
+                        Tabloyu Manuel Oluşturmayı Dene
+                    </a>
+                </p>
+            </div>
+        <?php elseif (!$table_created && !empty($wpdb->last_error)): ?>
+            <div class="notice notice-warning">
+                <p>Tablo oluşturma sırasında uyarı oluştu: <?php echo esc_html($wpdb->last_error); ?></p>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (empty($teklifler) && $table_exists): ?>
+            <div class="notice notice-info">
+                <p>Henüz bekleyen teklif bulunmamaktadır.</p>
+            </div>
+        <?php else: ?>
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th style="width: 4%;">ID</th>
+                        <th style="width: 12%;">Teklif ID</th>
+                        <th style="width: 12%;">Ürün ID</th>
+                        <th style="width: 25%;">Müşteri Bilgileri</th>
+                        <th style="width: 22%;">Teklif Bilgileri</th>
+                        <th style="width: 10%;">Durum</th>
+                        <th style="width: 15%;">Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($teklifler as $teklif): 
+                        // JSON decode - Çoklu escape karakterleri için temizleme
+                        $customer_raw = $teklif['customer_data'];
+                        $proposal_raw = $teklif['proposal_data'];
+                        
+                        // Eğer zaten array ise (oldukça nadir), direkt kullan
+                        if (is_array($customer_raw)) {
+                            $customer_data = $customer_raw;
+                            $customer_error = JSON_ERROR_NONE;
+                        } else {
+                            // String ise decode et - önce wp_unslash, sonra stripslashes
+                            $customer_json = wp_unslash($customer_raw);
+                            // Çift escape kontrolü - maksimum 3 kez temizle
+                            for ($i = 0; $i < 3; $i++) {
+                                $prev_customer = $customer_json;
+                                $customer_json = stripslashes($customer_json);
+                                if ($customer_json === $prev_customer) break;
+                            }
+                            
+                            json_last_error();
+                            $customer_data = json_decode($customer_json, true);
+                            $customer_error = json_last_error();
+                        }
+                        
+                        // Proposal için aynı işlem
+                        if (is_array($proposal_raw)) {
+                            $proposal_data = $proposal_raw;
+                            $proposal_error = JSON_ERROR_NONE;
+                        } else {
+                            $proposal_json = wp_unslash($proposal_raw);
+                            for ($i = 0; $i < 3; $i++) {
+                                $prev_proposal = $proposal_json;
+                                $proposal_json = stripslashes($proposal_json);
+                                if ($proposal_json === $prev_proposal) break;
+                            }
+                            
+                            json_last_error();
+                            $proposal_data = json_decode($proposal_json, true);
+                            $proposal_error = json_last_error();
+                        }
+                    ?>
+                        <tr>
+                            <td><?php echo esc_html($teklif['id']); ?></td>
+                            <td><code style="font-size: 11px;"><?php echo esc_html(substr($teklif['proposal_id'], 0, 20)) . '...'; ?></code></td>
+                            <td><code style="font-size: 11px;"><?php echo esc_html(substr($teklif['product_id'], 0, 20)) . '...'; ?></code></td>
+                            <td>
+                                <?php if ($customer_data && is_array($customer_data)): ?>
+                                    <div style="line-height: 1.6;">
+                                        <?php if (!empty($customer_data['fullName'])): ?>
+                                            <strong style="display: block; margin-bottom: 5px; color: #1d2327;"><?php echo esc_html($customer_data['fullName']); ?></strong>
+                                        <?php endif; ?>
+                                        <?php if (!empty($customer_data['identityNumber'])): ?>
+                                            <small style="display: block; color: #50575e;">TC: <strong><?php echo esc_html($customer_data['identityNumber']); ?></strong></small>
+                                        <?php endif; ?>
+                                        <?php if (!empty($customer_data['primaryPhoneNumber']['number'])): ?>
+                                            <small style="display: block; color: #50575e;">Tel: <strong><?php echo esc_html($customer_data['primaryPhoneNumber']['number']); ?></strong></small>
+                                        <?php endif; ?>
+                                        <?php if (!empty($customer_data['primaryEmail'])): ?>
+                                            <small style="display: block; color: #50575e;">Email: <strong><?php echo esc_html($customer_data['primaryEmail']); ?></strong></small>
+                                        <?php endif; ?>
+                                        <?php if (!empty($customer_data['birthDate'])): ?>
+                                            <small style="display: block; color: #50575e;">Doğum: <strong><?php echo esc_html($customer_data['birthDate']); ?></strong></small>
+                                        <?php endif; ?>
+                                        <?php if (!empty($customer_data['city']['text']) || !empty($customer_data['district']['text'])): ?>
+                                            <small style="display: block; color: #50575e;">📍 
+                                                <?php 
+                                                $loc = [];
+                                                if (!empty($customer_data['city']['text'])) $loc[] = $customer_data['city']['text'];
+                                                if (!empty($customer_data['district']['text'])) $loc[] = $customer_data['district']['text'];
+                                                echo esc_html(implode(' / ', $loc));
+                                                ?>
+                                            </small>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <em style="color: #d63638; font-size: 11px;">
+                                        <?php if ($customer_error !== JSON_ERROR_NONE): ?>
+                                            JSON Hatası: <?php echo esc_html(json_last_error_msg()); ?><br>
+                                            <small style="color: #999; word-break: break-all;">Raw (ilk 200 karakter): <?php echo esc_html(substr($customer_raw, 0, 200)); ?>...</small>
+                                        <?php else: ?>
+                                            Bilgi yok
+                                        <?php endif; ?>
+                                    </em>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($proposal_data && is_array($proposal_data)): ?>
+                                    <div style="line-height: 1.6;">
+                                        <?php if (!empty($proposal_data['insuranceCompanyName'])): ?>
+                                            <strong style="display: block; margin-bottom: 5px; color: #1d2327;">🏢 <?php echo esc_html($proposal_data['insuranceCompanyName']); ?></strong>
+                                        <?php endif; ?>
+                                        <?php 
+                                        $premium = !empty($proposal_data['premium']) ? floatval($proposal_data['premium']) : (!empty($proposal_data['grossPremium']) ? floatval($proposal_data['grossPremium']) : 0);
+                                        if ($premium > 0): 
+                                        ?>
+                                            <small style="display: block; color: #2271b1; font-weight: 600; font-size: 13px; margin: 3px 0;">
+                                                💰 <?php echo esc_html(number_format($premium, 2, ',', '.') . ' ₺'); ?>
+                                            </small>
+                                        <?php endif; ?>
+                                        <?php if (!empty($proposal_data['installmentNumber'])): ?>
+                                            <small style="display: block; color: #50575e;">Taksit: <strong><?php echo esc_html($proposal_data['installmentNumber']); ?>x</strong></small>
+                                        <?php endif; ?>
+                                        <?php if (!empty($proposal_data['insuranceCompanyProposalNumber'])): ?>
+                                            <small style="display: block; color: #50575e; margin-top: 3px;">
+                                                <code style="font-size: 10px; background: #f0f0f1; padding: 2px 4px; border-radius: 3px;"><?php echo esc_html($proposal_data['insuranceCompanyProposalNumber']); ?></code>
+                                            </small>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <em style="color: #d63638;">
+                                        <?php if ($proposal_error !== JSON_ERROR_NONE): ?>
+                                            JSON Hatası: <?php echo esc_html(json_last_error_msg()); ?>
+                                        <?php else: ?>
+                                            Bilgi yok
+                                        <?php endif; ?>
+                                    </em>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <select class="status-select" 
+                                        name="status[<?php echo esc_attr($teklif['id']); ?>]" 
+                                        data-id="<?php echo esc_attr($teklif['id']); ?>"
+                                        data-original="<?php echo esc_attr($teklif['status']); ?>">
+                                    <option value="pending" <?php selected($teklif['status'], 'pending'); ?>>Bekliyor</option>
+                                    <option value="completed" <?php selected($teklif['status'], 'completed'); ?>>Tamamlandı</option>
+                                    <option value="cancelled" <?php selected($teklif['status'], 'cancelled'); ?>>İptal</option>
+                                </select>
+                            </td>
+                            <td>
+                                <small style="color: #50575e;">
+                                    <?php 
+                                    $date = strtotime($teklif['created_at']);
+                                    echo esc_html(date_i18n('d.m.Y', $date)); 
+                                    ?><br>
+                                    <span style="color: #8c8f94;"><?php echo esc_html(date_i18n('H:i', $date)); ?></span>
+                                </small>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            
+            <?php if (!empty($teklifler)): ?>
+                <div style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 6px;">
+                    <button type="button" id="saveStatusesBtn" class="button button-primary" style="padding: 10px 20px; font-size: 14px; font-weight: 600;">
+                        Değişiklikleri Kaydet
+                    </button>
+                    <span id="saveStatusMessage" style="margin-left: 15px; font-size: 13px;"></span>
+                </div>
+            <?php endif; ?>
+            
+            <style>
+                .status-select {
+                    min-width: 130px;
+                    padding: 6px 10px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    border: 2px solid #ddd;
+                }
+                .status-select.changed {
+                    border-color: #0073aa;
+                    background: #e7f5ff;
+                }
+            </style>
+            
+            <script>
+            jQuery(document).ready(function($) {
+                // Status değişikliklerini takip et
+                $('.status-select').on('change', function() {
+                    var select = $(this);
+                    var original = select.data('original');
+                    var current = select.val();
+                    
+                    if (original === current) {
+                        select.removeClass('changed');
+                    } else {
+                        select.addClass('changed');
+                    }
+                });
+                
+                // Kaydet butonu
+                $('#saveStatusesBtn').on('click', function() {
+                    var btn = $(this);
+                    var message = $('#saveStatusMessage');
+                    var updates = [];
+                    
+                    // Değişen status'ları topla
+                    $('.status-select.changed').each(function() {
+                        updates.push({
+                            id: $(this).data('id'),
+                            status: $(this).val()
+                        });
+                    });
+                    
+                    if (updates.length === 0) {
+                        message.html('<span style="color: #856404;">Değişiklik yapılmadı.</span>');
+                        return;
+                    }
+                    
+                    btn.prop('disabled', true).text('Kaydediliyor...');
+                    message.html('<span style="color: #0073aa;">Kaydediliyor...</span>');
+                    
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'sigorta_bulk_update_status',
+                            updates: JSON.stringify(updates),
+                            nonce: '<?php echo wp_create_nonce('sigorta_bulk_update'); ?>'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                message.html('<span style="color: #155724;">✓ ' + updates.length + ' kayıt güncellendi.</span>');
+                                $('.status-select.changed').each(function() {
+                                    $(this).data('original', $(this).val()).removeClass('changed');
+                                });
+                                
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1500);
+                            } else {
+                                message.html('<span style="color: #dc3545;">✗ Hata: ' + (response.data?.message || 'Bilinmeyen hata') + '</span>');
+                                btn.prop('disabled', false).text('Değişiklikleri Kaydet');
+                            }
+                        },
+                        error: function() {
+                            message.html('<span style="color: #dc3545;">✗ Bir hata oluştu.</span>');
+                            btn.prop('disabled', false).text('Değişiklikleri Kaydet');
+                        }
+                    });
+                });
+            });
+            </script>
+        <?php endif; ?>
+    </div>
+    <?php
+}
+
+/**
+ * AJAX: Bekleyen teklif kaydet
+ */
+function sigorta_save_bekleyen_teklif() {
+    global $wpdb;
+    
+    // Önce tabloyu kontrol et ve yoksa oluştur
+    $table_created = sigorta_create_bekleyen_teklifler_table();
+    
+    $table_name = $wpdb->prefix . 'sigorta_bekleyen_teklifler';
+    
+    // Tablo oluşturuldu mu kontrol et
+    if (!sigorta_table_exists($table_name)) {
+        wp_send_json_error([
+            'message' => 'Veritabanı tablosu oluşturulamadı. Lütfen WordPress admin paneline giriş yapın ve Bekleyen Teklifler sayfasını açın.',
+            'debug' => [
+                'table_name' => $table_name,
+                'db_error' => $wpdb->last_error,
+                'table_created_result' => $table_created
+            ]
+        ]);
+    }
+    
+    $proposal_id = sanitize_text_field($_POST['proposal_id'] ?? '');
+    $product_id = sanitize_text_field($_POST['product_id'] ?? '');
+    
+    // JavaScript'ten gelen veriler zaten JSON string olarak geliyor
+    // Olduğu gibi kaydet - decode/encode yapmadan
+    $customer_data_json = isset($_POST['customer_data']) ? wp_unslash($_POST['customer_data']) : '';
+    $proposal_data_json = isset($_POST['proposal_data']) ? wp_unslash($_POST['proposal_data']) : '';
+    
+    if (empty($proposal_id) || empty($product_id)) {
+        wp_send_json_error(['message' => 'Gerekli alanlar eksik']);
+    }
+    
+    // Tekrar kontrolü - aynı proposal_id ve product_id varsa kaydetme
+    $existing = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM $table_name WHERE proposal_id = %s AND product_id = %s",
+        $proposal_id,
+        $product_id
+    ));
+    
+    if ($existing > 0) {
+        wp_send_json_error(['message' => 'Bu teklif zaten kayıtlı']);
+    }
+    
+    $result = $wpdb->insert(
+        $table_name,
+        [
+            'proposal_id' => $proposal_id,
+            'product_id' => $product_id,
+            'customer_data' => $customer_data_json,
+            'proposal_data' => $proposal_data_json,
+            'status' => 'pending'
+        ],
+        ['%s', '%s', '%s', '%s', '%s']
+    );
+    
+    if ($result) {
+        wp_send_json_success(['message' => 'Teklif başarıyla kaydedildi']);
+    } else {
+        wp_send_json_error([
+            'message' => 'Kayıt sırasında hata oluştu',
+            'debug' => [
+                'db_error' => $wpdb->last_error,
+                'table_name' => $table_name
+            ]
+        ]);
+    }
+}
+add_action('wp_ajax_sigorta_save_bekleyen_teklif', 'sigorta_save_bekleyen_teklif');
+add_action('wp_ajax_nopriv_sigorta_save_bekleyen_teklif', 'sigorta_save_bekleyen_teklif');
+
+/**
+ * AJAX: Toplu status güncelle
+ */
+function sigorta_bulk_update_status() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'sigorta_bulk_update')) {
+        wp_send_json_error(['message' => 'Güvenlik kontrolü başarısız']);
+    }
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(['message' => 'Yetki yok']);
+    }
+    
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'sigorta_bekleyen_teklifler';
+    
+    $updates_json = isset($_POST['updates']) ? wp_unslash($_POST['updates']) : '';
+    $updates = json_decode($updates_json, true);
+    
+    if (!is_array($updates) || empty($updates)) {
+        wp_send_json_error(['message' => 'Geçersiz veri']);
+    }
+    
+    $allowed_statuses = ['pending', 'completed', 'cancelled'];
+    $success_count = 0;
+    $error_count = 0;
+    
+    foreach ($updates as $update) {
+        $teklif_id = intval($update['id'] ?? 0);
+        $new_status = sanitize_text_field($update['status'] ?? '');
+        
+        if ($teklif_id <= 0 || !in_array($new_status, $allowed_statuses)) {
+            $error_count++;
+            continue;
+        }
+        
+        $result = $wpdb->update(
+            $table_name,
+            ['status' => $new_status],
+            ['id' => $teklif_id],
+            ['%s'],
+            ['%d']
+        );
+        
+        if ($result !== false) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
+    }
+    
+    if ($success_count > 0) {
+        wp_send_json_success([
+            'message' => $success_count . ' kayıt güncellendi' . ($error_count > 0 ? ', ' . $error_count . ' hata oluştu' : ''),
+            'success_count' => $success_count,
+            'error_count' => $error_count
+        ]);
+    } else {
+        wp_send_json_error(['message' => 'Hiçbir kayıt güncellenemedi']);
+    }
+}
+add_action('wp_ajax_sigorta_bulk_update_status', 'sigorta_bulk_update_status');
+
+/**
+ * Manuel tablo oluşturma sayfası (debug için)
+ */
+function sigorta_create_table_manual() {
+    if (!current_user_can('manage_options')) {
+        wp_die('Yetkiniz yok');
+    }
+    
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'sigorta_bekleyen_teklifler';
+    
+    $table_exists_before = sigorta_table_exists($table_name);
+    $result = sigorta_create_bekleyen_teklifler_table();
+    $table_exists_after = sigorta_table_exists($table_name);
+    
+    ?>
+    <div class="wrap">
+        <h1>Tablo Oluşturma Testi</h1>
+        <div style="background: #fff; padding: 20px; border: 1px solid #ccc; margin-top: 20px;">
+            <h2>Sonuçlar:</h2>
+            <ul>
+                <li><strong>Tablo Adı:</strong> <?php echo esc_html($table_name); ?></li>
+                <li><strong>Önce Durum:</strong> <?php echo $table_exists_before ? '✅ Var' : '❌ Yok'; ?></li>
+                <li><strong>Oluşturma Sonucu:</strong> <?php echo $result ? '✅ Başarılı' : '❌ Başarısız'; ?></li>
+                <li><strong>Sonra Durum:</strong> <?php echo $table_exists_after ? '✅ Var' : '❌ Yok'; ?></li>
+                <li><strong>Veritabanı Hatası:</strong> <?php echo esc_html($wpdb->last_error ?: 'Yok'); ?></li>
+            </ul>
+            <p>
+                <a href="<?php echo admin_url('admin.php?page=sigorta-bekleyen-teklifler'); ?>" class="button button-primary">
+                    Bekleyen Teklifler Sayfasına Dön
+                </a>
+            </p>
+        </div>
     </div>
     <?php
 }

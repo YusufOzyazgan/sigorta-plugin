@@ -11,7 +11,7 @@ function kasko_enqueue_scripts()
         array(),
         '1.0.0'
     );
-    
+
 
     wp_enqueue_script(
         'kasko-js',
@@ -41,40 +41,43 @@ function kasko_teklif_form_shortcode()
 
 
         <h2 class="text-center mb-4">Kasko ile Aracınızı Her Duruma Karşı Koruyun</h2>
-         <!-- Progress Bar -->
-         <div class="d-flex justify-content-between mb-4" id="stepProgress">
-                <div class="step active" data-step="1">
-                    <div class="step-icon">1</div>
-                    <div class="step-label">Kişisel Bilgiler</div>
-                </div>
-                <div class="step" data-step="2">
-                    <div class="step-icon">2</div>
-                    <div class="step-label">Konut Bilgileri</div>
-                </div>
-                <div class="step" data-step="3">
-                    <div class="step-icon">3</div>
-                    <div class="step-label">Teklif Bilgileri</div>
-                </div>
-
+        <!-- Progress Bar -->
+        <div class="d-flex justify-content-between mb-4" id="stepProgress">
+            <div class="step active" data-step="1">
+                <div class="step-icon">1</div>
+                <div class="step-label">Kişisel Bilgiler</div>
             </div>
+            <div class="step" data-step="2">
+                <div class="step-icon">2</div>
+                <div class="step-label">Konut Bilgileri</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-icon">3</div>
+                <div class="step-label">Teklif Bilgileri</div>
+            </div>
+
+        </div>
 
 
 
         <div id="kaskoTeklifForm" style="display: flex;" class="container my-5 card shadow p-3">
 
-           
+
             <!-- Step 1 -->
             <div id="step1">
-                  <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
+                <?php include dirname(__DIR__) . '/assets/components/personalForm.php'; ?>
             </div>
 
             <!-- Step 2 -->
             <div id="step2" class="d-none p-3">
-                <div class="d-flex flex-column flex-md-row mb-3 justify-content-between align-items-start align-items-md-center gap-2">
+                <div
+                    class="d-flex flex-column flex-md-row mb-3 justify-content-between align-items-start align-items-md-center gap-2">
                     <h3 class="mb-0" style="white-space: nowrap;">Araçlarınız</h3>
                     <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-md-end">
-                        <button id="backStepBtn" class="btn warning-button btn-sm flex-grow-1 flex-md-grow-0" style="white-space: nowrap;">Geri</button>
-                        <button id="addVehicleBtn" class="btn success-button btn-sm flex-grow-1 flex-md-grow-0" style="white-space: nowrap;">Araç Ekle</button>
+                        <button id="backStepBtn" class="btn warning-button btn-sm flex-grow-1 flex-md-grow-0"
+                            style="white-space: nowrap;">Geri</button>
+                        <button id="addVehicleBtn" class="btn success-button btn-sm flex-grow-1 flex-md-grow-0"
+                            style="white-space: nowrap;">Araç Ekle</button>
                     </div>
                 </div>
                 <hr>
@@ -88,7 +91,7 @@ function kasko_teklif_form_shortcode()
                 <div id="offerResults"></div>
             </div>
 
-            
+
 
         </div>
         <div id="notif"

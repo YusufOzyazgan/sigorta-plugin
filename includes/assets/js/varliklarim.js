@@ -42,29 +42,24 @@ window.loadVarliklarimModule = async function (container) {
 
         vehicles.forEach(v => {
             html += `
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <div class="card h-100 shadow-sm" style="border:2px solid #ddd; border-radius:10px; padding:15px;" >
-
-                        <div class="d-flex align-items-center mt-2 ">
-                        <img src="${varliklarimIcons.car}" alt="Car Icon" class="mb-2 me-2" style="width:30px;height:30px;">
-                        <h4 > ${v.model.brand.text || ''} </h4>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+                    <div class="card h-100 shadow-sm" style="border:2px solid #ddd; border-radius:10px; padding:15px;">
+                        <div class="d-flex align-items-center mt-2">
+                            <img src="${varliklarimIcons.car}" alt="Car Icon" class="mb-2 me-2" style="width:30px;height:30px;">
+                            <h4>${v.model.brand.text || ''}</h4>
                         </div>
                         <hr>
-                        <h6 style="margin:0 0 10px 0;">${v.model.type.text || ''} </h6>
-                        <p style="margin:0;">${v.plate?.code ? "Plakalı" : "Plakasız"}</p>
-                        ${v.plate?.code
-                    ? `<p style="margin:0;">Plaka: ${v.plate.code}</p>`
-                    : `<p style="margin:0;">Şasi No: ${v.chassisNumber}</p>`}
-                        <p style="margin:0;">Motor No: ${v.engineNumber || '-'}</p>
-                        <p style="margin:0;">Yıl: ${v.model.year || '-'}</p>
-                        <p style="margin:0;">Yakıt: ${v.fuel?.type || '-'}</p>
-                        <div class="d-flex">
-                        <p style="margin:0;">Koltuk: ${v.seatNumber || '-'}</p>
-                       
+                        <div>
+                            <p style="margin-bottom:5px; margin-top:5px;"><strong>Model:</strong> ${v.model.type.text || '-'}</p>
+                            <p style="margin-bottom:5px;"><strong>Plakalı mı:</strong> ${v.plate?.code ? "Evet" : "Hayır"}</p>
+                            ${v.plate?.code ? `<p style="margin-bottom:5px;"><strong>Plaka:</strong> ${v.plate.code}</p>` : ''}
+                            <p style="margin-bottom:5px;"><strong>Şasi No:</strong> ${v.chassisNumber || '-'}</p>
+                            <p style="margin-bottom:5px;"><strong>Motor No:</strong> ${v.engineNumber || '-'}</p>
+                            <p style="margin-bottom:5px;"><strong>Yıl:</strong> ${v.model.year || '-'}</p>
+                            <p style="margin-bottom:5px;"><strong>Yakıt:</strong> ${v.fuel?.type || '-'}</p>
+                            <p style="margin-bottom:5px;"><strong>Koltuk:</strong> ${v.seatNumber || '-'}</p>
                         </div>
-
                     </div>
-               
                 </div>
                 `;
         });
@@ -77,7 +72,7 @@ window.loadVarliklarimModule = async function (container) {
             const translateUtilization = utilizationMap[p.utilizationStyle] || "-";
 
             html += `
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4">
                         <div class="card h-100 shadow-sm" style="border:2px solid #ddd; border-radius:10px; padding:15px;" >
 
                             <div class="d-flex align-items-center mt-2">
@@ -85,13 +80,15 @@ window.loadVarliklarimModule = async function (container) {
                                 <h4>${p.address.city.text || ''}</h4>
                             </div>
                             <hr>
-                            <p style="margin:0;">${p.address.district.text}, ${p.address.town.text}, ${p.address.neighborhood.text}, ${p.address.street.text}, ${p.address.building.text}, Daire ${p.address.apartment.text}</p>
-                            <p style="margin:0;">Metrekare: ${p.squareMeter || '-'}</p>
-                            <p style="margin:0;">Yapım Yılı: ${p.constructionYear || '-'}</p>
-                            <p style="margin:0;">Hasar Durumu: ${p.damageStatus || '-'}</p>
-                            <p style="margin:0;">Kat: ${p.floor.currentFloor || '-'} / ${p.floor.totalFloors.min || '-'} - ${p.floor.totalFloors.max || '-'}</p>
-                            <p style="margin:0;">Kullanım Şekli: ${translateUtilization || '-'}</p>
-                            <p style="margin:0;">Mülkiyet Türü: ${p.ownershipType === "PROPRIETOR" ? "Mülk" : "Kira"}</p>
+                            <div>
+                                <p style="margin-bottom:5px; margin-top:5px;"><strong>Adres:</strong> ${p.address.district.text}, ${p.address.town.text}, ${p.address.neighborhood.text}, ${p.address.street.text}, ${p.address.building.text}, Daire ${p.address.apartment.text}</p>
+                                <p style="margin-bottom:5px;"><strong>Metrekare:</strong> ${p.squareMeter || '-'}</p>
+                                <p style="margin-bottom:5px;"><strong>Yapım Yılı:</strong> ${p.constructionYear || '-'}</p>
+                                <p style="margin-bottom:5px;"><strong>Hasar Durumu:</strong> ${p.damageStatus == "NONE" ? "Hasarsız" : p.damageStatus == "SLIGHTLY_DAMAGED" ? "Az Hasarlı" : p.damageStatus == "MODERATELY_DAMAGED" ? "Orta Hasarlı" : "Ağır Hasarlı" || '-'}</p>
+                                <p style="margin-bottom:5px;"><strong>Kat:</strong> ${p.floor.currentFloor || '-'} / ${p.floor.totalFloors.min || '-'} - ${p.floor.totalFloors.max || '-'}</p>
+                                <p style="margin-bottom:5px;"><strong>Kullanım Şekli:</strong> ${translateUtilization || '-'}</p>
+                                <p style="margin-bottom:5px;"><strong>Mülkiyet Türü:</strong> ${p.ownershipType === "PROPRIETOR" ? "Mülk" : "Kira"}</p>
+                            </div>
 
                         </div>
                     </div>
@@ -111,7 +108,10 @@ window.loadVarliklarimModule = async function (container) {
 
     document.addEventListener('click', async function (e) {
         if (e.target && e.target.id === 'addVarlikBtn') document.getElementById('varlikEkleModal').style.display = 'flex';
-        if (e.target && e.target.id === 'selectVehicle') {
+        
+        // selectVehicle kontrolü - kart içindeki herhangi bir elemente tıklanınca çalışsın
+        const vehicleCard = e.target.closest('#selectVehicle');
+        if (vehicleCard) {
             document.getElementById('varlikEkleModal').style.display = 'none';
             document.getElementById('vehicleModal').style.display = 'flex';
 
@@ -120,11 +120,16 @@ window.loadVarliklarimModule = async function (container) {
                 return;
             }
             else {
-
                 loadVarliklarimModule(container);
             }
         }
-        if (e.target && e.target.id === 'selectProperty') { document.getElementById('varlikEkleModal').style.display = 'none'; }
+        
+        // selectProperty kontrolü - kart içindeki herhangi bir elemente tıklanınca çalışsın
+        const propertyCard = e.target.closest('#selectProperty');
+        if (propertyCard) { 
+            document.getElementById('varlikEkleModal').style.display = 'none'; 
+        }
+        
         if (e.target && e.target.id === 'closeVarlikModal') document.getElementById('varlikEkleModal').style.display = 'none';
     });
 
@@ -394,7 +399,7 @@ window.loadVarliklarimModule = async function (container) {
 
 
 
-        const radiosProperty = document.querySelectorAll('input[name="lossPayeeClause"]');
+        const radiosProperty = document.querySelectorAll('input[name="lossPaaeClause"]');
         const lossPayeeProperty = document.getElementById('lossPayeeProperty');
 
         radiosProperty.forEach(radio => {

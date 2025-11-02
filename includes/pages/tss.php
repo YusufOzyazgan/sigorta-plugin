@@ -39,7 +39,7 @@ function tss_form_shortcode()
             </div>
             <div class="step" data-step="2">
                 <div class="step-icon">2</div>
-                <div class="step-label">Araç Bilgileri</div>
+                <div class="step-label">Sağlık Bilgileri</div>
             </div>
             <div class="step" data-step="3">
                 <div class="step-icon">3</div>
@@ -51,7 +51,7 @@ function tss_form_shortcode()
         <div class="card shadow p-4 mb-4">
             <!-- Step 1 -->
 
-            <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
+            <?php include dirname(__DIR__) . '/assets/components/personalForm.php'; ?>
 
             <!-- Step 2 -->
             <div id="step2" class="d-none p-3">

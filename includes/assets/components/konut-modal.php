@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) exit;
         <button  type="button" class="btn-close bg-light text-dark" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
       <div class="modal-body">
-<?php include plugin_dir_path(dirname(__DIR__)) . 'pages/konut-modal-content.php'; ?>
+<?php include dirname(path: dirname(__DIR__)) . '/pages/konut-modal-content.php'; ?>
       </div>
     </div>
   </div>

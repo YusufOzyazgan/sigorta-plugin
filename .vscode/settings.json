@@ -1,9 +1,0 @@
-{
-    "editor.unicodeHighlight.ambiguousCharacters": false,
-    "editor.unicodeHighlight.invisibleCharacters": false,
-    "editor.unicodeHighlight.nonBasicASCII": false,
-    "editor.unicodeHighlight.includeComments": false,
-    "editor.unicodeHighlight.includeStrings": false,
-    "files.encoding": "utf8",
-    "files.autoGuessEncoding": true
-}
