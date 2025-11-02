@@ -35,12 +35,14 @@ function kasko_teklif_form_shortcode()
 
     ?>
 
-    <div id="kaskoTeklifContainer">
-        <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/createVehicle.php'; ?>
-        <div id="kaskoTeklifForm" style="display: flex;" class="container my-5 card shadow p-3">
 
-            <!-- Progress Bar -->
-            <div class="d-flex justify-content-between mb-4" id="stepProgress">
+    <div id="kaskoTeklifContainer">
+        <?php include dirname(__DIR__) . '/assets/components/createVehicle.php'; ?>
+
+
+        <h2 class="text-center mb-4">Kasko ile Aracınızı Her Duruma Karşı Koruyun</h2>
+         <!-- Progress Bar -->
+         <div class="d-flex justify-content-between mb-4" id="stepProgress">
                 <div class="step active" data-step="1">
                     <div class="step-icon">1</div>
                     <div class="step-label">Kişisel Bilgiler</div>
@@ -56,6 +58,11 @@ function kasko_teklif_form_shortcode()
 
             </div>
 
+
+
+        <div id="kaskoTeklifForm" style="display: flex;" class="container my-5 card shadow p-3">
+
+           
             <!-- Step 1 -->
             <div id="step1">
                   <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
@@ -75,26 +82,13 @@ function kasko_teklif_form_shortcode()
                 <button id="addProposal" class="primary-button mt-2 m-3 float-end">Teklif Al</button>
             </div>
 
-            <div class="card shadow p-4 mb-4 step-card d-none" id="step3">
-        <div id="loadingResults"></div>
+            <div class="p-4 mb-4 d-none" id="step3">
+                <div id="loadingResults"></div>
 
                 <div id="offerResults"></div>
             </div>
 
-            <!-- Modal -->
-            <div id="vehicleModal" class="modal fade" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Araç Ekle</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Buraya araç ekleme formu gelecek...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
         </div>
         <div id="notif"

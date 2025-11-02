@@ -31,30 +31,31 @@ function tss_form_shortcode()
     ob_start();
     ?>
     <div id="tssModuleContainer">
-        <div class="card shadow p-4 mb-4">
-            <div class="d-flex justify-content-between mb-4" id="stepProgress">
-                <div class="step active" data-step="1">
-                    <div class="step-icon">1</div>
-                    <div class="step-label">Kişisel Bilgiler</div>
-                </div>
-                <div class="step" data-step="2">
-                    <div class="step-icon">2</div>
-                    <div class="step-label">Araç Bilgileri</div>
-                </div>
-                <div class="step" data-step="3">
-                    <div class="step-icon">3</div>
-                    <div class="step-label">Teklif Bilgileri</div>
-                </div>
-
+        <h2 class="text-center mb-4">Tamamlayıcı Sağlık Sigortası ile Ek Masraflara Son</h2>
+        <div class="d-flex justify-content-between mb-4" id="stepProgress">
+            <div class="step active" data-step="1">
+                <div class="step-icon">1</div>
+                <div class="step-label">Kişisel Bilgiler</div>
             </div>
-
+            <div class="step" data-step="2">
+                <div class="step-icon">2</div>
+                <div class="step-label">Araç Bilgileri</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-icon">3</div>
+                <div class="step-label">Teklif Bilgileri</div>
+            </div>
+            
+        </div>
+        
+        <div class="card shadow p-4 mb-4">
             <!-- Step 1 -->
 
             <?php include plugin_dir_path(dirname(__FILE__)) . 'assets/components/personalForm.php'; ?>
 
             <!-- Step 2 -->
             <div id="step2" class="d-none p-3">
-                <form id="step2Form" class="step-card ">
+                <form id="step2Form" class=" ">
                     <div class="row g-3">
                         <div class="col-md-6"><label>Boy (cm)</label><input type="number" class="form-control" id="height"
                                 required></div>

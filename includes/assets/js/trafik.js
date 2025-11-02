@@ -127,6 +127,7 @@ async function renderProposalResults(products, proposalId) {
             `;
 
     offerResults.innerHTML += productsHtml;
+    
 
     // Teminatlar butonlarına event listener ekle
     document.querySelectorAll('.toggle-warranties').forEach(button => {
@@ -219,15 +220,15 @@ async function loadProposalDetails(proposalId) {
     // İlk yükleme mesajı
     const initialMessage = "🚀 Sigorta teklifleriniz için hazırlık yapıyoruz...";
     loadingResults.innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Yükleniyor...</span>
+    <div class="text-center">
+            <p class="mt-1 mb-2" style="font-size: 0.9rem; color: #6c757d;">Teklifler hazırlanıyor...</p>
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;" aria-label="Yükleniyor">
+                <span class="sr-only">Teklifler hazırlanıyor...</span>
             </div>
-            <p class="mt-3 mb-2" id="loadingMessage" style="font-size: 1.1rem; margin:20px; font-weight: 500; color:rgb(253, 177, 13);">
+            <p class="my-5" id="loadingMessage" style="font-size: 1.1rem; font-weight: 500; color:rgb(253, 177, 13);">
                 ${initialMessage}
             </p>
-            <p class="text-muted small mb-3">Teklifler hazırlanıyor...</p>
-            <div class="progress mt-2" style="height: 28px; border-radius: 15px;">
+            <div class="progress mt-4" style="height: 28px; border-radius: 15px;">
                 <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
                      role="progressbar" 
                      style="width: 0%; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; justify-content: center;">0%</div>
@@ -306,8 +307,8 @@ async function loadProposalDetails(proposalId) {
             }
         }
 
-        // Mesajları 5 saniyede bir değiştiren zamanlayıcıyı başlat
-        messageInterval = setInterval(updateLoadingMessage, 5000);
+        // Mesajları 6 saniyede bir değiştiren zamanlayıcıyı başlat
+        messageInterval = setInterval(updateLoadingMessage, 6000);
 
         let requestCount = 0;
         let completedProducts = getCompletedProducts(products);
@@ -318,7 +319,7 @@ async function loadProposalDetails(proposalId) {
 
         // WAITING olan ürünler varsa ve maksimum istek sayısına ulaşmadıysak bekle
         while (percentage < 100 && requestCount < 35) {
-            await new Promise(resolve => setTimeout(resolve, 4000));
+            await new Promise(resolve => setTimeout(resolve, 6000));
             
             response = await apiGetFetch("proposals/" + proposalId);
             products = response.products;
@@ -330,25 +331,28 @@ async function loadProposalDetails(proposalId) {
 
             console.log(`Tamamlanan: ${completedProducts.length}/${totalProductsCount}, Yüzde: ${percentage}%, İstek: ${requestCount}`);
 
-            // Progress bar'ı güncelle (mesaj zamanlayıcı tarafından otomatik güncelleniyor)
-            const currentMessage = messages[messageIndex % messages.length];
-            loadingResults.innerHTML = `
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Yükleniyor...</span>
-                    </div>
-                    <p class="mt-3 my-4" id="loadingMessage" style="margin:20px; font-size: 1.1rem; font-weight: 500; color:rgb(253, 177, 13); min-height: 2rem;">
-                        ${currentMessage}
-                    </p>
-                   
-                    <div class="progress mt-2" style="height: 28px; border-radius: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" 
-                             style="width: ${percentage}%; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; background: linear-gradient(45deg, #0d6efd, #0a58ca);">${percentage}%</div>
-                    </div>
-                    ${percentage >= 90 ? '<p class="mt-3 text-success"><strong>🎉 Neredeyse tamamlandı!</strong></p>' : ''}
-                </div>
-            `;
+            // Sadece progress bar'ı güncelle (mesaj zamanlayıcı tarafından otomatik güncelleniyor)
+            const progressBar = document.getElementById("progressBar");
+            if (progressBar) {
+                progressBar.style.width = percentage + "%";
+                progressBar.textContent = percentage + "%";
+            }
+
+            // %90 üzeri mesajını kontrol et
+            const existingContainer = loadingResults.querySelector('.text-center');
+            if (existingContainer) {
+                const successMsg = existingContainer.querySelector('.text-success');
+                if (percentage >= 90) {
+                    if (!successMsg) {
+                        const successP = document.createElement('p');
+                        successP.className = 'mt-3 text-success';
+                        successP.innerHTML = '<strong>🎉 Neredeyse tamamlandı!</strong>';
+                        existingContainer.appendChild(successP);
+                    }
+                } else if (successMsg) {
+                    successMsg.remove();
+                }
+            }
         }
 
         // Zamanlayıcıyı temizle
