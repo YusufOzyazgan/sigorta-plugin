@@ -49,7 +49,7 @@ function kasko_teklif_form_shortcode()
             </div>
             <div class="step" data-step="2">
                 <div class="step-icon">2</div>
-                <div class="step-label">Konut Bilgileri</div>
+                <div class="step-label">Araç Bilgileri</div>
             </div>
             <div class="step" data-step="3">
                 <div class="step-icon">3</div>

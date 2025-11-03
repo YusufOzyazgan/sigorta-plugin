@@ -47,7 +47,7 @@ function konut_shortcode()
 {
     ob_start(); ?>
 
-    <h1 class="text-center mb-4">Konut Sigortası Teklifi Al</h1>
+    <h2 class="text-center mb-4">Konut Sigortası Teklifi Al</h2 >
     <div id="konut-container" style="display: flex;" class="container my-5 card shadow p-3">
         <div class="container my-4">
 

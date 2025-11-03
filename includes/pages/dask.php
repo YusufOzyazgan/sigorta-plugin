@@ -44,7 +44,7 @@ function dask_shortcode()
 
     <div id="dask-container" >
         <div class="container my-4">
-            <h1 class="text-center mb-4">DASK Sigortası Teklifi Al</h1>
+            <h2 class="text-center mb-4">DASK Sigortası Teklifi Al</h2>
 
             <!-- Progress Bar -->
             <div class="d-flex justify-content-between mb-4" id="stepProgress">

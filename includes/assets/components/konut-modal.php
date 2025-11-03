@@ -25,13 +25,33 @@ document.addEventListener("DOMContentLoaded", function () {
         jQuery('.selectpicker').selectpicker('refresh');
     }
 
-    // şehir dropdown’u varsa load fonksiyonu çağır
-    if (typeof loadCities === 'function') {
-        loadCities('#citySelectProperty');
-    } else {
-        console.warn("loadCities fonksiyonu bulunamadı (varliklarim.js veya konut.js içinde tanımlı olmalı).");
-    }
+    // Şehir dropdown’u doldur (global loadCities yoksa yerel fallback)
+    (async function initCities() {
+        var cityEl = document.getElementById('citySelectProperty');
+        if (!cityEl) return;
+
+        if (typeof loadCities === 'function') {
+            try { loadCities('#citySelectProperty'); return; } catch(_) {}
+        }
+
+        try {
+            // Yerel fallback: şehirleri doldur
+            var cities = await apiGetFetch('address-parameters/cities');
+            if (!Array.isArray(cities)) return;
+            cities.sort(function(a,b){ return (a.text||'').localeCompare(b.text||''); });
+            cityEl.innerHTML = '<option value="">Şehir Seçin</option>';
+            cities.forEach(function(c){
+                var opt = document.createElement('option');
+                opt.value = c.value; opt.text = c.text; cityEl.appendChild(opt);
+            });
+            if (typeof jQuery !== 'undefined' && jQuery.fn.selectpicker) {
+                jQuery(cityEl).selectpicker('refresh');
+            }
+        } catch (e) {
+            console.warn('Şehirler yüklenemedi:', e);
+        }
+    })();
 });
 </script>
-<script src="<?php echo plugin_dir_url(__FILE__); ?>../assets/js/konut.js"></script>
-<script src="<?php echo plugin_dir_url(__FILE__); ?>../assets/js/varliklarim.js"></script>
+<script src="<?php echo plugin_dir_url(dirname(__FILE__)); ?>js/konut.js"></script>
+<script src="<?php echo plugin_dir_url(dirname(__FILE__)); ?>js/varliklarim.js"></script>

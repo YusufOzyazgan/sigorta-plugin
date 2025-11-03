@@ -590,9 +590,12 @@ async function firstStep() {
             phone: phoneInput.value,
             email: emailInput.value,
             birthDate: birthDateInput.value,
-            fullName: fullNameInput.value || null
+            fullName: fullNameInput.value,
+            city: citySelect.value,
+            district: districtSelect.value
         };
-
+        
+        
         return JSON.stringify(originalCustomerData) !== JSON.stringify(currentData);
     }
     if (state) {
@@ -610,11 +613,13 @@ async function firstStep() {
             fullNameInput.value = customer.fullName || '';
 
             originalCustomerData = {
-                identityNumber: customer.identityNumber || '',
-                phone: customer.primaryPhoneNumber?.number || '',
-                email: customer.primaryEmail || '',
-                birthDate: customer.birthDate || '',
-                fullName: customer.fullName || ''
+                identityNumber: parseInt(tcInput.value),
+                phone: phoneInput.value,
+                email: emailInput.value,
+                birthDate: birthDateInput.value,
+                fullName: fullNameInput.value,
+                city: citySelect.value,
+                district: districtSelect.value
             };
 
 
@@ -624,7 +629,7 @@ async function firstStep() {
                 await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
                 await showStep(step2);
                 
-                await showVehicles();
+                //await showVehicles();
 
             }
 
@@ -663,10 +668,10 @@ async function firstStep() {
 
 
     personalForm.addEventListener('submit', async e => {
-
+        
         e.preventDefault();
         isInfoChange = checkInfoChanged();
-
+        console.log("isInfoChange : ", isInfoChange);
         if (customer) {
             if (!citySelect || !districtSelect || !fullNameInput) {
                 return await showMessage("Lütfen tüm alanları doldurun!", "error");
@@ -697,6 +702,15 @@ async function firstStep() {
                     },
                     "cityReference": document.getElementById('cityTraffic').value,
                     "districtReference": document.getElementById('districtTraffic').value,
+                };
+                originalCustomerData = {
+                    identityNumber: parseInt(tcInput.value),
+                    phone: phoneInput.value,
+                    email: emailInput.value,
+                    birthDate: birthDateInput.value,
+                    fullName: fullNameInput.value,
+                    city: citySelect.value,
+                    district: districtSelect.value
                 };
                 console.log("put fetch çalıştı: ", updateData);
                 const response = await apiPutFetch('customers/' + customer.id, updateData);
