@@ -21,9 +21,9 @@ if (!defined('ABSPATH'))
 
         <!-- Sekmeler (Ajax Olarak)-->
         <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <button id="tabPlakasiz" class="btn success-button border-0 activeArea" style="flex:1;">Plakasız
+            <button id="tabPlakasiz" class="btn btn-success border-0" style="flex:1;">Plakasız
                 Araç</button>
-            <button id="tabPlakali" class="btn success-button border-0" style="flex:1;">Plakalı Araç</button>
+            <button id="tabPlakali" class="btn btn-outline-success" style="flex:1;">Plakalı Araç</button>
         </div>
 
         <form id="vehicleForm">

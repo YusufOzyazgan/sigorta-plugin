@@ -583,7 +583,7 @@ async function firstStep() {
     var state = JSON.parse(localStorage.getItem("state"));
     var isInfoChange = false;
     var originalCustomerData = {};
-
+ 
     function checkInfoChanged() {
         const currentData = {
             identityNumber: parseInt(tcInput.value),
@@ -594,7 +594,8 @@ async function firstStep() {
             city: citySelect.value,
             district: districtSelect.value
         };
-        
+        console.log("currentData : ", currentData);
+        console.log("originalCustomerData : ", originalCustomerData);
         
         return JSON.stringify(originalCustomerData) !== JSON.stringify(currentData);
     }
@@ -611,26 +612,23 @@ async function firstStep() {
             emailInput.value = customer.primaryEmail || '';
             birthDateInput.value = customer.birthDate || '';
             fullNameInput.value = customer.fullName || '';
-
             originalCustomerData = {
-                identityNumber: parseInt(tcInput.value),
-                phone: phoneInput.value,
-                email: emailInput.value,
+                identityNumber: customer.identityNumber,
+                phone: customer.primaryPhoneNumber?.number,
+                email: customer.primaryEmail,
                 birthDate: birthDateInput.value,
-                fullName: fullNameInput.value,
-                city: citySelect.value,
-                district: districtSelect.value
+                fullName: customer.fullName,
+                city: customer.city?.value,
+                district: customer.district?.value
             };
-
+            
+            console.log("originalCustomerdata set edildi : ", originalCustomerData);
 
 
 
             if (customer.identityNumber && customer.fullName && customer.primaryPhoneNumber?.number && customer.primaryEmail && customer.birthDate && customer.city?.value) {
                 await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
                 await showStep(step2);
-                
-                //await showVehicles();
-
             }
 
 
@@ -656,10 +654,8 @@ async function firstStep() {
             return;
         }
         else {
-            loadTrafikModule();
+           await  window.loadTrafikModule();
         }
-
-
         return;
     });
 
@@ -686,7 +682,7 @@ async function firstStep() {
 
 
                 console.log("personel submit çalıştı kullanıcı düzenleniyor");
-                console.log(customer);
+              
                 const updateData = {
                     "$type": "individual",
                     "fullName": fullNameInput.value,

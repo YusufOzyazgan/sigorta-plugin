@@ -119,31 +119,34 @@ window.loadDaskModule = async function (container) {
                 alert("Lütfen bir konut seçin veya yeni konut ekleyin.");
                 return;
             }
+            
+            await showMessage("Bu Alanda Çalışma Olduğundan Dolayı Lütfen İletişime Geçiniz","warning",6);
+            return;
+            
+            // const propertyId = selectedProperty ? selectedProperty.dataset.propertyId : addedPropertyId;
 
-            const propertyId = selectedProperty ? selectedProperty.dataset.propertyId : addedPropertyId;
+            // const formData = {
+            //     $type: "dask",
+            //     channel: "WEBSITE",
+            //     coverageGroupIds: null,
+            //     insuredCustomerId: customerId,
+            //     insurerCustomerId: customerId,
+            //     productBranch: "Dask",
+            //     propertyId: propertyId
+            // };
 
-            const formData = {
-                $type: "dask",
-                channel: "WEBSITE",
-                coverageGroupIds: null,
-                insuredCustomerId: customerId,
-                insurerCustomerId: customerId,
-                productBranch: "Dask",
-                propertyId: propertyId
-            };
-
-            try {
-                const proposal = await apiPostFetch("proposals", formData);
-                if (proposal?.proposalId) {
-                    showStep(step3);
-                    await loadProposalDetails(proposal.proposalId);
-                } else {
-                    alert("Teklif oluşturulamadı!");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Teklif alınamadı!");
-            }
+            // try {
+            //     const proposal = await apiPostFetch("proposals", formData);
+            //     if (proposal?.proposalId) {
+            //         showStep(step3);
+            //         await loadProposalDetails(proposal.proposalId);
+            //     } else {
+            //         alert("Teklif oluşturulamadı!");
+            //     }
+            // } catch (err) {
+            //     console.error(err);
+            //     alert("Teklif alınamadı!");
+            // }
         });
 
         // --- Teklif detaylarını yükleme ---

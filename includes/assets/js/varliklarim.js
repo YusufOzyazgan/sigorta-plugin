@@ -28,6 +28,10 @@ window.loadVarliklarimModule = async function (container) {
 
     const vehicles = await apiGetFetch('customers/me/vehicles');
     if (vehicles === null) return;
+    console.log('Vehicles response:', vehicles); // Debug için
+    if (vehicles.length > 0) {
+        console.log('İlk vehicle objesi:', vehicles[0]); // Debug için
+    }
     const properties = await apiGetFetch('customers/me/properties');
     if (properties === null) return;
 
@@ -46,18 +50,26 @@ window.loadVarliklarimModule = async function (container) {
                     <div class="card h-100 shadow-sm" style="border:2px solid #ddd; border-radius:10px; padding:15px;">
                         <div class="d-flex align-items-center mt-2">
                             <img src="${varliklarimIcons.car}" alt="Car Icon" class="mb-2 me-2" style="width:30px;height:30px;">
-                            <h4>${v.model.brand.text || ''}</h4>
+                            <h4>${v.model?.brand?.text || ''}</h4>
                         </div>
                         <hr>
                         <div>
-                            <p style="margin-bottom:5px; margin-top:5px;"><strong>Model:</strong> ${v.model.type.text || '-'}</p>
+                            <p style="margin-bottom:5px; margin-top:5px;"><strong>Model:</strong> ${v.model?.type?.text || '-'}</p>
                             <p style="margin-bottom:5px;"><strong>Plakalı mı:</strong> ${v.plate?.code ? "Evet" : "Hayır"}</p>
                             ${v.plate?.code ? `<p style="margin-bottom:5px;"><strong>Plaka:</strong> ${v.plate.code}</p>` : ''}
                             <p style="margin-bottom:5px;"><strong>Şasi No:</strong> ${v.chassisNumber || '-'}</p>
                             <p style="margin-bottom:5px;"><strong>Motor No:</strong> ${v.engineNumber || '-'}</p>
-                            <p style="margin-bottom:5px;"><strong>Yıl:</strong> ${v.model.year || '-'}</p>
+                            <p style="margin-bottom:5px;"><strong>Yıl:</strong> ${v.model?.year || '-'}</p>
                             <p style="margin-bottom:5px;"><strong>Yakıt:</strong> ${v.fuel?.type || '-'}</p>
                             <p style="margin-bottom:5px;"><strong>Koltuk:</strong> ${v.seatNumber || '-'}</p>
+                        </div>
+                        <div class="mt-3 d-flex gap-2 justify-content-end">
+                            <button class="btn btn-sm btn-outline-danger deleteVehicleBtn" data-vehicle-id="${v.id}" data-customer-id="${id}" style="border-width: 1.5px; transition: all 0.3s ease;">
+                                <i class="fas fa-trash-alt me-1"></i> Sil
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary editVehicleBtn" data-vehicle-id="${v.id}" data-customer-id="${id}" style="border-width: 1.5px; transition: all 0.3s ease;">
+                                <i class="fas fa-edit me-1"></i> Düzenle
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -109,12 +121,60 @@ window.loadVarliklarimModule = async function (container) {
     document.addEventListener('click', async function (e) {
         if (e.target && e.target.id === 'addVarlikBtn') document.getElementById('varlikEkleModal').style.display = 'flex';
         
+        // Sil butonu kontrolü
+        const deleteBtn = e.target.closest('.deleteVehicleBtn');
+        if (deleteBtn) {
+            const vehicleId = deleteBtn.getAttribute('data-vehicle-id');
+            const customerId = deleteBtn.getAttribute('data-customer-id');
+            
+            console.log('Sil butonu tıklandı - vehicleId:', vehicleId, 'customerId:', customerId);
+            
+            if (!vehicleId || !customerId) {
+                await showMessage('Araç bilgileri bulunamadı.', 'error');
+                return;
+            }
+            
+            // Onay mesajı
+            const confirmDelete = confirm('Bu aracı silmek istediğinize emin misiniz?');
+            if (!confirmDelete) return;
+            
+            try {
+                const endpoint = `customers/${customerId}/vehicles/${vehicleId}`;
+                const requestData = {
+                    customerId: customerId,
+                    customerVehicleId: vehicleId
+                };
+                
+                console.log('DELETE isteği gönderiliyor:', endpoint, requestData);
+                const result = await apiDeleteFetch(endpoint, requestData);
+                if (result) {
+                    await showMessage('Araç başarıyla silindi.', 'success');
+                    // Sayfayı yenile
+                    await window.loadVarliklarimModule(container);
+                } else {
+                    await showMessage('Araç silinirken bir hata oluştu.', 'error');
+                }
+            } catch (err) {
+                console.error('Araç silme hatası:', err);
+                await showMessage('Araç silinirken bir hata oluştu.', 'error');
+            }
+            return;
+        }
+        
+        // Düzenle butonu kontrolü (şimdilik boş)
+        const editBtn = e.target.closest('.editVehicleBtn');
+        if (editBtn) {
+            // Düzenle butonu şimdilik bir yere yönlendirmiyor
+            console.log('Düzenle butonu tıklandı, vehicleId:', editBtn.getAttribute('data-vehicle-id'));
+            return;
+        }
+        
         // selectVehicle kontrolü - kart içindeki herhangi bir elemente tıklanınca çalışsın
         const vehicleCard = e.target.closest('#selectVehicle');
         if (vehicleCard) {
             document.getElementById('varlikEkleModal').style.display = 'none';
             document.getElementById('vehicleModal').style.display = 'flex';
-
+            
             const aracOlustur = await createVehicle();
             if (!aracOlustur) {
                 return;
@@ -537,8 +597,32 @@ async function createVehicle() {
     const plakasizForm = document.getElementById('plakasizForm');
     const plakaliForm = document.getElementById('plakaliForm');
 
-    plakasizTab.addEventListener('click', () => { plakasizTab.classList.add('activeArea'); plakaliTab.classList.remove('activeArea'); plakasizForm.style.display = 'block'; plakaliForm.style.display = 'none'; });
-    plakaliTab.addEventListener('click', () => { plakaliTab.classList.add('activeArea'); plakasizTab.classList.remove('activeArea'); plakaliForm.style.display = 'block'; plakasizForm.style.display = 'none'; });
+    plakasizTab.addEventListener('click', () => { 
+        plakasizTab.classList.add('activeArea'); 
+        plakaliTab.classList.remove('activeArea'); 
+        plakasizForm.style.display = 'block'; 
+        plakaliForm.style.display = 'none';
+        // Buton stillerini güncelle
+        plakasizTab.classList.remove('btn-outline-success');
+        plakasizTab.classList.add('btn-success');
+        plakasizTab.classList.add('border-0'); // Aktif için border-0 ekle
+        plakaliTab.classList.remove('btn-success');
+        plakaliTab.classList.remove('border-0'); // Pasif için border-0'ı kaldır (outline görünsün)
+        plakaliTab.classList.add('btn-outline-success');
+    });
+    plakaliTab.addEventListener('click', () => { 
+        plakaliTab.classList.add('activeArea'); 
+        plakasizTab.classList.remove('activeArea'); 
+        plakaliForm.style.display = 'block'; 
+        plakasizForm.style.display = 'none';
+        // Buton stillerini güncelle
+        plakaliTab.classList.remove('btn-outline-success');
+        plakaliTab.classList.add('btn-success');
+        plakaliTab.classList.add('border-0'); // Aktif için border-0 ekle
+        plakasizTab.classList.remove('btn-success');
+        plakasizTab.classList.remove('border-0'); // Pasif için border-0'ı kaldır (outline görünsün)
+        plakasizTab.classList.add('btn-outline-success');
+    });
 
 
 
@@ -953,23 +1037,195 @@ async function createVehicle() {
         };
 
         try {
-
+            await showMessage("Tramer Sorgulaması Yapılıyor...", "warning", 4);
             const endpoint = `customers/${customerId}/vehicles/external-lookup`;
             const response = await apiPostFetch(endpoint, requestData);
-
+ 
             console.log("Tramer sorgu sonucu:", response);
 
-            // Dönen verileri formda göster
+            // Dönen verileri formda göster - Basit yaklaşım
             if (response) {
-                document.getElementById('brandSelectPlakali').value = response.model?.brand?.value || '';
-                document.getElementById('modelSelectPlakali').value = response.model?.type?.value || '';
-                document.getElementById('yearInputPlakali').value = response.model?.year || '';
-                document.getElementById('usageInputPlakali').value = response.utilizationStyle || '';
-                document.getElementById('engineInputPlakali').value = response.engine || '';
-                document.getElementById('chassisInputPlakali').value = response.chassis || '';
-                document.getElementById('fuelInputPlakali').value = response.fuelType || '';
-                document.getElementById('registrationDatePlakali').value = response.registrationDate || '';
-                document.getElementById('seatCountPlakali').value = response.seatNumber || '';
+                // Marka seçimi
+                if (response.model?.brand?.value) {
+                    jQuery('#brandSelectPlakali').val(response.model.brand.value);
+                    jQuery('#brandSelectPlakali').selectpicker('refresh');
+                    
+                    // Refresh sonrası button text'ini düzelt
+                    setTimeout(() => {
+                        const brandSelect = document.getElementById('brandSelectPlakali');
+                        const brandButton = brandSelect.parentElement.querySelector('.btn.dropdown-toggle .filter-option-inner-inner');
+                        if (brandButton && brandSelect.selectedIndex >= 0) {
+                            const selectedOption = brandSelect.options[brandSelect.selectedIndex];
+                            if (selectedOption) {
+                                const correctText = selectedOption.text.trim();
+                                if (brandButton.textContent.trim() !== correctText) {
+                                    brandButton.textContent = correctText;
+                                }
+                            }
+                        }
+                    }, 50);
+                    
+                    // Marka seçildikten sonra modelleri yükle ve seç
+                    const year = response.model?.year || '';
+                    if (year) {
+                        document.getElementById('yearInputPlakali').value = year;
+                        
+                        // Modelleri yükle
+                        try {
+                            const models = (await apiGetFetch(`vehicle-parameters/models?brandReference=${response.model.brand.value}&year=${year}`)).sort((a, b) => a.text.localeCompare(b.text));
+                            
+                            if (models && models.length > 0) {
+                                // Model select'i temizle ve doldur
+                                jQuery('#modelSelectPlakali').selectpicker('destroy');
+                                jQuery('#modelSelectPlakali').empty();
+                                jQuery('#modelSelectPlakali').append(new Option("Model Seçiniz", ""));
+                                
+                                models.forEach(m => {
+                                    jQuery('#modelSelectPlakali').append(new Option(m.text, m.value));
+                                });
+                                
+                                // Model seçimi
+                                if (response.model?.type?.value) {
+                                    jQuery('#modelSelectPlakali').val(response.model.type.value);
+                                }
+                                
+                                jQuery('#modelSelectPlakali').selectpicker({
+                                    liveSearch: true,
+                                    liveSearchNormalize: true
+                                });
+                                
+                                // Button text'ini düzelt
+                                setTimeout(() => {
+                                    const modelSelect = document.getElementById('modelSelectPlakali');
+                                    const modelButton = modelSelect.parentElement.querySelector('.btn.dropdown-toggle .filter-option-inner-inner');
+                                    if (modelButton && modelSelect.selectedIndex >= 0) {
+                                        const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+                                        if (selectedOption) {
+                                            const correctText = selectedOption.text.trim();
+                                            if (modelButton.textContent.trim() !== correctText) {
+                                                modelButton.textContent = correctText;
+                                            }
+                                        }
+                                    }
+                                }, 50);
+                            }
+                        } catch (modelError) {
+                            console.error('Model yükleme hatası:', modelError);
+                        }
+                    }
+                }
+                
+                // Kullanım şekli seçimi
+                if (response.utilizationStyle) {
+                    jQuery('#usageInputPlakali').val(response.utilizationStyle);
+                    jQuery('#usageInputPlakali').selectpicker('refresh');
+                    
+                    // Refresh sonrası button text'ini düzelt
+                    setTimeout(() => {
+                        const usageSelect = document.getElementById('usageInputPlakali');
+                        const usageButton = usageSelect.parentElement.querySelector('.btn.dropdown-toggle .filter-option-inner-inner');
+                        if (usageButton && usageSelect.selectedIndex >= 0) {
+                            const selectedOption = usageSelect.options[usageSelect.selectedIndex];
+                            if (selectedOption) {
+                                const correctText = selectedOption.text.trim();
+                                const currentText = usageButton.textContent.trim();
+                                // Eğer çift görünüyorsa düzelt
+                                if (currentText !== correctText && currentText.includes(correctText)) {
+                                    usageButton.textContent = correctText;
+                                } else if (currentText !== correctText) {
+                                    usageButton.textContent = correctText;
+                                }
+                            }
+                        }
+                    }, 50);
+                }
+                
+                // Yakıt türü seçimi
+                if (response.fuelType || response.fuel?.type) {
+                    const fuelValue = response.fuelType || response.fuel?.type;
+                    jQuery('#fuelInputPlakali').val(fuelValue);
+                    jQuery('#fuelInputPlakali').selectpicker('refresh');
+                    
+                    // Refresh sonrası button text'ini düzelt
+                    setTimeout(() => {
+                        const fuelSelect = document.getElementById('fuelInputPlakali');
+                        const fuelButton = fuelSelect.parentElement.querySelector('.btn.dropdown-toggle .filter-option-inner-inner');
+                        if (fuelButton && fuelSelect.selectedIndex >= 0) {
+                            const selectedOption = fuelSelect.options[fuelSelect.selectedIndex];
+                            if (selectedOption) {
+                                const correctText = selectedOption.text.trim();
+                                const currentText = fuelButton.textContent.trim();
+                                // Eğer çift görünüyorsa düzelt
+                                if (currentText !== correctText && currentText.includes(correctText)) {
+                                    fuelButton.textContent = correctText;
+                                } else if (currentText !== correctText) {
+                                    fuelButton.textContent = correctText;
+                                }
+                            }
+                        }
+                    }, 50);
+                }
+                
+                // Text input alanları
+                if (response.engine) {
+                    document.getElementById('engineInputPlakali').value = response.engine;
+                }
+                if (response.chassis) {
+                    document.getElementById('chassisInputPlakali').value = response.chassis;
+                }
+                if (response.registrationDate) {
+                    document.getElementById('registrationDatePlakali').value = response.registrationDate;
+                }
+                if (response.seatNumber) {
+                    document.getElementById('seatCountPlakali').value = response.seatNumber;
+                }
+                
+                // Tramer sorgulamasından veri geldiği için tüm alanları disable et
+                const fieldsToDisable = [
+                    'brandSelectPlakali',
+                    'yearInputPlakali',
+                    'modelSelectPlakali',
+                    'usageInputPlakali',
+                    'engineInputPlakali',
+                    'chassisInputPlakali',
+                    'fuelInputPlakali',
+                    'registrationDatePlakali',
+                    'seatCountPlakali',
+                    'citySelectPlakali',
+                    'plateInput',
+                    'documentSeries',
+                    'documentNo'
+                ];
+                
+                fieldsToDisable.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        if (field.tagName === 'SELECT') {
+                            field.disabled = true;
+                            jQuery(`#${fieldId}`).selectpicker('refresh');
+                            
+                            // Refresh sonrası button text'ini düzelt (çift görünmeyi önlemek için)
+                            setTimeout(() => {
+                                const button = field.parentElement.querySelector('.btn.dropdown-toggle .filter-option-inner-inner');
+                                if (button && field.selectedIndex >= 0) {
+                                    const selectedOption = field.options[field.selectedIndex];
+                                    if (selectedOption) {
+                                        const correctText = selectedOption.text.trim();
+                                        const currentText = button.textContent.trim();
+                                        // Eğer çift görünüyorsa düzelt
+                                        if (currentText !== correctText && currentText.includes(correctText)) {
+                                            button.textContent = correctText;
+                                        } else if (currentText !== correctText) {
+                                            button.textContent = correctText;
+                                        }
+                                    }
+                                }
+                            }, 50);
+                        } else {
+                            field.disabled = true;
+                        }
+                    }
+                });
             }
 
         } catch (error) {

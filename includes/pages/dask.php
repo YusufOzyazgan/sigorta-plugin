@@ -42,33 +42,34 @@ function dask_shortcode()
 
 
 
-    <div id="dask-container" >
+<h2 class="text-center mb-4">DASK Sigortası Teklifi Al</h2>
+ <!-- Progress Bar -->
+<div class="d-flex justify-content-between mb-4" id="stepProgress">
+    <div class="step active" data-step="1">
+        <div class="step-icon">1</div>
+        <div class="step-label">Kişisel Bilgiler</div>
+     </div>
+     <div class="step" data-step="2">
+        <div class="step-icon">2</div>
+        <div class="step-label">Konut Bilgileri</div>
+    </div>
+    <div class="step" data-step="3">
+        <div class="step-icon">3</div>
+        <div class="step-label">Teklif Bilgileri</div>
+    </div>
+</div>
+
+    <div id="dask-container" style="display: flex;" class="container my-5 card shadow p-3">
         <div class="container my-4">
-            <h2 class="text-center mb-4">DASK Sigortası Teklifi Al</h2>
 
-            <!-- Progress Bar -->
-            <div class="d-flex justify-content-between mb-4" id="stepProgress">
-                <div class="step active" data-step="1">
-                    <div class="step-icon">1</div>
-                    <div class="step-label">Kişisel Bilgiler</div>
-                </div>
-                <div class="step" data-step="2">
-                    <div class="step-icon">2</div>
-                    <div class="step-label">Konut Bilgileri</div>
-                </div>
-                <div class="step" data-step="3">
-                    <div class="step-icon">3</div>
-                    <div class="step-label">Teklif Bilgileri</div>
-                </div>
-            </div>
-
+           
             <!-- Step 1 -->
             
         <?php include dirname(__DIR__) . '/assets/components/personalForm.php'; ?>
             
 
             <!-- Step 2 -->
-            <div class="card shadow p-4 mb-4 step-card d-none" id="step2">
+            <div class=" d-none" id="step2">
                 <div id="propertyAlert" class="alert alert-warning d-none">
                     Henüz konut eklenmemiş. Lütfen "Konut Ekle" butonuna tıklayın.
 

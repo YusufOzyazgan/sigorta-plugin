@@ -246,6 +246,61 @@ async function apiPutFetch(endpoint, data, isRetry = false) {
 
 
 
+async function apiDeleteFetch(endpoint, data, isRetry = false) {
+    console.log("delete fetch çalıştı.");
+    console.log("DELETE endpoint:", endpoint);
+    console.log("DELETE data:", data);
+
+    try {
+        let token = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')).token.accessToken : null;
+        if (!token) {
+            await showMessage('Oturum yok. Lütfen giriş yapın.', "warning");
+            return;
+        }
+
+        const fetchOptions = {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept-Language': '',
+                'Content-Type': 'application/json'
+            }
+        };
+
+        // Body sadece data varsa ekle
+        if (data) {
+            fetchOptions.body = JSON.stringify(data);
+        }
+
+        const res = await fetch('https://api.insurup.com/api/' + endpoint, fetchOptions);
+
+        console.log("DELETE response status:", res.status);
+
+        if (res.status === 401 && !isRetry) {
+            console.warn("401 geldi, refresh denenecek...");
+
+            const newToken = await refreshOldToken();
+            if (newToken) {
+                return await apiDeleteFetch(endpoint, data, true);
+            } else {
+                await showMessage('Oturum yok. Lütfen giriş yapın.', "warning");
+                return;
+            }
+        }
+        if (!res.ok) {
+            await handleApiError(res);
+            return null;
+        }
+
+        return true;
+    } catch (err) {
+        console.error(err.message);
+        return null;
+    }
+}
+
+
+
 
 
 // Refresh Token

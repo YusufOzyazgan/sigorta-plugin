@@ -67,7 +67,7 @@ window.loadkaskoModule = async function (container) {
             $type: "kasko",
             coverage:null,
             channel: "WEBSITE",
-            coverageGroupIds: ["69033fc2760289c8c92b1059"],
+            coverageGroupIds: ["69033fc2760289c8c92b1059","690a0959a94b3bf6359fa2f2","690a09eaa94b3bf6359fa31b"],
             insuredCustomerId: id,
             insurerCustomerId: id,
             productBranch: "Kasko",
