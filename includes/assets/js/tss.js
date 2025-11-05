@@ -15,30 +15,48 @@ window.loadTssModule = async function (container) {
         e.preventDefault();
 
         const state = JSON.parse(localStorage.getItem("state")) || {};
-        const customerId = state.user?.costumerId || "";
+        let customerId = state.user?.costumerId || "";
         if(customerId === ""){
             const me = await apiGetFetch("customers/me");
             state.user.costumerId = me.id;
-            localStorage.setItem("state", JSON.stringify(state));
             customerId = me.id;
             localStorage.setItem("state", JSON.stringify({ ...state, user: { ...state.user, costumerId: customerId } }));
         }
 
-        const formData = {
-            $type: "tss",
-            vehicleId: "",
-            productBranch: "TSS",
-            insurerCustomerId: customerId,
-            insuredCustomerId: customerId,
-            coverageGroupIds: null,
-            coverageTable: null,
-            height: document.getElementById("height").value,
+        // Boy ve kilo bilgilerini al
+        const height = document.getElementById("height").value;
+        const weight = document.getElementById("weight").value;
 
-            channel: "WEBSITE"
-
-        };
-
+        // Önce boy ve kilo bilgilerini PUT ile kaydet
         try {
+            const heightWeightData = {
+                customerId: customerId,
+                height: parseInt(height),
+                weight: parseInt(weight)
+            };
+
+            // API endpoint'i - müşteri bilgilerini güncelle
+            const updateEndpoint = `customers/${customerId}/health-info`;
+            const updateResult = await apiPutFetch(updateEndpoint, heightWeightData);
+            
+            if (!updateResult) {
+                await showMessage("Boy ve kilo bilgileri kaydedilemedi.", "error");
+                return;
+            }
+
+            // Başarılı olduysa teklif alma isteğini at
+            const formData = {
+                $type: "tss",
+                vehicleId: "",
+                productBranch: "TSS",
+                insurerCustomerId: customerId,
+                insuredCustomerId: customerId,
+                coverageGroupIds: ["690a0959a94b3bf6359fa2f2","690a09eaa94b3bf6359fa31b"],
+                coverageTable: null,
+
+                channel: "WEBSITE"
+            };
+
             const response = await apiPostFetch("proposals", formData);
             if (response?.status === 200) {
                 await showMessage("Teklif oluşturuldu. ", "success");
@@ -60,8 +78,8 @@ window.loadTssModule = async function (container) {
                 });
             }
         } catch (err) {
-            console.error('tss.js: proposals isteği hata', err);
-            await showMessage("Teklif oluşturulamadı.", "error");
+            console.error('tss.js: boy/kilo kaydetme veya teklif alma hatası', err);
+            await showMessage("İşlem sırasında bir hata oluştu.", "error");
         }
     });
 

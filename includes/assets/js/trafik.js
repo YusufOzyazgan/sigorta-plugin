@@ -383,11 +383,26 @@ async function loadProposalDetails(proposalId) {
         let percentage = calculatePercentage(completedProducts.length, totalProductsCount);
         updateProgressBar(percentage);
 
+        // 90 saniye sonunda döngüyü durdurma flag'i
+        let shouldContinueLoop = true;
+        
+        // 90 saniye sonunda progress bar'ı %100 yap ve döngüyü durdur
+        const timeout90Seconds = setTimeout(() => {
+            shouldContinueLoop = false;
+            updateProgressBar(100);
+            console.log('90 saniye doldu, progress bar %100 yapıldı ve döngü durduruldu.');
+        }, 90000);
+
         console.log(`Toplam ürün: ${totalProductsCount}, Tamamlanan: ${completedProducts.length}, Yüzde: ${percentage}%`);
 
-        // WAITING olan ürünler varsa ve maksimum istek sayısına ulaşmadıysak bekle
-        while (percentage < 100 && requestCount < 35) {
+        // WAITING olan ürünler varsa ve maksimum istek sayısına ulaşmadıysak ve 90 saniye dolmadıysa bekle
+        while (percentage < 100 && requestCount < 35 && shouldContinueLoop) {
             await new Promise(resolve => setTimeout(resolve, 6000));
+            
+            // Eğer 90 saniye dolduysa döngüden çık
+            if (!shouldContinueLoop) {
+                break;
+            }
             
             response = await apiGetFetch("proposals/" + proposalId);
             products = response.products;
@@ -422,6 +437,9 @@ async function loadProposalDetails(proposalId) {
                 }
             }
         }
+
+        // Timeout'u temizle (eğer döngü erken biterse)
+        clearTimeout(timeout90Seconds);
 
         // Zamanlayıcıyı temizle
         if (messageInterval) {
