@@ -479,7 +479,14 @@ async function loadProposalDetails(proposalId) {
 async function showVehicles() {
     vehiclesList.innerHTML = '';
     const vehicles = await apiGetFetch("customers/me/vehicles") || [];
-
+    if(vehicles.length === 0) {
+        vehiclesList.innerHTML = `
+            <div class="alert alert-warning text-center">
+                <p>Maalesef kayıtlı araç bulunamadı. Lütfen araç ekleyiniz.</p>
+            </div>
+        `;
+        return;
+    }
     vehicles.forEach(vehicle => {
         const col = document.createElement('div');
         col.classList.add('col-md-4');

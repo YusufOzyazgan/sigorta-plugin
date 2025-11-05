@@ -145,12 +145,12 @@ window.loadVarliklarimModule = async function (container) {
                     customerVehicleId: vehicleId
                 };
                 
-                console.log('DELETE isteği gönderiliyor:', endpoint, requestData);
+               
                 const result = await apiDeleteFetch(endpoint, requestData);
                 if (result) {
                     await showMessage('Araç başarıyla silindi.', 'success');
                     // Sayfayı yenile
-                    await window.loadVarliklarimModule(container);
+                    window.loadVarliklarimModule(container);
                 } else {
                     await showMessage('Araç silinirken bir hata oluştu.', 'error');
                 }
@@ -174,7 +174,7 @@ window.loadVarliklarimModule = async function (container) {
         if (vehicleCard) {
             document.getElementById('varlikEkleModal').style.display = 'none';
             document.getElementById('vehicleModal').style.display = 'flex';
-            
+
             const aracOlustur = await createVehicle();
             if (!aracOlustur) {
                 return;
@@ -939,6 +939,7 @@ async function createVehicle() {
         } else {
             // Plakalı form
             formData = {
+                customerId: id,
                 plate: {
                     city: parseInt(document.getElementById("citySelectPlakali").value),
                     code: document.getElementById("plateInput").value
@@ -949,8 +950,8 @@ async function createVehicle() {
                 },
 
                 brandReference: brandSelectPlakali.value,
-                modelTypeRefernece: document.getElementById("modelSelectPlakali").value,
-                modelYear: document.getElementById("yearInputPlakali").value,
+                modelTypeReference: document.getElementById("modelSelectPlakali").value,
+                modelYear: parseInt(document.getElementById("yearInputPlakali").value),
                 utilizationStyle: vehicleTypesSelectPlakali.value || null,
                 engine: document.getElementById("engineInputPlakali").value,
                 chassis: document.getElementById("chassisInputPlakali").value,
@@ -960,7 +961,7 @@ async function createVehicle() {
                     customLpgPrice: null
                 },
                 registrationDate: document.getElementById("registrationDatePlakali").value,
-                seatCount: parseInt(document.getElementById("seatCountPlakali").value),
+                seatNumber: parseInt(document.getElementById("seatCountPlakali").value) || null,
                 kaskoOldPolicy: null,
                 trafikOldPolicy: null,
 
@@ -983,7 +984,7 @@ async function createVehicle() {
                 alert("Araç başarıyla eklendi.");
                 vehicleForm.reset();
                 await showMessage("Araç Eklendi", "success", 4);
-                   window.location.reload();
+                   //window.location.reload();
                 return true;
 
             }
@@ -1040,7 +1041,7 @@ async function createVehicle() {
             await showMessage("Tramer Sorgulaması Yapılıyor...", "warning", 4);
             const endpoint = `customers/${customerId}/vehicles/external-lookup`;
             const response = await apiPostFetch(endpoint, requestData);
- 
+
             console.log("Tramer sorgu sonucu:", response);
 
             // Dönen verileri formda göster - Basit yaklaşım

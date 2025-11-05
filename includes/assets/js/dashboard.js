@@ -64,7 +64,27 @@ window.loadDashboardModule = async function () {
             const activeTab = document.querySelector(`.dashboard-tab[data-tab="${tabName}"]`);
             if (activeTab) activeTab.classList.add('active');
 
-            dashboardBoxes.style.display = tabName === 'dashboard' ? 'flex' : 'none';
+            // Sidebar menü öğelerini güncelle
+            const sidebarItems = document.querySelectorAll('.sidebar-menu-item');
+            sidebarItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.tab === tabName) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Dashboard ana sayfası için sigorta kartlarını göster/gizle
+            const sigortaSection = document.querySelector('.sigorta-section');
+            if (sigortaSection) {
+                if (tabName === 'dashboard') {
+                    sigortaSection.style.display = 'block';
+                    tabContent.innerHTML = '';
+                    return; // Dashboard'da sadece sigorta kartlarını göster
+                } else {
+                    sigortaSection.style.display = 'none';
+                }
+            }
+            
             tabContent.innerHTML = '';
             console.log("tabname = " + tabName);
             if (tabName === 'varliklarim' && window.loadVarliklarimModule) {
@@ -73,30 +93,24 @@ window.loadDashboardModule = async function () {
                 await window.loadPolicelerimModule(tabContent);
             } else if (tabName === 'tekliflerim' && window.loadTekliflerimModule) {
                 await window.loadTekliflerimModule(tabContent);
-            } else if (tabName === 'bilgilerim' && window.loadBilgilerimModule) {
+            }             else if (tabName === 'bilgilerim' && window.loadBilgilerimModule) {
 
                 console.log("bilgilerim tabı çalışıyor");
                 await window.loadBilgilerimModule(tabContent);
             }
-            else if (tabName === 'trafik' && window.loadTrafikModule) {
-                console.log("trafik tabı çalışıyor");
-                await window.loadTrafikModule(tabContent);
-            }
-            else if (tabName === 'kasko' && window.loadKaskoModule) {
-                console.log("Kasko tabı çalışıyor");
-                await window.loadKaskoModule(tabContent);
-            }
-            else if (tabName === 'dask' && window.loadDaskModule) {
-                console.log("DASK tabı çalışıyor");
-                await window.loadDaskModule(tabContent);
-            }
-            else if (tabName === 'konut' && window.loadKonutModule) {
-                console.log("Konut tabı çalışıyor");
-                await window.loadKonutModule(tabContent);
-            }
-            else if (tabName === 'tss' && window.loadTssModule) {
-                console.log("TSS tabı çalışıyor");
-                await window.loadTssModule(tabContent);
+            else if (tabName === 'trafik' || tabName === 'kasko' || tabName === 'tss' || tabName === 'konut' || tabName === 'dask') {
+                // Sigorta kartları için sayfa yönlendirmeleri (openTab içinden çağrılırsa)
+                const urlMap = {
+                    'trafik': '/trafik-sigortasi/',
+                    'kasko': '/kasko/',
+                    'tss': '/tamamlayici-saglik-sigortasi/',
+                    'konut': '/konut-sigortasi/',
+                    'dask': '/dask/'
+                };
+                
+                if (urlMap[tabName]) {
+                    window.location.href = urlMap[tabName];
+                }
             }
 
 
@@ -113,10 +127,7 @@ window.loadDashboardModule = async function () {
             });
         });
 
-        const boxes = document.querySelectorAll('.dashboard-box');
-        boxes.forEach(box => {
-            box.addEventListener('click', () => openTab(box.dataset.tab));
-        });
+        // Sidebar menü öğeleri - direkt href ile yönlendirme yapıyor, JavaScript gerekmez
 
 
         openTab('dashboard');

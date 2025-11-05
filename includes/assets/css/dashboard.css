@@ -1,0 +1,350 @@
+/* Dashboard Wrapper ve Sidebar */
+.dashboard-wrapper {
+    display: flex;
+    min-height: calc(100vh - 80px);
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    overflow-x: hidden;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    width: 100vw;
+    max-width: 100vw;
+}
+
+.dashboard-sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    padding: 30px 25px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+}
+
+.sidebar-header-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.sidebar-menu {
+    flex: 1;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 25px;
+    text-decoration: none;
+    color: #636e72;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    position: relative;
+}
+
+.sidebar-menu-item:hover {
+    background: #f8f9fa;
+    color: #0984e3;
+    border-left-color: #0984e3;
+}
+
+.sidebar-menu-item.active {
+    background: linear-gradient(90deg, rgba(116, 185, 255, 0.1) 0%, rgba(9, 132, 227, 0.05) 100%);
+    color: #0984e3;
+    border-left-color: #0984e3;
+    font-weight: 600;
+}
+
+.sidebar-menu-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-menu-item:hover .sidebar-menu-icon,
+.sidebar-menu-item.active .sidebar-menu-icon {
+    transform: scale(1.1);
+}
+
+.sidebar-menu-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(0) saturate(100%) invert(40%) sepia(8%) saturate(1000%) hue-rotate(180deg) brightness(90%) contrast(90%);
+    transition: filter 0.3s ease;
+}
+
+.sidebar-menu-item:hover .sidebar-menu-icon img,
+.sidebar-menu-item.active .sidebar-menu-icon img {
+    filter: brightness(0) saturate(100%) invert(35%) sepia(95%) saturate(7493%) hue-rotate(213deg) brightness(100%) contrast(100%);
+}
+
+.sidebar-menu-text {
+    flex: 1;
+}
+
+.dashboard-main {
+    flex: 1;
+    padding: 30px;
+    max-width: calc(100% - 280px);
+    background: #f5f6fa;
+    margin: 0;
+    min-width: 0;
+}
+
+/* Sigorta Kartları Stilleri */
+.sigorta-section {
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+
+.sigorta-section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.sigorta-section-subtitle {
+    text-align: center;
+    color: #636e72;
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+}
+
+.sigorta-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.sigorta-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+}
+
+.sigorta-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #74b9ff, #0984e3);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.sigorta-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    border-color: #74b9ff;
+}
+
+.sigorta-card:hover::before {
+    transform: scaleX(1);
+}
+
+.sigorta-card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.sigorta-card:hover .sigorta-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.trafik-icon {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+}
+
+.kasko-icon {
+    background: linear-gradient(135deg, #55efc4, #00b894);
+}
+
+.tss-icon {
+    background: linear-gradient(135deg, #fdcb6e, #e17055);
+}
+
+.konut-icon {
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+}
+
+.dask-icon {
+    background: linear-gradient(135deg, #fd79a8, #e84393);
+}
+
+.sigorta-card-icon img {
+    width: 50px;
+    height: 50px;
+    filter: brightness(0) invert(1);
+}
+
+.sigorta-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sigorta-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 12px;
+}
+
+.sigorta-card-description {
+    color: #636e72;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.sigorta-card-footer {
+    margin-top: auto;
+}
+
+.sigorta-card-action {
+    color: #0984e3;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.sigorta-card:hover .sigorta-card-action {
+    color: #74b9ff;
+    transform: translateX(5px);
+}
+
+.sigorta-card-action i {
+    transition: transform 0.3s ease;
+}
+
+.sigorta-card:hover .sigorta-card-action i {
+    transform: translateX(3px);
+}
+
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        flex-direction: column;
+    }
+
+    .dashboard-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 15px 10px;
+        gap: 10px;
+    }
+
+    .sidebar-menu-item {
+        min-width: 140px;
+        flex-direction: column;
+        text-align: center;
+        padding: 15px 20px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        border-radius: 8px;
+    }
+
+    .sidebar-menu-item:hover,
+    .sidebar-menu-item.active {
+        border-left: none;
+        border-bottom-color: #0984e3;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .dashboard-main {
+        max-width: 100%;
+        padding: 20px 15px;
+    }
+
+    .sigorta-cards-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .sigorta-section-title {
+        font-size: 1.6rem;
+    }
+
+    .sigorta-section-subtitle {
+        font-size: 1rem;
+    }
+
+    .sigorta-card {
+        min-height: 250px;
+        padding: 25px 20px;
+    }
+}
+
