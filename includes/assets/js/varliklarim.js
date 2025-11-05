@@ -1,4 +1,11 @@
+// ====================================================================
+// (1) Global Flag: Modal'daki dropdown'ların dolu olup olmadığını takip eder
+// ====================================================================
+let isVehicleModalPopulated = false;
 
+// ====================================================================
+// (2) ANA FONKSİYON: Varlıklarımı Yükle
+// ====================================================================
 window.loadVarliklarimModule = async function (container) {
 
     const isLogin = await isAuth(container);
@@ -13,8 +20,6 @@ window.loadVarliklarimModule = async function (container) {
     var id = state.user?.costumerId;
     // Oturum dolmuş uyarısı ve login butonu
 
-
-
     if (!id) {
         const me = await apiGetFetch('customers/me');
         state.user.costumerId = me.id;
@@ -22,12 +27,11 @@ window.loadVarliklarimModule = async function (container) {
         localStorage.setItem('state', JSON.stringify(state));
     }
 
-
-
-
-
     const vehicles = await apiGetFetch('customers/me/vehicles');
     if (vehicles === null) return;
+    
+    // === ÖRNEK ARAÇ KALDIRILDI ===
+    
     console.log('Vehicles response:', vehicles); // Debug için
     if (vehicles.length > 0) {
         console.log('İlk vehicle objesi:', vehicles[0]); // Debug için
@@ -45,6 +49,10 @@ window.loadVarliklarimModule = async function (container) {
         html += '<div class="container mt-3"> <div class="row g-3">';
 
         vehicles.forEach(v => {
+            // === DÜZENLE BUTONU İÇİN VERİ HAZIRLAMA ===
+            // HTML içinde JSON'u güvenle saklamak için ' (tek tırnak) yerine &quot; kullan
+            const vehicleData = JSON.stringify(v).replace(/"/g, '&quot;');
+            
             html += `
                 <div class="col-12 col-sm-6 col-md-4 col-lg-4">
                     <div class="card h-100 shadow-sm" style="border:2px solid #ddd; border-radius:10px; padding:15px;">
@@ -67,7 +75,8 @@ window.loadVarliklarimModule = async function (container) {
                             <button class="btn btn-sm btn-outline-danger deleteVehicleBtn" data-vehicle-id="${v.id}" data-customer-id="${id}" style="border-width: 1.5px; transition: all 0.3s ease;">
                                 <i class="fas fa-trash-alt me-1"></i> Sil
                             </button>
-                            <button class="btn btn-sm btn-outline-primary editVehicleBtn" data-vehicle-id="${v.id}" data-customer-id="${id}" style="border-width: 1.5px; transition: all 0.3s ease;">
+                            
+                            <button class="btn btn-sm btn-outline-primary editVehicleBtn" data-vehicle-object="${vehicleData}" data-customer-id="${id}" style="border-width: 1.5px; transition: all 0.3s ease;">
                                 <i class="fas fa-edit me-1"></i> Düzenle
                             </button>
                         </div>
@@ -107,12 +116,8 @@ window.loadVarliklarimModule = async function (container) {
 
                 `;
         });
-        //   <button class="btn btn-sm btn-outline-info ms-auto mt-2">Detaylar</button> 
+        //   <button class="btn btn-sm btn-outline-info ms-auto mt-2">Detaylar</button> 
         html += `</div> </div>`;
-
-
-
-
     }
 
     container.innerHTML += html;
@@ -145,12 +150,12 @@ window.loadVarliklarimModule = async function (container) {
                     customerVehicleId: vehicleId
                 };
                 
-               
+                console.log('DELETE isteği gönderiliyor:', endpoint, requestData);
                 const result = await apiDeleteFetch(endpoint, requestData);
                 if (result) {
                     await showMessage('Araç başarıyla silindi.', 'success');
                     // Sayfayı yenile
-                    window.loadVarliklarimModule(container);
+                    await window.loadVarliklarimModule(container);
                 } else {
                     await showMessage('Araç silinirken bir hata oluştu.', 'error');
                 }
@@ -161,27 +166,35 @@ window.loadVarliklarimModule = async function (container) {
             return;
         }
         
-        // Düzenle butonu kontrolü (şimdilik boş)
-        const editBtn = e.target.closest('.editVehicleBtn');
-        if (editBtn) {
-            // Düzenle butonu şimdilik bir yere yönlendirmiyor
-            console.log('Düzenle butonu tıklandı, vehicleId:', editBtn.getAttribute('data-vehicle-id'));
-            return;
-        }
+        // === DÜZENLE BUTONU LISTENER'I BURADAN KALDIRILDI ===
+        // (Artık dışarıdaki listener bu işi yapıyor)
         
-        // selectVehicle kontrolü - kart içindeki herhangi bir elemente tıklanınca çalışsın
+        // selectVehicle kontrolü (YENİ ARAÇ EKLEME)
         const vehicleCard = e.target.closest('#selectVehicle');
         if (vehicleCard) {
             document.getElementById('varlikEkleModal').style.display = 'none';
             document.getElementById('vehicleModal').style.display = 'flex';
+            
+            // === YENİ EKLEME: Başlık ve Butonları Ayarla ===
+            const modalTitle = document.querySelector("#vehicleModal .modal-title");
+            if (modalTitle) modalTitle.textContent = "Araç Ekle";
+            
+            // "Güncelle" (saveEditVehicleBtn) butonunu gizle
+            const saveBtn = document.getElementById("saveEditVehicleBtn");
+            if (saveBtn) saveBtn.style.display = 'none';
+            
+            // "Kaydet" (submit) butonunu göster
+            const createSubmitButton = document.querySelector('#vehicleForm button[type="submit"]'); 
+            if(createSubmitButton) createSubmitButton.style.display = 'block';
 
-            const aracOlustur = await createVehicle();
-            if (!aracOlustur) {
-                return;
-            }
-            else {
-                loadVarliklarimModule(container);
-            }
+            // Sekmeleri sıfırla (Plakalı varsayılan)
+            document.getElementById("tabPlakali").click();
+            // === YENİ EKLEME SONU ===
+
+            await createVehicle(); // Modalı ve listener'ları hazırlar (gerekirse)
+            
+            // 'loadVarliklarimModule(container)' çağrısı buradan kaldırıldı, 
+            // çünkü 'createVehicle' artık sadece kurulum yapıyor, submit işlemi değil.
         }
         
         // selectProperty kontrolü - kart içindeki herhangi bir elemente tıklanınca çalışsın
@@ -196,6 +209,7 @@ window.loadVarliklarimModule = async function (container) {
 
 
     // KONUT İŞLEMLERİ *********************************************************
+    // (Bu kısım değiştirilmedi)
 
     document.getElementById('createProperty').addEventListener('click', async () => {
         await konutOlustur();
@@ -226,10 +240,8 @@ window.loadVarliklarimModule = async function (container) {
 
 
     document.getElementById("selectProperty").addEventListener("click", async () => {
-
-
-
-        // Şehirleri al ve select'e ekle
+        // ... (Tüm konut adres seçici kodları)
+         // Şehirleri al ve select'e ekle
         // --- Başlangıç: Şehirleri yükle ---
         const cities = (await apiGetFetch(`address-parameters/cities`))
             .sort((a, b) => a.text.localeCompare(b.text));
@@ -261,8 +273,8 @@ window.loadVarliklarimModule = async function (container) {
         selects.forEach(selector => {
             const $el = jQuery(selector);
             $el.selectpicker('destroy'); // Eski cache'i temizle
-            $el.empty();                 // Optionları temizle
-            $el.prop('disabled', true);  // Başlangıçta disabled
+            $el.empty();                 // Optionları temizle
+            $el.prop('disabled', true);  // Başlangıçta disabled
             $el.selectpicker({
                 liveSearch: true,
                 liveSearchNormalize: true
@@ -433,7 +445,7 @@ window.loadVarliklarimModule = async function (container) {
         buildingSelect.addEventListener("change", async () => {
             const apartmentSelect = document.getElementById('apartmentSelect');
             //address-parameters/apartments?buildingReference=19935533
-            try {                                    //address-parameters/apartments?buildingReference=9487881
+            try {                                    //address-parameters/apartments?buildingReference=9487881
                 let apartments = (await apiGetFetch(`address-parameters/apartments?buildingReference=${buildingSelect.value}`));
                 if (!apartments) {
                     await showMessage("Daire no çekilemedi daha sonra tekrar deneiyniz", "error");
@@ -453,11 +465,6 @@ window.loadVarliklarimModule = async function (container) {
                 console.error("Hata daire seçimi:", err);
             }
         });
-
-
-
-
-
 
         const radiosProperty = document.querySelectorAll('input[name="lossPaaeClause"]');
         const lossPayeeProperty = document.getElementById('lossPayeeProperty');
@@ -545,16 +552,254 @@ window.loadVarliklarimModule = async function (container) {
             alert("Konut eklenirken hata oluştu.");
         }
     }
+}; // === loadVarliklarimModule Bitişi ===
 
 
+// ====================================================================
+// (3) ARAÇ DÜZENLEME (EDIT) Listener (Global Kapsamda)
+// ====================================================================
+document.addEventListener("click", async function (e) {
+    const editBtn = e.target.closest(".editVehicleBtn");
+    if (!editBtn) return;
 
+    // 🔹 1. Araç ve müşteri bilgilerini butondan al
+    let customerId = editBtn.getAttribute("data-customer-id");
+    const vehicleDataString = editBtn.getAttribute("data-vehicle-object");
+
+    // Eğer müşteri ID yoksa localStorage’dan çek
+    if (!customerId) {
+        const state = JSON.parse(localStorage.getItem("state"));
+        customerId = state?.user?.costumerId;
+    }
+
+    let vehicle;
+    try {
+        // HTML'den okunan veriyi JSON objesine çevir
+        vehicle = JSON.parse(vehicleDataString);
+    } catch (parseError) {
+        console.error("Araç verisi parse edilemedi:", parseError, vehicleDataString);
+        await showMessage("Araç bilgileri okunamadı (JSON hatası).", "error");
+        return;
+    }
+
+    if (!vehicle) {
+        await showMessage("Araç bilgileri alınamadı (Veri boş).", "error");
+        return;
+    }
+
+    // PUT isteği için aracın 'id' veya 'chassis/engine' numarasını al
+    let vehicleId = vehicle.id || vehicle.vehicleId || vehicle.customerVehicleId || vehicle.chassisNumber || vehicle.engineNumber;
+
+    if (!vehicleId || !customerId) {
+        console.error("Vehicle veya Customer ID eksik.", vehicleId, customerId);
+        await showMessage("Araç bilgileri alınamadı (ID eksik).", "error");
+        return;
+    }
+
+    // Modal Başlığını al
+    const modalTitle = document.querySelector("#vehicleModal .modal-title");
+    const defaultModalTitle = "Araç Ekle"; // Orijinal başlığı buraya yazın
+
+    try {
+        console.log("Düzenleme isteği başlatıldı:", vehicleId, customerId);
+
+        // === 1. MODALI HAZIRLA (En Önemli Adım) ===
+        // Bu, dropdown'ları doldurur ve listener'ları (sekme, submit) bir kez yükler.
+        await createVehicle();
+        
+        // 🔹 2. Modalı aç
+        document.getElementById("vehicleModal").style.display = "flex";
+
+        // 🔹 3. Modal Başlığını Güncelle
+        if (modalTitle) {
+            modalTitle.textContent = "Araç Düzenle";
+        }
+        
+        // 🔹 4. "Plakalı" Sekmesini Aktif Et ve Formu Göster
+        document.getElementById("tabPlakali").click();
+
+        // 🔹 5. Formu Doldur
+        document.getElementById("brandSelectPlakali").value = vehicle.model?.brand?.value || "";
+        document.getElementById("yearInputPlakali").value = vehicle.model?.year || "";
+        document.getElementById("chassisInputPlakali").value = vehicle.chassisNumber || "";
+        document.getElementById("engineInputPlakali").value = vehicle.engineNumber || "";
+        document.getElementById("registrationDatePlakali").value = vehicle.registrationDate || "";
+        document.getElementById("seatCountPlakali").value = vehicle.seatNumber || "";
+
+        // Yakıt verisi (Test verisinde "Dizel", formda "DIESEL" olabilir, bunu eşleştir)
+        const fuelMap = {
+            "Dizel": "DIESEL",
+            "Benzin": "GASOLINE",
+            "Elektrik": "ELECTRIC",
+            "LPG": "LPG",
+            "LPG + Benzin": "LPG_GASOLINE"
+        };
+        const fuelValue = fuelMap[vehicle.fuel?.type] || vehicle.fuel?.type;
+        document.getElementById("fuelInputPlakali").value = fuelValue;
+
+        // Şehir ve Kullanım Tipi gibi diğer dropdown'ları da doldur
+        if (vehicle.plate?.city) {
+            document.getElementById("citySelectPlakali").value = vehicle.plate.city;
+        }
+        if (vehicle.utilizationStyle) {
+            document.getElementById("usageInputPlakali").value = vehicle.utilizationStyle;
+        }
+
+        // Marka ve Yıl seçildikten sonra Model listesini manuel olarak yükle
+        if (vehicle.model?.brand?.value && vehicle.model?.year) {
+            // handleBrandOrYearChangePlakali'yi çağırarak modellerin yüklenmesini sağla
+            await handleBrandOrYearChangePlakali();
+            // Modeller yüklendikten sonra doğru modeli seç
+            document.getElementById("modelSelectPlakali").value = vehicle.model?.type?.value || "";
+        }
+        
+        // Tüm selectpicker'ları yenile (önemli)
+        jQuery("#brandSelectPlakali, #modelSelectPlakali, #fuelInputPlakali, #citySelectPlakali, #usageInputPlakali").selectpicker("refresh");
+
+        // 🔹 6. Güncelle butonunu kontrol et, yoksa oluştur
+        let saveBtn = document.getElementById("saveEditVehicleBtn");
+        if (!saveBtn) {
+            saveBtn = document.createElement("button");
+            saveBtn.id = "saveEditVehicleBtn";
+            saveBtn.className = "btn btn-success w-100 mt-3";
+            saveBtn.innerHTML = `<i class="fas fa-save me-2"></i> Güncelle`;
+            // Butonu modal footer'a ekle
+            const modalFooter = document.querySelector("#vehicleModal .modal-footer") || document.getElementById("vehicleForm");
+            modalFooter.appendChild(saveBtn);
+        }
+        
+        // Butonları Yönet (Güvenli)
+        const createSubmitButton = document.querySelector('#vehicleForm button[type="submit"]'); 
+        if(createSubmitButton) {
+            createSubmitButton.style.display = 'none';
+        }
+        saveBtn.style.display = 'block';
+
+        // 🔹 7. Güncelleme işlemi
+        saveBtn.onclick = async () => {
+            
+            const isPlakasizActive = document.getElementById("plakasizForm").style.display !== "none";
+            let data = {};
+
+            // Kullanıcı hangi sekmedeyse o sekmenin verisini al
+            if (isPlakasizActive) {
+                console.warn("Plakasız sekmesinde güncelleme yapılıyor...");
+                data = {
+                    ...vehicle, // Orijinal veriyi temel al
+                    brandReference: document.getElementById("brandSelect").value,
+                    modelTypeReference: document.getElementById("modelSelect").value,
+                    modelYear: parseInt(document.getElementById("yearInput").value),
+                    engine: document.getElementById("engineInput").value,
+                    chassis: document.getElementById("chassisInput").value,
+                    fuel: { type: document.getElementById("fuelInput").value, customLpg: false, customLpgPrice: null },
+                    registrationDate: document.getElementById("registrationDate").value || null,
+                    seatNumber: parseInt(document.getElementById("seatCount").value) || null,
+                    utilizationStyle: document.getElementById("usageInput").value || null,
+                    plate: {
+                        city: parseInt(document.getElementById("citySelect").value),
+                        code: "", // Plakasız
+                    },
+                };
+            } else {
+                // Varsayılan olarak Plakalı formunun verilerini al
+                data = {
+                    ...vehicle, // Orijinal veriyi temel al
+                    brandReference: document.getElementById("brandSelectPlakali").value,
+                    modelTypeReference: document.getElementById("modelSelectPlakali").value,
+                    modelYear: parseInt(document.getElementById("yearInputPlakali").value),
+                    chassis: document.getElementById("chassisInputPlakali").value,
+                    engine: document.getElementById("engineInputPlakali").value,
+                    registrationDate: document.getElementById("registrationDatePlakali").value,
+                    seatNumber: parseInt(document.getElementById("seatCountPlakali").value),
+                    fuel: {
+                        type: document.getElementById("fuelInputPlakali").value,
+                        customLpg: false,
+                        customLpgPrice: null,
+                    },
+                    plate: {
+                        city: parseInt(document.getElementById("citySelectPlakali").value),
+                        code: document.getElementById("plateInput").value
+                    },
+                     utilizationStyle: document.getElementById("usageInputPlakali").value || null,
+                };
+            }
+
+            try {
+                const result = await apiPutFetch(`customers/${customerId}/vehicles/${vehicleId}`, data);
+                if (result) {
+                    await showMessage("Araç başarıyla güncellendi.", "success");
+                    document.getElementById("vehicleModal").style.display = "none";
+                    
+                    // Modal Başlığını Sıfırla
+                    if (modalTitle) {
+                        modalTitle.textContent = defaultModalTitle; 
+                    }
+
+                    // Butonları sıfırla
+                    saveBtn.style.display = 'none';
+                    if(createSubmitButton) createSubmitButton.style.display = 'block';
+
+                    // Varlıklar modülünü yeniden yükle
+                    const container = document.querySelector("#varliklarim") || document.querySelector("main") ; 
+                    if (container) {
+                        container.innerHTML = ''; 
+                        await window.loadVarliklarimModule(container);
+                    }
+                } else {
+                    await showMessage("Güncelleme başarısız.", "error");
+                    if (modalTitle) modalTitle.textContent = defaultModalTitle;
+                }
+            } catch (err) {
+                console.error("Güncelleme hatası:", err);
+                await showMessage("Sunucu hatası.", "error");
+                if (modalTitle) modalTitle.textContent = defaultModalTitle;
+            }
+        };
+    } catch (err) {
+        console.error("Araç düzenleme hatası:", err);
+        await showMessage("Araç bilgileri alınamadı (Genel Hata).", "error");
+        // Hata olursa modalı kapat ve başlığı sıfırla
+        document.getElementById("vehicleModal").style.display = "none";
+        if (modalTitle) modalTitle.textContent = defaultModalTitle;
+    }
+});
+
+
+// ====================================================================
+// (4) apiPutFetch (Yardımcı Fonksiyon)
+// ====================================================================
+async function apiPutFetch(endpoint, data) {
+    const state = JSON.parse(localStorage.getItem("state"));
+    const token = state?.token?.accessToken;
+    const response = await fetch(API_URL + endpoint, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) return null;
+    return await response.json();
 }
+
+
+// ====================================================================
+// (5) createVehicle (Kurulum Fonksiyonu - Eski Yapı Korundu)
+// ====================================================================
 async function createVehicle() {
+    
+    // === BAYRAK KONTROLÜ ===
+    // Eğer bu fonksiyon (ve içindeki tüm listener'lar) zaten yüklendiyse, tekrar çalıştırma.
+    if (isVehicleModalPopulated) return true;
+    // === BAYRAK KONTROLÜ SONU ===
 
 
     var state = JSON.parse(localStorage.getItem("state"));
     var token = state?.token.accessToken;
     var id = state.user?.costumerId;
+    
+    // --- 1. Dropdown'ları Doldur (Marka) ---
     try {
         // Markaları al ve select'e ekle
         const brands = (await apiGetFetch("vehicle-parameters/brands")).sort((a, b) => a.text.localeCompare(b.text));
@@ -582,7 +827,7 @@ async function createVehicle() {
 
         modelSelect.disabled = true;
         modelSelect.innerHTML = '<option value="">Önce Marka Seçiniz</option>';
-        // jQuery('#modelSelect, #modelSelectPlakali').selectpicker('refresh');
+        jQuery('#modelSelect, #modelSelectPlakali').selectpicker('refresh');
         console.log("Markalar geldi:", brands);
 
     } catch (err) {
@@ -590,8 +835,7 @@ async function createVehicle() {
     }
 
 
-
-
+    // --- 2. Sekme (Tab) Listener'larını Ekle ---
     const plakasizTab = document.getElementById('tabPlakasiz');
     const plakaliTab = document.getElementById('tabPlakali');
     const plakasizForm = document.getElementById('plakasizForm');
@@ -624,10 +868,7 @@ async function createVehicle() {
         plakasizTab.classList.add('btn-outline-success');
     });
 
-
-
-    // radio alanları input ekleme plakasız 
-
+    // --- 3. Radio Buton Listener'larını Ekle ---
     const radios = document.querySelectorAll('input[name="lienType"]');
     const lossPayee = document.getElementById('lienInput');
 
@@ -642,8 +883,6 @@ async function createVehicle() {
             }
         });
     });
-
-    // radio alanları input ekleme plakalı 
 
     const radiosPlakali = document.querySelectorAll('input[name="lienTypePlakali"]');
     const lossPayeePlakali = document.getElementById('lienInputPlakali');
@@ -661,17 +900,10 @@ async function createVehicle() {
     });
 
 
-
-    // Şehir ekleme
-
-
+    // --- 4. Dropdown'ları Doldur (Şehir) ---
     const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta", "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce"];
     const citySelect = document.getElementById('citySelect');
     const citySelectPlakali = document.getElementById('citySelectPlakali');
-
-
-
-
 
     cities.forEach((c, index) => {
         const plateCode = index + 1;
@@ -685,9 +917,7 @@ async function createVehicle() {
     });
 
 
-
-    // Yakıt türü ve değerleri eklendi
-
+    // --- 5. Dropdown'ları Doldur (Yakıt) ---
     const fuels = [
         { text: "Benzin", value: "GASOLINE" },
         { text: "Dizel", value: "DIESEL" },
@@ -699,11 +929,7 @@ async function createVehicle() {
     jQuery('#fuelInputPlakali').selectpicker();
     const fuelInput = document.getElementById('fuelInput');
     const fuelInputPlakali = document.getElementById('fuelInputPlakali');
-
-
     jQuery('#fuelInput,#fuelInputPlakali').selectpicker('destroy');
-
-
     jQuery('#fuelInput,#fuelInputPlakali').empty();
 
     fuels.forEach((fuel, index) => {
@@ -718,88 +944,15 @@ async function createVehicle() {
     });
 
 
-
-    // Modelleri al ve select'e ekle
-
-    brandSelect.addEventListener("change", handleBrandOrYearChange);
-    yearInput.addEventListener("change", handleBrandOrYearChange);
-    yearInputPlakali.addEventListener("change", handleBrandOrYearChangePlakali);
-    brandSelectPlakali.addEventListener("change", handleBrandOrYearChangePlakali);
-
-
-    async function handleBrandOrYearChange() {
+    // --- 6. Model Yükleme Listener'ları ---
+    // (Bu fonksiyonlar artık globalde tanımlı)
+    document.getElementById('brandSelect').addEventListener("change", handleBrandOrYearChange);
+    document.getElementById('yearInput').addEventListener("change", handleBrandOrYearChange);
+    document.getElementById('yearInputPlakali').addEventListener("change", handleBrandOrYearChangePlakali);
+    document.getElementById('brandSelectPlakali').addEventListener("change", handleBrandOrYearChangePlakali);
 
 
-        let year = document.getElementById('yearInput').value;
-        console.log("Seçilen yıl:", year, brandSelect.value);
-
-        const models = (await apiGetFetch(`vehicle-parameters/models?brandReference=${brandSelect.value}&year=${year}`)).sort((a, b) => a.text.localeCompare(b.text));
-
-
-        // Eğer hiç model yoksa select'i disable yap
-        // Eğer hiç model yoksa select'i disable yap
-        if (!models || models.length === 0) {
-            modelSelect.disabled = true;
-            modelSelect.innerHTML = '<option value="">Model Yok</option>';
-
-
-            jQuery('#modelSelect').selectpicker('destroy');
-        } else {
-            modelSelect.disabled = false;
-
-
-            jQuery('#modelSelect').selectpicker('destroy');
-            jQuery('#modelSelect').empty();
-            jQuery('#modelSelect').append(new Option("Model Seçiniz", ""));
-
-            models.forEach(c => {
-                jQuery('#modelSelect').append(new Option(c.text, c.value));
-            });
-            jQuery('#modelSelect').selectpicker({
-                liveSearch: true,
-                liveSearchNormalize: true
-            });
-
-            console.log("Modeller geldi:", models);
-        }
-
-    };
-
-    async function handleBrandOrYearChangePlakali() {
-
-        let yearPlakali = document.getElementById('yearInputPlakali').value;
-
-
-        const modelsPlakali = (await apiGetFetch(`vehicle-parameters/models?brandReference=${brandSelectPlakali.value}&year=${yearPlakali}`)).sort((a, b) => a.text.localeCompare(b.text));
-
-
-
-        if (!modelsPlakali || modelsPlakali.length === 0) {
-            modelSelectPlakali.disabled = true;
-            modelSelectPlakali.innerHTML = '<option value="">Model Yok</option>';
-
-
-            jQuery('#modelSelectPlakali').selectpicker('destroy');
-        } else {
-            modelSelectPlakali.disabled = false;
-
-            jQuery('#modelSelectPlakali').selectpicker('destroy');
-            jQuery('#modelSelectPlakali').empty();
-            jQuery('#modelSelectPlakali').append(new Option("Model Seçiniz", ""));
-
-            modelsPlakali.forEach(c => {
-                jQuery('#modelSelectPlakali').append(new Option(c.text, c.value));
-            });
-            jQuery('#modelSelectPlakali').selectpicker({
-                liveSearch: true,
-                liveSearchNormalize: true
-            });
-        }
-
-    };
-
-
-    //Kullanımm Şekilleri
+    // --- 7. Dropdown'ları Doldur (Kullanım Şekli) ---
     jQuery('#usageInput').selectpicker();
     jQuery('#usageInputPlakali').selectpicker();
     const vehicleTypesSelect = document.getElementById('usageInput');
@@ -824,7 +977,6 @@ async function createVehicle() {
         { text: "Tanker", value: "TANKER" },
         { text: "Traktör", value: "TRACTOR" }
     ];
-    // araç türü ekleme alanı
     jQuery('#usageInput,#usageInputPlakali').selectpicker('destroy');
     jQuery('#usageInput,#usageInputPlakali').empty();
     vehicleTypes.forEach((vehicle, index) => {
@@ -838,32 +990,38 @@ async function createVehicle() {
     });
 
 
-
-    //Plakasız Form Araç Ekleme
-
+    // --- 8. Form "Submit" (Kaydet) Listener'ı ---
     const vehicleForm = document.getElementById("vehicleForm");
     var accessoriesPlakasiz = [];
     var accessories = [];
 
     vehicleForm.addEventListener("submit", async function (e) {
         e.preventDefault();
+        
+        // Eğer 'Güncelle' butonu görünürse, 'Kaydet' işlemi çalışmamalı
+        const saveBtn = document.getElementById("saveEditVehicleBtn");
+        if (saveBtn && saveBtn.style.display === 'block') {
+            console.warn("Submit engellendi, güncelleme işlemi aktif.");
+            return; 
+        }
+
         const lossPayeeType = parseInt(document.querySelector('input[name="lienType"]:checked')?.value);
         const lossPayeeName = document.getElementById("lossPayeeClauseInput")?.value?.trim();
 
         const lossPayeeTypePlakali = parseInt(document.querySelector('input[name="lienTypePlakali"]:checked')?.value);
         const lossPayeeNamePlakali = document.getElementById("lossPayeeClauseInputPlakali")?.value?.trim();
-        // Plakasız aksesuarlar
+        
         var soundAccessory = document.getElementById("accessorySound").value;
         var screenAccessory = document.getElementById("accessoryScreen").value;
         var otherAccessory = document.getElementById("accessoryOther").value;
-        // Plakalı aksesuarlar
         var soundAccessoryPlakali = document.getElementById("accessorySoundPlakali").value;
         var screenAccessoryPlakali = document.getElementById("accessoryScreenPlakali").value;
         var otherAccessoryPlakali = document.getElementById("accessoryOtherPlakali").value;
 
+        // Aksesuarları her submit'te sıfırla
+        accessoriesPlakasiz = [];
+        accessories = [];
 
-
-        // Plakasız eklemeler (burda ters oldu)
         if (soundAccessory) {
             accessoriesPlakasiz.push({ type: "sound", value: parseInt(soundAccessory), description: "" });
         }
@@ -873,7 +1031,6 @@ async function createVehicle() {
         if (otherAccessory) {
             accessoriesPlakasiz.push({ type: "other", value: parseInt(otherAccessory), description: "" });
         }
-
 
         if (soundAccessoryPlakali) {
             accessories.push({ type: "sound", value: parseInt(soundAccessoryPlakali), description: "" });
@@ -885,32 +1042,25 @@ async function createVehicle() {
             accessories.push({ type: "other", value: parseInt(otherAccessoryPlakali), description: "" });
         }
 
-
-
-
-
         const isPlakasiz = document.getElementById("plakasizForm").style.display !== "none";
 
-        // Ortak değişken
         let formData = {};
-        var state = JSON.parse(localStorage.getItem("state"));
+        // Submit anındaki güncel ID'yi al
+        var currentState = JSON.parse(localStorage.getItem("state"));
+        var currentId = currentState.user?.costumerId;
 
-        var id = state.user?.costumerId;
-
-        if (!id) {
+        if (!currentId) {
             const me = await apiGetFetch('customers/me');
-            state.user.costumerId = me.id;
-            id = me.id;
-            localStorage.setItem('state', JSON.stringify(state));
+            currentState.user.costumerId = me.id;
+            currentId = me.id;
+            localStorage.setItem('state', JSON.stringify(currentState));
         }
 
 
         if (isPlakasiz) {
             formData = {
-                customerId: id,
-                //accossories düzenlenecek
-                accessories: accessoriesPlakasiz || null,
-
+                customerId: currentId,
+                accessories: accessoriesPlakasiz.length > 0 ? accessoriesPlakasiz : null,
                 plate: {
                     city: parseInt(citySelect.value),
                     code: "",
@@ -933,13 +1083,11 @@ async function createVehicle() {
                 lossPayeeClause: (lossPayeeType || lossPayeeName)
                     ? { type: lossPayeeType, name: lossPayeeName }
                     : null
-
-
             };
         } else {
             // Plakalı form
             formData = {
-                customerId: id,
+                customerId: currentId, // Submit anındaki ID'yi kullan
                 plate: {
                     city: parseInt(document.getElementById("citySelectPlakali").value),
                     code: document.getElementById("plateInput").value
@@ -948,10 +1096,11 @@ async function createVehicle() {
                     code: document.getElementById("documentSeries").value,
                     number: document.getElementById("documentNo").value
                 },
-
                 brandReference: brandSelectPlakali.value,
+                // === YAZIM HATASI DÜZELTMESİ ===
                 modelTypeReference: document.getElementById("modelSelectPlakali").value,
-                modelYear: parseInt(document.getElementById("yearInputPlakali").value),
+                // === YAZIM HATASI DÜZELTMESİ SONU ===
+                modelYear: document.getElementById("yearInputPlakali").value,
                 utilizationStyle: vehicleTypesSelectPlakali.value || null,
                 engine: document.getElementById("engineInputPlakali").value,
                 chassis: document.getElementById("chassisInputPlakali").value,
@@ -961,38 +1110,33 @@ async function createVehicle() {
                     customLpgPrice: null
                 },
                 registrationDate: document.getElementById("registrationDatePlakali").value,
-                seatNumber: parseInt(document.getElementById("seatCountPlakali").value) || null,
+                seatCount: parseInt(document.getElementById("seatCountPlakali").value),
                 kaskoOldPolicy: null,
                 trafikOldPolicy: null,
-
-                accessories: accessories || null,
+                accessories: accessories.length > 0 ? accessories : null,
                 lossPayeeClause: (lossPayeeTypePlakali || lossPayeeNamePlakali)
                     ? { type: lossPayeeTypePlakali, name: lossPayeeNamePlakali }
                     : null
-            }
-
+            };
         }
 
         console.log("Form Data Hazır:", formData);
 
         //API isteği
         try {
-
-            const endpoint = "customers/" + id + "/vehicles";
+            const endpoint = "customers/" + currentId + "/vehicles";
             const response = await apiPostFetch(endpoint, formData);
             if (response) {
                 alert("Araç başarıyla eklendi.");
                 vehicleForm.reset();
                 await showMessage("Araç Eklendi", "success", 4);
-                   //window.location.reload();
+                window.location.reload();
                 return true;
-
             }
             else {
                 alert("Araç eklenemedi, lütfen bilgileri kontrol ediniz.");
                 return false;
             }
-
         } catch (err) {
             console.error("API Hatası:", err);
             alert("Form gönderilirken hata oluştu!");
@@ -1000,20 +1144,20 @@ async function createVehicle() {
         }
     });
 
-
-
-    // tramer bilgileri ile verileri çek 
-
-
+    // --- 9. Tramer Butonu Listener'ı ---
     document.getElementById('tramerBtn').addEventListener('click', async function () {
         
-        if (!id) {
+        var currentState = JSON.parse(localStorage.getItem("state"));
+        var currentId = currentState.user?.costumerId;
+
+        if (!currentId) {
             const me = await apiGetFetch('customers/me');
-            state.user.costumerId = me.id;
-            id = me.id;
-            localStorage.setItem('state', JSON.stringify(state));
+            currentState.user.costumerId = me.id;
+            currentId = me.id;
+            localStorage.setItem('state', JSON.stringify(currentState));
         }
-        const customerId = id;
+        
+        const customerId = currentId;
         const plate = document.getElementById('plateInput').value.trim();
         const city = parseInt(document.getElementById('citySelectPlakali').value);
         
@@ -1041,10 +1185,10 @@ async function createVehicle() {
             await showMessage("Tramer Sorgulaması Yapılıyor...", "warning", 4);
             const endpoint = `customers/${customerId}/vehicles/external-lookup`;
             const response = await apiPostFetch(endpoint, requestData);
-
+ 
             console.log("Tramer sorgu sonucu:", response);
 
-            // Dönen verileri formda göster - Basit yaklaşım
+            // Dönen verileri formda göster
             if (response) {
                 // Marka seçimi
                 if (response.model?.brand?.value) {
@@ -1234,5 +1378,8 @@ async function createVehicle() {
         }
     });
 
-
+    // === BAYRAK SET ETME ===
+    // Tüm kurulum ve listener'lar eklendi.
+    isVehicleModalPopulated = true;
+    return true; // Başarı
 }
