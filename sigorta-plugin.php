@@ -12,6 +12,9 @@ if (!defined('ABSPATH'))
 
 function sigorta_enqueue_scripts()
 {
+    if (!sp_check_license()) {
+        wp_die('Lisansınız geçersiz. Lütfen WithSolver ile iletişime geçin.');
+    }
 
     // Elementor editörde çalışmayı durdur
     if (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->editor->is_edit_mode()) {
@@ -27,9 +30,11 @@ function sigorta_enqueue_scripts()
     wp_enqueue_script('bootstrap-select-js', 'https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js', array('jquery', 'bootstrap-js'), '1.14.0-beta3', true);
 
     // Font Awesome
-        wp_enqueue_style(
-        'nunito-sans','https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap', array(), // Dependencies
-        null // Versiyon (null bırakabilirsin)
+    wp_enqueue_style(
+        'nunito-sans',
+        'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap',
+        array(),
+        null
     );
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
 
@@ -92,6 +97,12 @@ function sigorta_get_data()
 
     wp_send_json_success($data);
     wp_die();
+}
+function sp_check_license() {
+    $domain = $_SERVER['Buraya server name gelecek'];
+    $res = wp_remote_get('https://withsolver.com/sigorta-plugin/includes/license-check.php?domain=' . $domain, ['timeout' => 5]);
+    if (is_wp_error($res)) return false;
+    return wp_remote_retrieve_body($res) === 'OK';
 }
 
 /**
