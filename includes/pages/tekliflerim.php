@@ -14,9 +14,17 @@ function tekliflerim_enqueue_scripts()
     );
 
     wp_enqueue_script(
+        'trafik-js',
+        plugin_dir_url(dirname(__FILE__)) . 'assets/js/trafik.js',
+        array('jquery'),
+        '1.0.0',
+        true
+    );
+
+    wp_enqueue_script(
         'teklif-detay-js',
         plugin_dir_url(dirname(__FILE__)) . 'assets/js/teklif-detay.js',
-        array('jquery'),
+        array('jquery', 'trafik-js'),
         '1.0.0',
         true
     );

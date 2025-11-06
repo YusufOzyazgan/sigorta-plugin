@@ -300,9 +300,6 @@ async function apiDeleteFetch(endpoint, data, isRetry = false) {
 }
 
 
-
-
-
 // Refresh Token
 async function refreshOldToken() {
 
@@ -338,7 +335,6 @@ async function refreshOldToken() {
         return null;
     }
 }
-
 
 
 
@@ -456,17 +452,27 @@ window.showWarrantiesModal = async function(proposalId, productId) {
         if (coverageData && coverageData.coverage) {
             const coverage = coverageData.coverage;
             
+            // Sigorta branşına göre başlık belirle
+            const branchNames = {
+                'TRAFIK': 'Trafik Sigortası',
+                'KASKO': 'Kasko Sigortası',
+                'DASK': 'DASK Sigortası',
+                'TSS': 'TSS Sigortası'
+            };
+            const branchName = branchNames[coverage.productBranch] || coverage.productBranch || 'Sigorta';
+            
             // Teminatları güzel bir tasarımla göster
             let html = `
                 <div class="company-info" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <h5><i class="fas fa-shield-alt me-2"></i>Trafik Sigortası Teminatları</h5>
-                    <p class="mb-0">Sigorta Branşı: ${coverage.productBranch || 'TRAFIK'}</p>
+                    <h5><i class="fas fa-shield-alt me-2"></i>${branchName} Teminatları</h5>
+                    <p class="mb-0">Sigorta Branşı: ${coverage.productBranch || 'TANIMSIZ'}</p>
                 </div>
                 <div class="row">
             `;
             
-            // Teminat türlerini ve açıklamalarını tanımla
+            // Teminat türlerini ve açıklamalarını tanımla (Trafik + Kasko + Diğer)
             const coverageTypes = {
+                // Trafik Sigortası Teminatları
                 'maddiHasarAracBasina': 'Maddi Hasar (Araç Başına)',
                 'maddiHasarKazaBasina': 'Maddi Hasar (Kaza Başına)',
                 'sakatlanmaVeOlumKisiBasina': 'Sakatlanma ve Ölüm (Kişi Başına)',
@@ -479,16 +485,176 @@ window.showWarrantiesModal = async function(proposalId, productId) {
                 'ferdiKaza': 'Ferdi Kaza',
                 'acilSaglik': 'Acil Sağlık',
                 'cekiciHizmeti': 'Çekici Hizmeti',
-                'aracBakimPlani': 'Araç Bakım Planı'
+                'aracBakimPlani': 'Araç Bakım Planı',
+                // Kasko Sigortası Teminatları
+                'immLimitiAyrimsiz': 'IMM Limiti Ayrımsız',
+                'ferdiKazaVefat': 'Ferdi Kaza Vefat',
+                'ferdiKazaSakatlik': 'Ferdi Kaza Sakatlık',
+                'ferdiKazaTedaviMasraflari': 'Ferdi Kaza Tedavi Masrafları',
+                'anahtarKaybi': 'Anahtar Kaybı',
+                'maneviTazminat': 'Manevi Tazminat',
+                'onarimServisTuru': 'Onarım Servis Türü',
+                'yedekParcaTuru': 'Yedek Parça Türü',
+                'camKirilmaMuafeyeti': 'Cam Kırılma Muafiyeti',
+                'kiralikArac': 'Kiralık Araç',
+                'ozelEsya': 'Özel Eşya',
+                'sigaraMaddeZarari': 'Sigara Madde Zararı',
+                'patlayiciMaddeZarari': 'Patlayıcı Madde Zararı',
+                'kemirgenZarari': 'Kemirgen Zararı',
+                'yukKaymasiZarari': 'Yük Kayması Zararı',
+                'eskime': 'Eskime',
+                'hasarsizlikIndirimKoruma': 'Hasarsızlık İndirim Koruma',
+                'yurtdisiKasko': 'Yurtdışı Kasko',
+                'aracCalinmasi': 'Araç Çalınması',
+                'anahtarCalinmasi': 'Anahtar Çalınması',
+                'miniOnarim': 'Mini Onarım',
+                'yolYardim': 'Yol Yardım',
+                'yanlisAkaryakitDolumu': 'Yanlış Akaryakıt Dolumu',
+                'yanma': 'Yanma',
+                'carpma': 'Çarpma',
+                'carpisma': 'Çarpışma',
+                'glkhhTeror': 'GLKHH Terör',
+                'grevLokavt': 'Grev Lokavt',
+                'dogalAfetler': 'Doğal Afetler',
+                'hirsizlik': 'Hırsızlık'
             };
+            
+            // Teminat değerini formatla
+            function formatCoverageValue(coverageItem) {
+                if (!coverageItem || coverageItem.$type === 'UNDEFINED') return null;
+                
+                if (coverageItem.$type === 'DECIMAL' && coverageItem.value !== undefined) {
+                    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(coverageItem.value);
+                } else if (coverageItem.$type === 'INCLUDED') {
+                    return 'Dahil';
+                } else if (coverageItem.$type === 'NOT_INCLUDED') {
+                    return 'Dahil Değil';
+                } else if (coverageItem.$type === 'MARKET_VALUE') {
+                    return 'Piyasa Değeri';
+                } else if (coverageItem.$type === 'NONE') {
+                    return 'Yok';
+                } else if (typeof coverageItem === 'string') {
+                    return coverageItem;
+                }
+                return coverageItem.$type || 'Tanımsız';
+            }
             
             let coverageCount = 0;
             
-            // Her teminat türünü kontrol et
-            Object.keys(coverageTypes).forEach((key, index) => {
-                if (coverage[key] && coverage[key].$type !== 'UNDEFINED') {
+            // Belirsiz değerleri kontrol eden fonksiyon
+            function isUndefinedOrBelirsiz(value) {
+                if (!value) return true;
+                if (typeof value === 'object' && value.$type === 'UNDEFINED') return true;
+                if (typeof value === 'string' && (value.toUpperCase() === 'BELIRSIZ' || value.toUpperCase() === 'UNDEFINED')) return true;
+                return false;
+            }
+            
+            // DEFINED tipindeki objenin boş olmayan değerlerini döndür
+            function getDefinedValues(definedObj) {
+                if (!definedObj || typeof definedObj !== 'object' || definedObj.$type !== 'DEFINED') return null;
+                
+                const values = {};
+                Object.keys(definedObj).forEach(key => {
+                    // $type'ı atla
+                    if (key === '$type') return;
+                    
+                    const value = definedObj[key];
+                    // Boş olmayan değerleri ekle
+                    if (value !== null && value !== undefined && value !== '') {
+                        // Array ise boş değilse ekle
+                        if (Array.isArray(value)) {
+                            if (value.length > 0) {
+                                values[key] = value;
+                            }
+                        } else {
+                            values[key] = value;
+                        }
+                    }
+                });
+                
+                return Object.keys(values).length > 0 ? values : null;
+            }
+            
+            // Önce tanımlı teminatları kontrol et
+            Object.keys(coverageTypes).forEach((key) => {
+                if (!coverage[key]) return;
+                
+                // Belirsiz değerleri atla
+                if (isUndefinedOrBelirsiz(coverage[key])) return;
+                
+                // Object tipinde ve $type property'si varsa
+                if (typeof coverage[key] === 'object' && coverage[key].$type && coverage[key].$type !== 'UNDEFINED') {
                     const coverageType = coverage[key];
                     const coverageName = coverageTypes[key];
+                    
+                    // DEFINED tipi için özel işlem
+                    if (coverageType.$type === 'DEFINED') {
+                        const definedValues = getDefinedValues(coverageType);
+                        if (!definedValues) return; // Hiç değer yoksa göster
+                        
+                        let definedHtml = '';
+                        Object.keys(definedValues).forEach(subKey => {
+                            const subValue = definedValues[subKey];
+                            const subKeyName = subKey
+                                .replace(/([A-Z])/g, ' $1')
+                                .replace(/^./, str => str.toUpperCase())
+                                .trim();
+                            
+                            let displayValue = subValue;
+                            if (Array.isArray(subValue)) {
+                                displayValue = subValue.length > 0 ? subValue.join(', ') : '';
+                            } else if (typeof subValue === 'number') {
+                                displayValue = new Intl.NumberFormat('tr-TR').format(subValue);
+                            } else if (typeof subValue === 'boolean') {
+                                displayValue = subValue ? 'Evet' : 'Hayır';
+                            }
+                            
+                            if (displayValue !== '' && displayValue !== null && displayValue !== undefined) {
+                                definedHtml += `<p style="margin-bottom: 5px; color: #6c757d;"><strong>${subKeyName}:</strong> <span class="badge bg-primary" style="font-size: 0.75rem;">${displayValue}</span></p>`;
+                            }
+                        });
+                        
+                        if (definedHtml) {
+                            html += `
+                                <div class="col-md-6 mb-3">
+                                    <div class="warranty-item" style="border-left: 3px solid #28a745; padding-left: 15px; margin-bottom: 15px; background: #f8f9fa; padding: 12px 15px; border-radius: 5px;">
+                                        <h6 style="color: #28a745; font-weight: 600; margin-bottom: 8px;">
+                                            <i class="fas fa-check-circle text-success me-2"></i>${coverageName}
+                                        </h6>
+                                        ${definedHtml}
+                                    </div>
+                                </div>
+                            `;
+                            coverageCount++;
+                        }
+                        return;
+                    }
+                    
+                    // Diğer tipler için normal işlem
+                    const formattedValue = formatCoverageValue(coverageType);
+                    
+                    // Eğer formattedValue null ise gösterme
+                    if (!formattedValue && !coverageType.limit && !coverageType.deductible && !coverageType.description) return;
+                    
+                    html += `
+                        <div class="col-md-6 mb-3">
+                            <div class="warranty-item" style="border-left: 3px solid #28a745; padding-left: 15px; margin-bottom: 15px; background: #f8f9fa; padding: 12px 15px; border-radius: 5px;">
+                                <h6 style="color: #28a745; font-weight: 600; margin-bottom: 8px;">
+                                    <i class="fas fa-check-circle text-success me-2"></i>${coverageName}
+                                </h6>
+                                ${formattedValue ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Değer:</strong> <span class="badge bg-primary" style="font-size: 0.75rem;">${formattedValue}</span></p>` : ''}
+                                ${coverageType.limit ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Limit:</strong> <span class="badge bg-primary" style="font-size: 0.75rem;">${coverageType.limit}</span></p>` : ''}
+                                ${coverageType.deductible ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Muafiyet:</strong> <span class="badge bg-warning" style="font-size: 0.75rem;">${coverageType.deductible}</span></p>` : ''}
+                                ${coverageType.description ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Açıklama:</strong> ${coverageType.description}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    coverageCount++;
+                } 
+                // String tipinde değerler için (örn: onarimServisTuru, yedekParcaTuru)
+                else if (typeof coverage[key] === 'string' && coverage[key] && !isUndefinedOrBelirsiz(coverage[key])) {
+                    const coverageName = coverageTypes[key];
+                    const value = coverage[key];
                     
                     html += `
                         <div class="col-md-6 mb-3">
@@ -497,11 +663,112 @@ window.showWarrantiesModal = async function(proposalId, productId) {
                                     <i class="fas fa-check-circle text-success me-2"></i>${coverageName}
                                 </h6>
                                 <p style="margin-bottom: 5px; color: #6c757d;">
-                                    <strong>Teminat Türü:</strong> ${coverageType.$type || 'Tanımsız'}
+                                    <strong>Değer:</strong> <span class="badge bg-primary" style="font-size: 0.75rem;">${value}</span>
                                 </p>
-                                ${coverageType.limit ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Limit:</strong> <span class="badge bg-primary" style="font-size: 0.75rem;">${coverageType.limit}</span></p>` : ''}
-                                ${coverageType.deductible ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Muafiyet:</strong> <span class="badge bg-warning" style="font-size: 0.75rem;">${coverageType.deductible}</span></p>` : ''}
-                                ${coverageType.description ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Açıklama:</strong> ${coverageType.description}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    coverageCount++;
+                }
+            });
+            
+            // Tanımlı olmayan ama UNDEFINED olmayan teminatları da göster
+            Object.keys(coverage).forEach((key) => {
+                // Özel key'leri atla ($type, productBranch gibi)
+                if (key === '$type' || key === 'productBranch') return;
+                
+                // Zaten gösterilmiş teminatları atla
+                if (coverageTypes[key]) return;
+                
+                // Belirsiz değerleri atla
+                if (isUndefinedOrBelirsiz(coverage[key])) return;
+                
+                // UNDEFINED olmayan teminatları göster
+                if (coverage[key] && coverage[key].$type && coverage[key].$type !== 'UNDEFINED') {
+                    const coverageType = coverage[key];
+                    // Key'i Türkçe'ye çevir (basit format)
+                    const coverageName = key
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase())
+                        .trim();
+                    
+                    // DEFINED tipi için özel işlem
+                    if (coverageType.$type === 'DEFINED') {
+                        const definedValues = getDefinedValues(coverageType);
+                        if (!definedValues) return; // Hiç değer yoksa göster
+                        
+                        let definedHtml = '';
+                        Object.keys(definedValues).forEach(subKey => {
+                            const subValue = definedValues[subKey];
+                            const subKeyName = subKey
+                                .replace(/([A-Z])/g, ' $1')
+                                .replace(/^./, str => str.toUpperCase())
+                                .trim();
+                            
+                            let displayValue = subValue;
+                            if (Array.isArray(subValue)) {
+                                displayValue = subValue.length > 0 ? subValue.join(', ') : '';
+                            } else if (typeof subValue === 'number') {
+                                displayValue = new Intl.NumberFormat('tr-TR').format(subValue);
+                            } else if (typeof subValue === 'boolean') {
+                                displayValue = subValue ? 'Evet' : 'Hayır';
+                            }
+                            
+                            if (displayValue !== '' && displayValue !== null && displayValue !== undefined) {
+                                definedHtml += `<p style="margin-bottom: 5px; color: #6c757d;"><strong>${subKeyName}:</strong> <span class="badge bg-info" style="font-size: 0.75rem;">${displayValue}</span></p>`;
+                            }
+                        });
+                        
+                        if (definedHtml) {
+                            html += `
+                                <div class="col-md-6 mb-3">
+                                    <div class="warranty-item" style="border-left: 3px solid #17a2b8; padding-left: 15px; margin-bottom: 15px; background: #f8f9fa; padding: 12px 15px; border-radius: 5px;">
+                                        <h6 style="color: #17a2b8; font-weight: 600; margin-bottom: 8px;">
+                                            <i class="fas fa-info-circle text-info me-2"></i>${coverageName}
+                                        </h6>
+                                        ${definedHtml}
+                                    </div>
+                                </div>
+                            `;
+                            coverageCount++;
+                        }
+                        return;
+                    }
+                    
+                    // Diğer tipler için normal işlem
+                    const formattedValue = formatCoverageValue(coverageType);
+                    
+                    // Eğer formattedValue null ise gösterme
+                    if (!formattedValue && !coverageType.limit && !coverageType.deductible && !coverageType.description) return;
+                    
+                    html += `
+                        <div class="col-md-6 mb-3">
+                            <div class="warranty-item" style="border-left: 3px solid #17a2b8; padding-left: 15px; margin-bottom: 15px; background: #f8f9fa; padding: 12px 15px; border-radius: 5px;">
+                                <h6 style="color: #17a2b8; font-weight: 600; margin-bottom: 8px;">
+                                    <i class="fas fa-info-circle text-info me-2"></i>${coverageName}
+                                </h6>
+                                ${formattedValue ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Değer:</strong> <span class="badge bg-info" style="font-size: 0.75rem;">${formattedValue}</span></p>` : ''}
+                                ${coverageType.value !== undefined ? `<p style="margin-bottom: 5px; color: #6c757d;"><strong>Değer:</strong> <span class="badge bg-primary" style="font-size: 0.75rem;">${typeof coverageType.value === 'number' ? new Intl.NumberFormat('tr-TR').format(coverageType.value) : coverageType.value}</span></p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    coverageCount++;
+                } else if (typeof coverage[key] === 'string' && coverage[key] && !isUndefinedOrBelirsiz(coverage[key])) {
+                    // String değerler için (örn: onarimServisTuru, yedekParcaTuru)
+                    const coverageName = key
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase())
+                        .trim();
+                    
+                    html += `
+                        <div class="col-md-6 mb-3">
+                            <div class="warranty-item" style="border-left: 3px solid #17a2b8; padding-left: 15px; margin-bottom: 15px; background: #f8f9fa; padding: 12px 15px; border-radius: 5px;">
+                                <h6 style="color: #17a2b8; font-weight: 600; margin-bottom: 8px;">
+                                    <i class="fas fa-info-circle text-info me-2"></i>${coverageName}
+                                </h6>
+                                <p style="margin-bottom: 5px; color: #6c757d;">
+                                    <strong>Değer:</strong> <span class="badge bg-info" style="font-size: 0.75rem;">${coverage[key]}</span>
+                                </p>
                             </div>
                         </div>
                     `;

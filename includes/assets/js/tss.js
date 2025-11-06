@@ -34,6 +34,7 @@ window.loadTssModule = async function (container) {
                 height: parseInt(height),
                 weight: parseInt(weight)
             };
+            console.log("heightWeightData: ", heightWeightData);
 
             // API endpoint'i - müşteri bilgilerini güncelle
             const updateEndpoint = `customers/${customerId}/health-info`;
@@ -51,19 +52,19 @@ window.loadTssModule = async function (container) {
                 productBranch: "TSS",
                 insurerCustomerId: customerId,
                 insuredCustomerId: customerId,
-                coverageGroupIds: ["690a0959a94b3bf6359fa2f2","690a09eaa94b3bf6359fa31b"],
+                coverageGroupIds: ["690c5ce1f1178da1813164a4"],
                 coverageTable: null,
 
                 channel: "WEBSITE"
             };
 
             const response = await apiPostFetch("proposals", formData);
-            if (response?.status === 200) {
+            if (response?.proposalId) {
                 await showMessage("Teklif oluşturuldu. ", "success");
                 const resultsEl = container.querySelector("#offerResults");
-                if (!resultsEl) console.warn('tss.js: #offerResults bulunamadı');
-                else resultsEl.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
-                if (typeof showStep === 'function') showStep(3);
+                resultsEl.innerHTML = "";
+                if (typeof showStep === 'function') showStep(step3);
+                await loadProposalDetails(response.proposalId);
             } else {
                 await showMessage("Teklif oluşturulamadı.", "error");
                 container.innerHTML = `

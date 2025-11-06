@@ -75,7 +75,7 @@ window.loadTekliflerimModule = async function (container) {
     }
 
     const result = await response.json();
-    const proposals = result.data.proposals.items;
+    let proposals = result.data.proposals.items;
 
     // HTML tablo
     let html = `
@@ -97,6 +97,8 @@ window.loadTekliflerimModule = async function (container) {
             <tbody>
     `;
 
+    proposals = proposals.filter(p => p.state === "ACTIVE");
+    
     proposals.forEach(p => {
         const productBranch = `<strong>${p.productBranch}</strong>`;
         const asset = p.productBranch === "TSS"
@@ -109,13 +111,26 @@ window.loadTekliflerimModule = async function (container) {
         const statusColor = p.state === "POLICELED" ? "bg-success text-white" : "bg-warning text-dark";
         const statusText = p.state === "POLICELED" ? "Poliçeleşti" : "Poliçeleşmedi";
 
+        // Tarih kontrolü: createdAt ile şu anki tarih arasındaki fark
+        const createdAt = new Date(p.createdAt);
+        const now = new Date();
+        const diffTime = now - createdAt;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24); // Gün cinsinden fark
+        
+        // 1 günden fazla geçmişse süresi dolmuş
+        const isExpired = diffDays > 1;
+        const buttonText = isExpired ? "Süresi Dolmuş" : "Detay";
+        const buttonClass = isExpired ? "btn my-dashboard-btn bg-secondary" : "btn my-dashboard-btn bg-primary";
+        const buttonDisabled = isExpired ? "disabled" : "";
+        const buttonOnclick = isExpired ? "" : `onclick="loadDetail('${p.id}')"`;
+
         html += `
         <tr>
             <td class="text-center">${productBranch}</td>
             <td>${asset}</td>
             <td>${date}</td>
             <td><div class="${statusColor} p-2 rounded-2 text-center">${statusText}</div></td>
-            <td><button class="btn  my-dashboard-btn bg-primary" onclick="loadDetail('${p.id}')">Detay</button></td>
+            <td><button class="${buttonClass}" ${buttonDisabled} ${buttonOnclick}>${buttonText}</button></td>
         </tr>
         `;
     });

@@ -11,13 +11,13 @@ Yapılacaklar listesi yapılan görevlerin yanına + koyalım
 + teklifler hazırlanıyor alanının yazıları eklenecek 
 teklif no alianz sigortasının yanınına 
 teminatların ön gürünümü 
-state içindeki user'a bilgiler gelmiyor tekliflerden giriş yapıldığında 
++ state içindeki user'a bilgiler gelmiyor tekliflerden giriş yapıldığında 
 + hataların gösterimi için 422 400 ve 500 hata kontrolü fonksiyonu yazılacak
-eklenen araç için düzenleme modalı yapılacak
++eklenen araç için düzenleme modalı yapılacak
 + araç eklemede tramer sorgulamaya şehir zorunluluğu gerilecek
-tramer sorgulamada hata var insurup ile görüşülecek
++tramer sorgulamada hata var insurup ile görüşülecek
 + kasko teklifi alırken oluşan hata konuşulacak - "Lütfen bu teklif için geçerli teminat grupları veya teminat tablosu sağlayın"
-Satın al butonu iletişime geç olacak 
++Satın al butonu iletişime geç olacak 
 + responsive design yapıldı, konut kısmındaki teklif almada eksik yerler giderildi+ teklif alma kısmı değişti ve yaılar eklendi
 +tss araç bilgileri sağlık olacak
 (yayınlandıktan sonra)sigortapiri mobil tasarımı güzelleşecek
@@ -30,5 +30,6 @@ Satın al butonu iletişime geç olacak
 araç ekleme kısmındaki yakıt türü alanı radio button fakat yan yana
 uavt no nedir nasıl alınır 
 sayfadan çıkmaması için uyarı ver
-teminatları gör siyah ve çizgili 
++teminatları gör siyah ve çizgili 
 +teklifler wp admine göndeirldi
+araç düzenlemede 500 hatası alıyoruz kontrol et

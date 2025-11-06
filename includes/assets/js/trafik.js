@@ -107,7 +107,7 @@ async function renderProposalResults(products, proposalId) {
                                             style="cursor: pointer; font-size: 0.8rem;">
                                         Teminatları Gör
                                     </a>
-                                    <button class="buyButton btn btn-outline-primary" data-product-id="${product.id}" data-proposal-id="${proposalId}">Teklifi Al</button>
+                                    <button class="buyButton btn btn-outline-primary" data-product-id="${product.id}" data-proposal-id="${proposalId}">Poliçeleştir</button>
                                 </div>
                             </div>
                         </div>
@@ -291,7 +291,7 @@ async function loadProposalDetails(proposalId) {
     <div class="text-center">
             <p class="mt-1 mb-2" style="font-size: 0.9rem; color: #6c757d;">Teklifler hazırlanıyor...</p>
             <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;" aria-label="Yükleniyor">
-                <span class="sr-only">Teklifler hazırlanıyor...</span>
+                <span class="sr-only">Teklifler hazırlanıyor lütfen çıkmayınız...</span>
             </div>
             <p class="my-5" id="loadingMessage" style="font-size: 1.1rem; font-weight: 500; color:rgb(253, 177, 13);">
                 ${initialMessage}
