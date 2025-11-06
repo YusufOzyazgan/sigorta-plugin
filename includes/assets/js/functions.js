@@ -105,8 +105,6 @@ async function handleApiError(response) {
 //Requests
 async function apiGetFetch(endpoint, isRetry = false) {
 
-    console.log("get fetch çalıştı.");
-
     let state = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')) : null;
     let token = state ? state.token.accessToken : null;
     if (!token) { return; }
@@ -119,7 +117,6 @@ async function apiGetFetch(endpoint, isRetry = false) {
             }
 
         });
-        console.log("HTTP get Status:", res.status);
 
         if (res.status === 401 && !isRetry) {
 
@@ -140,7 +137,6 @@ async function apiGetFetch(endpoint, isRetry = false) {
         }
         return await res.json();
     } catch (err) {
-        console.log(err.message);
         return null;
     }
 }
@@ -149,9 +145,6 @@ async function apiGetFetch(endpoint, isRetry = false) {
 
 
 async function apiPostFetch(endpoint, data, isRetry = false) {
-    console.log("post fetct çalıştı.");
-
-
     try {
         let token = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')).token.accessToken : null;
         if (!token) {
@@ -198,9 +191,6 @@ async function apiPostFetch(endpoint, data, isRetry = false) {
 
 
 async function apiPutFetch(endpoint, data, isRetry = false) {
-    console.log("put fetct çalıştı.");
-
-
     try {
         let token = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')).token.accessToken : null;
         if (!token) {
@@ -247,10 +237,6 @@ async function apiPutFetch(endpoint, data, isRetry = false) {
 
 
 async function apiDeleteFetch(endpoint, data, isRetry = false) {
-    console.log("delete fetch çalıştı.");
-    console.log("DELETE endpoint:", endpoint);
-    console.log("DELETE data:", data);
-
     try {
         let token = localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')).token.accessToken : null;
         if (!token) {
@@ -274,10 +260,7 @@ async function apiDeleteFetch(endpoint, data, isRetry = false) {
 
         const res = await fetch('https://api.insurup.com/api/' + endpoint, fetchOptions);
 
-        console.log("DELETE response status:", res.status);
-
         if (res.status === 401 && !isRetry) {
-            console.warn("401 geldi, refresh denenecek...");
 
             const newToken = await refreshOldToken();
             if (newToken) {
@@ -303,8 +286,6 @@ async function apiDeleteFetch(endpoint, data, isRetry = false) {
 // Refresh Token
 async function refreshOldToken() {
 
-
-    console.log("refresh token çalıştı.");
     let state = JSON.parse(localStorage.getItem("state"));
 
     const refreshToken = state.token.refreshToken;
@@ -323,7 +304,6 @@ async function refreshOldToken() {
             state.token.accessToken = json.accessToken;
             state.token.refreshToken = json.refreshToken;
             localStorage.setItem('state', JSON.stringify(state));
-            console.log('✅ Token yenilendi');
 
             return json.accessToken;
         } else {
@@ -343,9 +323,7 @@ async function isAuth(container) {
 
 
     const token = state?.token.accessToken;
-    console.log("isAuth token = ", token);
     if (!token) {
-        console.log("is auth çalıştı");
         container.innerHTML = `<p style="color:red; text-align:center; font-weight:bold; margin-top:20px;">
             Oturumunuz doldu veya çıkış yapıldı. Lütfen giriş yapın.
         </p>

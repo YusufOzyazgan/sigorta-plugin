@@ -483,8 +483,8 @@
 
     @media (prefers-color-scheme: dark) {
         .sigorta-plugin-info-list li {
-            background: #111418;
-            border-color: #1a1f27;
+            background: #6f7380;
+            border-color: #6f7380;
             color: #e9eef7;
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
         }

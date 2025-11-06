@@ -86,7 +86,6 @@ window.loadDashboardModule = async function () {
             }
             
             tabContent.innerHTML = '';
-            console.log("tabname = " + tabName);
             if (tabName === 'varliklarim' && window.loadVarliklarimModule) {
                 await window.loadVarliklarimModule(tabContent);
             } else if (tabName === 'policelerim' && window.loadPolicelerimModule) {
@@ -94,8 +93,6 @@ window.loadDashboardModule = async function () {
             } else if (tabName === 'tekliflerim' && window.loadTekliflerimModule) {
                 await window.loadTekliflerimModule(tabContent);
             }             else if (tabName === 'bilgilerim' && window.loadBilgilerimModule) {
-
-                console.log("bilgilerim tabı çalışıyor");
                 await window.loadBilgilerimModule(tabContent);
             }
             else if (tabName === 'trafik' || tabName === 'kasko' || tabName === 'tss' || tabName === 'konut' || tabName === 'dask') {

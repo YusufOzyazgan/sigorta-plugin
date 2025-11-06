@@ -22,13 +22,11 @@ window.loadkaskoModule = async function (container) {
     
     
     await firstStep();
-    console.log("show vehicles'a geldi");
     await showVehicles();
     
     
     
     addVehicleBtn.addEventListener('click', async () => {
-        console.log("crate vehicle butonu çalıştı. ");
         const vehicleModal = document.getElementById('vehicleModal');
         
         vehicleModal.style.display = "flex";
@@ -54,7 +52,6 @@ window.loadkaskoModule = async function (container) {
     
     
     addProposalBtn.addEventListener('click', async () => {
-        console.log("teklif al buton çalışıyor ");
         if (!selectedVehicleId) {
             await showMessage("Lütfen bir araç seçin!", "warning");
             return;

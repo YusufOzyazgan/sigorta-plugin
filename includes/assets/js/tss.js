@@ -3,7 +3,6 @@ window.loadTssModule = async function (container) {
 
     const step2Form = container.querySelector('#step2Form');
 
-    console.log("first step çalıştı - tss.js");
     await firstStep();
 
     if (!step2Form) {
@@ -34,7 +33,6 @@ window.loadTssModule = async function (container) {
                 height: parseInt(height),
                 weight: parseInt(weight)
             };
-            console.log("heightWeightData: ", heightWeightData);
 
             // API endpoint'i - müşteri bilgilerini güncelle
             const updateEndpoint = `customers/${customerId}/health-info`;
@@ -87,7 +85,6 @@ window.loadTssModule = async function (container) {
 
     const backStepTssBtn = document.getElementById('backStepTss');
     backStepTssBtn?.addEventListener('click', async () => {
-        console.log('geri butonu çalıştı');
         await backStepFunction();
     });
 

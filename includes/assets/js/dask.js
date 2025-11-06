@@ -11,7 +11,6 @@ window.loadDaskModule = async function (container) {
             try {
                 customer = await apiGetFetch("customers/me");
                 customerId = customer.id;
-                console.log("API'den gelen müşteri:", customer);
             } catch (err) {
                 console.error("Müşteri bilgileri alınamadı:", err);
                 isLoggedIn = false;
@@ -45,7 +44,6 @@ window.loadDaskModule = async function (container) {
 
 
         await firstStep();
-        console.log("First step çağırıldı.");
         loadProperties();
 
 

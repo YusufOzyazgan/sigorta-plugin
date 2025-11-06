@@ -1,7 +1,6 @@
 window.loadBilgilerimModule = async function (container) {
     const isLogin = await isAuth(container);
     if (!isLogin) {
-        console.log("isLogin false döndürdü");
         return;
     }
 
@@ -19,8 +18,6 @@ window.loadBilgilerimModule = async function (container) {
 
     const data = await apiGetFetch('customers/me');
     if (!data) return;
-
-    console.log(data);
 
     container.innerHTML = `
         <h1 class="text-center mb-2">Kişisel Bilgiler</h1>
@@ -155,12 +152,9 @@ window.loadBilgilerimModule = async function (container) {
             "districtReference": document.getElementById('district').value || null,
         };
 
-        console.log("Gönderilen Form Verisi:", formData);
-
         const response = await apiPutFetch('customers/' + id, formData);
         if (response) {
             await showMessage('Bilgiler başarıyla güncellendi.', "success");
-            console.log('Güncellenen Bilgiler:', response);
         } else {
             await showMessage('Bilgiler güncellenemedi. Lütfen tekrar deneyin.', "error");
         }

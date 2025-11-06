@@ -63,7 +63,6 @@ window.loadLoginRegisterModule = async function () {
         let phone = document.getElementById('phone-login').value.replace(/\D/g, '');
         const dob = document.getElementById('dob').value || null;
         const mfaCode = mfaInput.value.trim();
-        console.log("submit çalıştı." + tc + " " + phone + " " + dob + " " + mfaCode);
         var validateTc = await validateTCKN(tc);
         // TC ve telefon doğrulama
 
@@ -72,12 +71,8 @@ window.loadLoginRegisterModule = async function () {
         if (phone.startsWith('0')) { showMessage('Telefon 0 ile başlamamalıdır.'); return; }
         if (phone.length !== 10) { showMessage('Telefon 10 haneli olmalıdır.'); return; }
         if (!validateTc) {
-            console.log("tc valid değil.");
             await showMessage("Lüfen Geçerli bir TC Kimlik Numarası Girin.", "error");
             return;
-        }
-        else {
-            console.log("tc valid");
         }
 
 
@@ -130,12 +125,10 @@ window.loadLoginRegisterModule = async function () {
                         window.location.href = window.location.origin + "/panel/";
                     }, 1500);
                 } else {
-                    console.log("res.ok:", res.ok, "json:", json);
                     showMessage(json.detail || 'Doğrulama hatası');
                 }
             } catch (err) {
                 showMessage(err.message);
-                console.log(err.message);
 
             }
             return;
@@ -150,7 +143,6 @@ window.loadLoginRegisterModule = async function () {
         };
 
         try {
-            console.log("fetch çalıştı.");
             const res = await fetch('https://api.insurup.com/api/auth/customer/login-or-register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -160,18 +152,15 @@ window.loadLoginRegisterModule = async function () {
 
             if (res.ok && json.token) {
                 // Geçici MFA token'ı kaydet
-                console.log("token sonucu: " + json);
                 mfaToken = json.token;
                 mfaArea.style.display = 'block';
                 showMessage('📲 SMS ile doğrulama kodu gönderildi. Lütfen kodu girin.', 'success');
                 mfaInput.focus();
             } else {
-                console.log("hata sonucu: " + json);
                 showMessage(json.detail || JSON.stringify(json) || 'Bilinmeyen hata');
             }
 
         } catch (err) {
-            console.log("fetch error", err);
             showMessage(err.message);
 
         }

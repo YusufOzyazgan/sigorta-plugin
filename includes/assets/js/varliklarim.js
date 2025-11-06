@@ -9,9 +9,7 @@ let isVehicleModalPopulated = false;
 window.loadVarliklarimModule = async function (container) {
 
     const isLogin = await isAuth(container);
-    console.log("varliklarim.js çalışıyor.");
     if (!isLogin) {
-        console.log("isLogin false döndürdü -> giriş yok");
         return;
     }
 
@@ -31,11 +29,6 @@ window.loadVarliklarimModule = async function (container) {
     if (vehicles === null) return;
     
     // === ÖRNEK ARAÇ KALDIRILDI ===
-    
-    console.log('Vehicles response:', vehicles); // Debug için
-    if (vehicles.length > 0) {
-        console.log('İlk vehicle objesi:', vehicles[0]); // Debug için
-    }
     const properties = await apiGetFetch('customers/me/properties');
     if (properties === null) return;
 
@@ -132,8 +125,6 @@ window.loadVarliklarimModule = async function (container) {
             const vehicleId = deleteBtn.getAttribute('data-vehicle-id');
             const customerId = deleteBtn.getAttribute('data-customer-id');
             
-            console.log('Sil butonu tıklandı - vehicleId:', vehicleId, 'customerId:', customerId);
-            
             if (!vehicleId || !customerId) {
                 await showMessage('Araç bilgileri bulunamadı.', 'error');
                 return;
@@ -150,12 +141,12 @@ window.loadVarliklarimModule = async function (container) {
                     customerVehicleId: vehicleId
                 };
                 
-                console.log('DELETE isteği gönderiliyor:', endpoint, requestData);
                 const result = await apiDeleteFetch(endpoint, requestData);
                 if (result) {
                     await showMessage('Araç başarıyla silindi.', 'success');
                     // Sayfayı yenile
-                    await window.loadVarliklarimModule(container);
+                    window.location.reload();
+                    return;
                 } else {
                     await showMessage('Araç silinirken bir hata oluştu.', 'error');
                 }
@@ -174,7 +165,7 @@ window.loadVarliklarimModule = async function (container) {
         if (vehicleCard) {
             document.getElementById('varlikEkleModal').style.display = 'none';
             document.getElementById('vehicleModal').style.display = 'flex';
-            
+
             // === YENİ EKLEME: Başlık ve Butonları Ayarla ===
             const modalTitle = document.querySelector("#vehicleModal .modal-title");
             if (modalTitle) modalTitle.textContent = "Araç Ekle";
@@ -241,7 +232,7 @@ window.loadVarliklarimModule = async function (container) {
 
     document.getElementById("selectProperty").addEventListener("click", async () => {
         // ... (Tüm konut adres seçici kodları)
-         // Şehirleri al ve select'e ekle
+        // Şehirleri al ve select'e ekle
         // --- Başlangıç: Şehirleri yükle ---
         const cities = (await apiGetFetch(`address-parameters/cities`))
             .sort((a, b) => a.text.localeCompare(b.text));
@@ -348,7 +339,6 @@ window.loadVarliklarimModule = async function (container) {
         const townSelect = document.getElementById('townSelect');
         townSelect.addEventListener("change", async () => {
             const neighborhoodSelect = document.getElementById('neighborhoodSelect');
-            console.log("mahalle urli : " + `address-parameters/neighbourhoods?townReference=${townSelect.value}`)
             try {
                 //const neighborhoods=(await apiGetFetch(`address-parameters/neighbourhoods?townReference=37767`))
                 let neighborhoods = (await apiGetFetch(`address-parameters/neighbourhoods?townReference=${townSelect.value}`));
@@ -543,7 +533,6 @@ window.loadVarliklarimModule = async function (container) {
         };
 
         try {
-            console.log("konut verileri: ", data);
             const result = await apiPostFetch(`customers/${id}/properties`, data);
             alert("Konut başarıyla eklendi!");
             await showMessage("Konut Eklendi", "success")
@@ -601,8 +590,6 @@ document.addEventListener("click", async function (e) {
     const defaultModalTitle = "Araç Ekle"; // Orijinal başlığı buraya yazın
 
     try {
-        console.log("Düzenleme isteği başlatıldı:", vehicleId, customerId);
-
         // === 1. MODALI HAZIRLA (En Önemli Adım) ===
         // Bu, dropdown'ları doldurur ve listener'ları (sekme, submit) bir kez yükler.
         await createVehicle();
@@ -1028,7 +1015,6 @@ async function createVehicle() {
         modelSelect.disabled = true;
         modelSelect.innerHTML = '<option value="">Önce Marka Seçiniz</option>';
         jQuery('#modelSelect, #modelSelectPlakali').selectpicker('refresh');
-        console.log("Markalar geldi:", brands);
 
     } catch (err) {
         console.error("Hata marka seçimi:", err);
@@ -1353,8 +1339,6 @@ async function createVehicle() {
             };
         }
 
-        console.log("Form Data Hazır:", formData);
-
         //API isteği
         try {
             const endpoint = "customers/" + currentId + "/vehicles";
@@ -1418,8 +1402,6 @@ async function createVehicle() {
             await showMessage("Tramer Sorgulaması Yapılıyor...", "warning", 4);
             const endpoint = `customers/${customerId}/vehicles/external-lookup`;
             const response = await apiPostFetch(endpoint, requestData);
- 
-            console.log("Tramer sorgu sonucu:", response);
 
             // Dönen verileri formda göster
             if (response) {

@@ -87,9 +87,10 @@ function varliklarim_shortcode()
                 <div class="modal-body">
                     <form id="konutForm">
                         <!-- UAVT -->
-                        <div class="mb-3 d-flex">
+                        <div class="mb-3 d-flex align-items-center">
                             <input type="text" id="uavtNo" class="form-control border me-2" placeholder="UAVT No">
-                            <button type="button" class="btn btn-primary bg-primary" onclick="sorgulaUavt()">Sorgula</button>
+                            <button type="button" class="btn btn-primary bg-primary me-2" onclick="sorgulaUavt()">Sorgula</button>
+                            <i class="fas fa-question-circle text-primary" style="cursor: pointer; font-size: 1.2rem;" onclick="alert('UAVT No (Ulusal Adres Veri Tabanı Numarası), konut adres bilgilerini otomatik olarak sorgulamak için kullanılan bir numaradır. Bu numarayı girerek adres bilgilerinizi hızlıca doldurabilirsiniz.');" title="UAVT No Nedir?"></i>
                         </div>
 
                         <!-- Adres Bilgileri -->

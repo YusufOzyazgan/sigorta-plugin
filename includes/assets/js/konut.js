@@ -10,7 +10,6 @@ window.loadKonutModule = async function (container) {
         try {
             customer = await apiGetFetch("customers/me");
             customerId = customer.id;
-            console.log("API'den gelen müşteri:", customer);
         } catch (err) {
             console.error("Müşteri bilgileri alınamadı:", err);
             isLoggedIn = false;
@@ -29,7 +28,6 @@ window.loadKonutModule = async function (container) {
    
 
     await firstStep();
-    console.log("First step çağırıldı.");
     await loadProperties();
 
     // --- Step2: Konut Bilgileri yükleme ---
@@ -138,11 +136,9 @@ window.loadKonutModule = async function (container) {
     $('#konutModal').on('shown.bs.modal', async function () {
         const modalForm = this.querySelector('form');
         if (modalForm && window.loadPropertyDropdowns) {
-            console.log("Konut modal açıldı, şehir verileri yükleniyor...");
             try {
                 await window.loadPropertyDropdowns(modalForm);
                 $('.selectpicker').selectpicker('refresh'); // Görsel yenileme
-                console.log("Şehir dropdown yüklendi.");
             } catch (err) {
                 console.error("Şehir dropdown yüklenemedi:", err);
             }
@@ -379,7 +375,6 @@ window.loadKonutModule = async function (container) {
         lossPayeeClause: (lossType || lossName) ? { type: lossType, name: lossName } : null
       };
 
-      console.log("konut payload:", payload);
       const res = await apiPostFetch(`customers/${id}/properties`, payload);
       if (res) {
         await showMessage?.("Konut Eklendi", "success");

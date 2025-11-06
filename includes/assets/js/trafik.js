@@ -2,22 +2,21 @@
 
 let selectedVehicleId = null;
 window.loadTrafikModule = async function () {
-    console.log("Trafik teklif modulü çalıştı.");
     const addProposalBtn = document.querySelector('#addProposal');
     let customer = null;
 
-
+    // İlk adımı yükle (step1 gösterilir)
     await firstStep();
 
-    await showVehicles();
+    // Araçları paralel olarak yükle (step2'de görünecek, lazy loading)
+    // showVehicles() artık step2'ye geçildiğinde çağrılacak (backStepFunction içinde)
+    // Bu sayede sayfa açılışında gereksiz API çağrısı yapılmaz
 
     backStepBtn.addEventListener('click', async () => {
         await backStepFunction();
     });
 
     addProposalBtn.addEventListener('click', async () => {
-        console.log("Teklif alma butonuna basıldı teklif idsi :", selectedVehicleId);
-
         if (!selectedVehicleId) {
             await showMessage("Lütfen bir araç seçin!", "warning");
             return;
@@ -32,8 +31,6 @@ window.loadTrafikModule = async function () {
 }
 
 async function createProposal(selectedVehicleId) {
-    console.log("Teklif alma fonksiyonu çalıştı");
-
     await showStep(step3);
     customer = await apiGetFetch("customers/me");
 
@@ -71,9 +68,7 @@ async function renderProposalResults(products, proposalId) {
             `;
 
     for (const product of products) {
-        //var warranties = await apiGetFetch(`proposals/${proposalId}/products/${product.id}/coverage`);
-
-                                //proposals/{proposalId}/products/{proposalProductId}/premiums/{installmentNumber}
+        
         var fiyat = product.premiums[0]?.grossPremium ?? 0;
         var formatliFiyat = Number(fiyat).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
         productsHtml += `
@@ -87,9 +82,10 @@ async function renderProposalResults(products, proposalId) {
                                          class="company-logo">
                                     <span class="badge bg-primary">${product.insuranceCompanyName}</span>
                                 </div>
-                                
-                                <h6 class="card-title">${product.insuranceCompanyName}</h6>
-                                <p class="card-text text-muted small">Teklif No: ${product.premiums[0]?.insuranceCompanyProposalNumber || 'N/A'}</p>
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <h5 class="card-title mb-0">${product.insuranceCompanyName} Teklif No:</h5>
+                                    <p class="text-muted small mb-0">${product.premiums[0]?.insuranceCompanyProposalNumber || 'N/A'}</p>
+                                </div>
                                 
                                 <div class="text-center mb-3">
                                     <h4 class="text-primary mb-1">${formatliFiyat || 'Fiyat bilgisi yok'} ₺</h4>
@@ -101,10 +97,11 @@ async function renderProposalResults(products, proposalId) {
                                 </div>
                                 
                                 <div class="d-grid gap-2">
+                                
                                     <a class="toggle-warranties text-center  small" 
                                             data-product-id="${product.id}"
                                             data-proposal-id="${proposalId}"
-                                            style="cursor: pointer; font-size: 0.8rem;">
+                                            style="cursor: pointer; font-size: 0.8rem; text-decoration: underline;">
                                         Teminatları Gör
                                     </a>
                                     <button class="buyButton btn btn-outline-primary" data-product-id="${product.id}" data-proposal-id="${proposalId}">Poliçeleştir</button>
@@ -289,11 +286,12 @@ async function loadProposalDetails(proposalId) {
     const initialMessage = "🚀 Sigorta teklifleriniz için hazırlık yapıyoruz...";
     loadingResults.innerHTML = `
     <div class="text-center">
-            <p class="mt-1 mb-2" style="font-size: 0.9rem; color: #6c757d;">Teklifler hazırlanıyor...</p>
+            <p class="mt-1 mb-2" style="font-size: 0.9rem; color: #6c757d;">Teklifler hazırlanıyor lütfen çıkmayın...</p>
             <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;" aria-label="Yükleniyor">
-                <span class="sr-only">Teklifler hazırlanıyor lütfen çıkmayınız...</span>
+                <span class="sr-only">Teklifler hazırlanıyor lütfen çıkmayın...</span>
             </div>
-            <p class="my-5" id="loadingMessage" style="font-size: 1.1rem; font-weight: 500; color:rgb(253, 177, 13);">
+            <h6 class="mt-3" style="color: #1b4a6b; font-weight: bold;">Biliyor muydunuz?</h6>
+            <p class="mb-5 mt-2" id="loadingMessage" style="font-size: 1.1rem; font-weight: 500; color:rgb(253, 177, 13);">
                 ${initialMessage}
             </p>
             <div class="progress mt-4" style="height: 28px; border-radius: 15px;">
@@ -390,10 +388,7 @@ async function loadProposalDetails(proposalId) {
         const timeout90Seconds = setTimeout(() => {
             shouldContinueLoop = false;
             updateProgressBar(100);
-            console.log('90 saniye doldu, progress bar %100 yapıldı ve döngü durduruldu.');
         }, 90000);
-
-        console.log(`Toplam ürün: ${totalProductsCount}, Tamamlanan: ${completedProducts.length}, Yüzde: ${percentage}%`);
 
         // WAITING olan ürünler varsa ve maksimum istek sayısına ulaşmadıysak ve 90 saniye dolmadıysa bekle
         while (percentage < 100 && requestCount < 35 && shouldContinueLoop) {
@@ -411,8 +406,6 @@ async function loadProposalDetails(proposalId) {
             completedProducts = getCompletedProducts(products);
             percentage = calculatePercentage(completedProducts.length, totalProductsCount);
             updateProgressBar(percentage);
-
-            console.log(`Tamamlanan: ${completedProducts.length}/${totalProductsCount}, Yüzde: ${percentage}%, İstek: ${requestCount}`);
 
             // Sadece progress bar'ı güncelle (mesaj zamanlayıcı tarafından otomatik güncelleniyor)
             const progressBar = document.getElementById("progressBar");
@@ -526,13 +519,11 @@ async function showVehicles() {
                 </div>
             `;
         card.dataset.vehicleId = vehicle.id;
-        console.log("vehicle id :", vehicle.id);
         card.addEventListener('click', () => {
 
             vehiclesList.querySelectorAll('.card').forEach(c => c.classList.remove('border-primary'));
             card.classList.add('border', 'border-primary');
             selectedVehicleId = card.dataset.vehicleId;
-            console.log("kart değişti , kart id:", selectedVehicleId);
         });
         col.appendChild(card);
         vehiclesList.appendChild(col);
@@ -569,16 +560,20 @@ async function showStep(step) {
     setTimeout(() => step.classList.remove('fade-in'), 500);
 
     if (step === step1) await updateProgress(1);
-    if (step === step2) await updateProgress(2);
+    if (step === step2) {
+        await updateProgress(2);
+        // Step2'ye geçildiğinde araçları yükle (lazy loading - sadece bir kez)
+        const vehiclesList = document.getElementById('vehiclesList');
+        if (vehiclesList && vehiclesList.innerHTML.trim() === '') {
+            await showVehicles();
+        }
+    }
     if (step === step3) await updateProgress(3);
 
 
 }
 async function firstStep() {
-    console.log("first step başladı.");
-
     // var covarageByCompany = await apiGetFetch("coverage-choices:kasko");
-    // console.log("covarageByCompany: ", covarageByCompany);
     const step1 = document.getElementById("step1");
     const step2 = document.getElementById("step2");
     const step3 = document.getElementById("step3");
@@ -619,19 +614,16 @@ async function firstStep() {
             city: citySelect.value,
             district: districtSelect.value
         };
-        console.log("currentData : ", currentData);
-        console.log("originalCustomerData : ", originalCustomerData);
-        
         return JSON.stringify(originalCustomerData) !== JSON.stringify(currentData);
     }
     if (state) {
 
         customer = await apiGetFetch("customers/me");
-        console.log("customer : ", customer);
 
         if (customer) {
             infoAfterLogin.style.display = "block";
-            loadCities2();
+            // Customer bilgisini parametre olarak geç, gereksiz API çağrısını önle
+            loadCities2(customer);
             tcInput.value = customer.identityNumber || '';
             phoneInput.value = customer.primaryPhoneNumber?.number || '';
             emailInput.value = customer.primaryEmail || '';
@@ -646,14 +638,13 @@ async function firstStep() {
                 city: customer.city?.value,
                 district: customer.district?.value
             };
-            
-            console.log("originalCustomerdata set edildi : ", originalCustomerData);
 
 
 
             if (customer.identityNumber && customer.fullName && customer.primaryPhoneNumber?.number && customer.primaryEmail && customer.birthDate && customer.city?.value) {
                 await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
                 await showStep(step2);
+                // showVehicles artık showStep içinde çağrılıyor (lazy loading)
             }
 
 
@@ -671,7 +662,6 @@ async function firstStep() {
 
 
     addVehicleBtn?.addEventListener('click', async () => {
-        console.log("crate vehicle butonu çalıştı. ");
         const vehicleModal = document.getElementById('vehicleModal');
         vehicleModal.style.display = "flex";
         var aracOlustur = await createVehicle();
@@ -692,7 +682,6 @@ async function firstStep() {
         
         e.preventDefault();
         isInfoChange = checkInfoChanged();
-        console.log("isInfoChange : ", isInfoChange);
         if (customer) {
             if (!citySelect || !districtSelect || !fullNameInput) {
                 return await showMessage("Lütfen tüm alanları doldurun!", "error");
@@ -704,9 +693,6 @@ async function firstStep() {
 
             }
             else {
-
-
-                console.log("personel submit çalıştı kullanıcı düzenleniyor");
               
                 const updateData = {
                     "$type": "individual",
@@ -733,12 +719,10 @@ async function firstStep() {
                     city: citySelect.value,
                     district: districtSelect.value
                 };
-                console.log("put fetch çalıştı: ", updateData);
                 const response = await apiPutFetch('customers/' + customer.id, updateData);
                 if (response) {
                     await showMessage('Bilgiler başarıyla güncellendi.', "success");
                     await showStep(step2);
-                    console.log('Güncellenen Bilgiler:', response);
                 } else {
                     await showMessage('Bilgiler güncellenemedi. Lütfen tekrar deneyin.', "error");
                 }
@@ -798,13 +782,10 @@ async function firstStep() {
                         // backStepBtn.classList.add('d-none');
 
                     } else {
-                        console.log("res.ok:", res.ok, "json:", json);
                         showMessage(json.detail || 'Doğrulama hatası');
                     }
                 } catch (err) {
                     await showMessage(err.message, "error");
-                    console.log(err.message);
-
                 }
                 return;
             }
@@ -827,18 +808,15 @@ async function firstStep() {
 
                 if (res.ok && json.token) {
                     // Geçici MFA token'ı kaydet
-                    console.log("kayıt oluştu");
                     mfaToken = json.token;
                     mfaAreaTraffic.style.display = 'block';
                     await showMessage('📲 SMS ile doğrulama kodu gönderildi. Lütfen kodu girin.', 'success');
                     mfaCodeTraffic.focus();
                 } else {
-                    console.log("hata sonucu: " + json);
                     await showMessage(json.detail || JSON.stringify(json) || 'Bilinmeyen hata', "error");
                 }
 
             } catch (err) {
-                console.log("fetch error", err);
                 await showMessage(err.message, "error");
 
             }
@@ -849,11 +827,17 @@ async function firstStep() {
     });
     
 }
-async function loadCities2() {
+async function loadCities2(customer = null) {
     const citySelect = document.getElementById("cityTraffic");
-    const customer = await apiGetFetch("customers/me");
-    const cities = (await apiGetFetch(`address-parameters/cities`))
-        .sort((a, b) => a.text.localeCompare(b.text));
+    
+    // Eğer customer parametre olarak gelmediyse al (geriye dönük uyumluluk için)
+    if (!customer) {
+        customer = await apiGetFetch("customers/me");
+    }
+    
+    // Şehirleri paralel olarak yükle (customer zaten varsa)
+    const citiesPromise = apiGetFetch(`address-parameters/cities`);
+    const cities = (await citiesPromise).sort((a, b) => a.text.localeCompare(b.text));
 
     cities.forEach(city => {
         let option = document.createElement("option");
@@ -862,8 +846,7 @@ async function loadCities2() {
         citySelect.appendChild(option);
     });
 
-    if (customer.city?.value) {
-        console.log("Şehir bilgileri geldi.", customer.city?.value.toString());
+    if (customer?.city?.value) {
         citySelect.value = customer.city?.value.toString();
         if (customer.district?.value) {
             await loadDistricts2(citySelect.value, customer.district?.value);
@@ -871,7 +854,6 @@ async function loadCities2() {
     }
 }
 async function loadDistricts2(cityValue, selectedDistrict = null) {
-    console.log("ilçeler yükleniyor");
     const districtSelect = document.getElementById("districtTraffic");
 
     districtSelect.innerHTML = "<option value=''>İlçe seçiniz</option>";

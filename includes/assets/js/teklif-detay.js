@@ -3,11 +3,7 @@
 
 window.loadTeklifDetayModule = async function (container, proposalId) {
 
-    console.log("Load teklif modül çağırıldı.")
-
-    console.log("ProposalId:", proposalId);
     if (!proposalId) {
-        console.log("teklif idsi yok .");
         return;
     }
 
@@ -16,7 +12,6 @@ window.loadTeklifDetayModule = async function (container, proposalId) {
 
     const isLogin = await isAuth(container);
     if (isLogin === false) {
-        console.log("isLogin False döndürdü");
         return;
     }
 

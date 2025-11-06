@@ -270,21 +270,13 @@ function sigorta_plugin_render_admin_page()
                         <td>Policelerim</td>
                         <td>Kullanıcının aktif <strong>poliseler</strong>i.</td>
                     </tr>
-                    <tr>
-                        <td class="shortcode-cell"><code>[payment_callback]</code> <span class="copy-badge" data-copy="[payment_callback]">Kopyala</span></td>
-                        <td>Ödeme Callback (gizli)</td>
-                        <td>Ödeme dönüş <strong>callback</strong>’i için ayrı bir sayfada kullanılmalı.</td>
-                    </tr>
+                   
                     <tr>
                         <td class="shortcode-cell"><code>[user_avatar_dropdown]</code> <span class="copy-badge" data-copy="[user_avatar_dropdown]">Kopyala</span></td>
                         <td>Header / Menü Bölgesi</td>
                         <td>Login olmuş kullanıcı için <strong>avatar dropdown</strong> menüsü.</td>
                     </tr>
-                    <tr>
-                        <td class="shortcode-cell"><code>[warranties_modal]</code> <span class="copy-badge" data-copy="[warranties_modal]">Kopyala</span></td>
-                        <td>Global (Tema Footer)</td>
-                        <td>Garanti/coverage <strong>modal</strong> bileşeni; sayfa genelinde bir kez eklenmeli.</td>
-                    </tr>
+                    
                 </tbody>
             </table>
             </div>

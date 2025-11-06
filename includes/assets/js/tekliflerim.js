@@ -1,7 +1,6 @@
 window.loadTekliflerimModule = async function (container) {
     const isLogin = await isAuth(container);
     if (!isLogin) {
-        console.log("isLogin false döndürdü -> giriş yok");
         return;
     }
 
@@ -120,7 +119,7 @@ window.loadTekliflerimModule = async function (container) {
         // 1 günden fazla geçmişse süresi dolmuş
         const isExpired = diffDays > 1;
         const buttonText = isExpired ? "Süresi Dolmuş" : "Detay";
-        const buttonClass = isExpired ? "btn my-dashboard-btn bg-secondary" : "btn my-dashboard-btn bg-primary";
+        const buttonClass = isExpired ? "btn bg-secondary " : "btn bg-primary";
         const buttonDisabled = isExpired ? "disabled" : "";
         const buttonOnclick = isExpired ? "" : `onclick="loadDetail('${p.id}')"`;
 
@@ -129,8 +128,8 @@ window.loadTekliflerimModule = async function (container) {
             <td class="text-center">${productBranch}</td>
             <td>${asset}</td>
             <td>${date}</td>
-            <td><div class="${statusColor} p-2 rounded-2 text-center">${statusText}</div></td>
-            <td><button class="${buttonClass}" ${buttonDisabled} ${buttonOnclick}>${buttonText}</button></td>
+            <td><div class="${statusColor} rounded-2 text-center" style="padding: 4px 8px; font-size: 0.9rem;">${statusText}</div></td>
+            <td class="text-center"><button class="${buttonClass} text-capitalize" style="width: 140px; display: flex; justify-content: center; align-items: center; margin: 0 auto; padding: 4px 8px; font-size: 0.9rem;" ${buttonDisabled} ${buttonOnclick}>${buttonText}</button></td>
         </tr>
         `;
     });
