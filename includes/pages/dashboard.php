@@ -81,7 +81,7 @@ function dashboard_shortcode()
         <!-- Main Content -->
         <div class="dashboard-main">
             <div class="sigorta-section">
-            <h2 class="sigorta-section-title">Sigorta Teklifleri</h2>
+            <h2 class="sigorta-section-title">Anında Teklif Al</h2>
             <p class="sigorta-section-subtitle">İhtiyacınıza uygun sigorta türünü seçin ve hemen teklif alın</p>
             
             <div class="sigorta-cards-container">

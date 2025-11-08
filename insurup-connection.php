@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name: Sigorta Plugin
-Description: Sigorta API tabanlı dashboard ve sayfalar.
+Plugin Name: InsurUp Connect
+Description: InsurUp API tabanlı dashboard ve sayfalar.
 Version: 1.0
 Author: WithSolver
 */
@@ -12,9 +12,9 @@ if (!defined('ABSPATH'))
 
 function sigorta_enqueue_scripts()
 {
-    if (!sp_check_license()) {
-        wp_die('Lisansınız geçersiz. Lütfen WithSolver ile iletişime geçin.');
-    }
+    // if (!sp_check_license()) {
+    //     wp_die('Lisansınız geçersiz. Lütfen WithSolver ile iletişime geçin.');
+    // }
 
     // Elementor editörde çalışmayı durdur
     if (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->editor->is_edit_mode()) {
@@ -62,8 +62,8 @@ add_action('wp_ajax_nopriv_sigorta_get_data', 'sigorta_get_data');
 function sigorta_enqueue_admin_assets($hook_suffix)
 {
     // Sadece eklenti admin sayfasında yükle
-    $is_sigorta_admin = isset($_GET['page']) && $_GET['page'] === 'sigorta-plugin-welcome';
-    if (!$is_sigorta_admin) {
+    $is_insurup_admin = isset($_GET['page']) && $_GET['page'] === 'insurup-connection-welcome';
+    if (!$is_insurup_admin) {
         return;
     }
 
@@ -92,7 +92,7 @@ function sigorta_get_data()
     // Normal AJAX response
     $data = array(
         'success' => true,
-        'info' => 'Sigorta verisi geldi'
+        'info' => 'InsurUp verisi geldi'
     );
 
     wp_send_json_success($data);
@@ -100,7 +100,7 @@ function sigorta_get_data()
 }
 function sp_check_license() {
     $domain = $_SERVER['Buraya server name gelecek'];
-    $res = wp_remote_get('https://withsolver.com/sigorta-plugin/includes/license-check.php?domain=' . $domain, ['timeout' => 5]);
+    $res = wp_remote_get('https://withsolver.com/insurup-connection/includes/license-check.php?domain=' . $domain, ['timeout' => 5]);
     if (is_wp_error($res)) return false;
     return wp_remote_retrieve_body($res) === 'OK';
 }
@@ -132,10 +132,10 @@ require_once plugin_dir_path(__FILE__) . 'includes/assets/components/warrantiesM
 function sigorta_plugin_register_admin_page()
 {
     add_menu_page(
-        'Sigorta Plugin',
-        'Sigorta Plugin',
+        'InsurUp Connect',
+        'InsurUp Connect',
         'manage_options',
-        'sigorta-plugin-welcome',
+        'insurup-connection-welcome',
         'sigorta_plugin_render_admin_page',
         'dashicons-shield',
         56
@@ -143,11 +143,11 @@ function sigorta_plugin_register_admin_page()
     
     // Bekleyen Teklifler alt menüsü
     add_submenu_page(
-        'sigorta-plugin-welcome',
+        'insurup-connection-welcome',
         'Bekleyen Teklifler',
         'Bekleyen Teklifler',
         'manage_options',
-        'sigorta-bekleyen-teklifler',
+        'insurup-connection-bekleyen-teklifler',
         'sigorta_bekleyen_teklifler_render_page'
     );
     
@@ -158,7 +158,7 @@ function sigorta_plugin_register_admin_page()
             'Tablo Oluştur',
             'Tablo Oluştur',
             'manage_options',
-            'sigorta-create-table',
+            'insurup-connection-create-table',
             'sigorta_create_table_manual'
         );
     }
@@ -201,12 +201,12 @@ function sigorta_plugin_render_admin_page()
 
         <div class="sigorta-hero" style="margin-bottom:18px; margin-top:8px;">
             <div>
-                <div class="sigorta-kv"><span class="dashicons dashicons-shield" style="font-size:28px;"></span><strong>Sigorta Plugin</strong></div>
+                <div class="sigorta-kv"><span class="dashicons dashicons-shield" style="font-size:28px;"></span><strong>InsurUp Connect</strong></div>
                 <h1>Kurduğunuz için teşekkürler!</h1>
                 <p>Hızlıca başlamanız için gerekli <strong>shortcode</strong>’lar ve önerilen sayfa yerleşimleri aşağıdadır.</p>
                 <div class="sigorta-actions">
                     <a href="post-new.php?post_type=page" class="button button-primary">Yeni Sayfa Oluştur</a>
-                    <a href="#sigorta-shortcodes" class="button">Shortcodes Bölümüne Git</a>
+                    <a href="#insurup-shortcodes" class="button">Shortcodes Bölümüne Git</a>
                 </div>
             </div>
             <div style="opacity:.9;">
@@ -216,7 +216,7 @@ function sigorta_plugin_render_admin_page()
 
         <div class="sigorta-grid">
             <div class="sigorta-card">
-                <h2 id="sigorta-shortcodes" style="margin-top:0;">Shortcodes</h2>
+                <h2 id="insurup-shortcodes" style="margin-top:0;">Shortcodes</h2>
             <table class="widefat fixed" style="margin-top:10px;">
                 <thead>
                     <tr>
@@ -312,7 +312,7 @@ function sigorta_plugin_render_admin_page()
                 <!-- Admin sayfasında sadece kendi ekranında info kutusu göster -->
                  <hr style="margin-top:15px;">
                 <h2 style="margin-top:30px;">Bilgiler</h2>
-                <ol class="sigorta-plugin-info-list">
+                <ol class="insurup-connection-info-list">
                     <li>
                         <b>Eklenti, WordPress sitenizde sitenizin seçili yazı tipini (fontunu) otomatik olarak kullanır.</b><br>
                         Tasarım bütünlüğünü bozmadan, mevcut tema tipografisi ile uyumlu şekilde çalışır. Ekstra bir ayar yapmanıza gerek yoktur.
@@ -447,7 +447,7 @@ function sigorta_bekleyen_teklifler_render_page() {
                 <p>Tablo Adı: <code><?php echo esc_html($table_name); ?></code></p>
                 <p>Hata: <code><?php echo esc_html($wpdb->last_error ?: 'Bilinmeyen hata'); ?></code></p>
                 <p>
-                    <a href="<?php echo admin_url('admin.php?page=sigorta-create-table'); ?>" class="button">
+                    <a href="<?php echo admin_url('admin.php?page=insurup-connection-create-table'); ?>" class="button">
                         Tabloyu Manuel Oluşturmayı Dene
                     </a>
                 </p>
@@ -878,7 +878,7 @@ function sigorta_create_table_manual() {
                 <li><strong>Veritabanı Hatası:</strong> <?php echo esc_html($wpdb->last_error ?: 'Yok'); ?></li>
             </ul>
             <p>
-                <a href="<?php echo admin_url('admin.php?page=sigorta-bekleyen-teklifler'); ?>" class="button button-primary">
+                <a href="<?php echo admin_url('admin.php?page=insurup-connection-bekleyen-teklifler'); ?>" class="button button-primary">
                     Bekleyen Teklifler Sayfasına Dön
                 </a>
             </p>

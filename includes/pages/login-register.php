@@ -30,7 +30,7 @@ function tc_phone_login_form_shortcode()
         <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%;">
             <div class="text-center mb-4">
                 <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
-                <h2>Sigorta Portalı</h2>
+                <h2>InsurUp Portalı</h2>
             </div>
 
             <!-- Toggle Buttons -->

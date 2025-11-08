@@ -1,591 +1,604 @@
-    body {
-        font-family: 'Nunito Sans', sans-serif;
+body {
+    font-family: 'Nunito Sans', sans-serif;
 
-        /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
-        background: #f5f6fa;
-        margin: 0;
-        min-height: 100vh;
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100%;
-    }
+    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+    background: #f5f6fa;
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
 
-    .dashboard-topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
-        top: 0;
-        z-index: 999;
-    }
+.dashboard-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
 
-    .dashboard-topbar .logo a {
-        text-decoration: none;
-        color: #2f3640;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
+.dashboard-topbar .logo a {
+    text-decoration: none;
+    color: #2f3640;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
 
-    .dashboard-topbar .topbar-menu {
-        display: flex;
-        gap: 15px;
-    }
+.dashboard-topbar .topbar-menu {
+    display: flex;
+    gap: 15px;
+}
 
-    .dashboard-topbar .topbar-menu a {
-        text-decoration: none;
-        color: #2f3640;
-        padding: 6px 12px;
-        border-radius: 4px;
-        transition: .3s;
-    }
+.dashboard-topbar .topbar-menu a {
+    text-decoration: none;
+    color: #2f3640;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: .3s;
+}
 
-    .dashboard-topbar .topbar-menu a.active,
-    .dashboard-topbar .topbar-menu a:hover {
-        background: #0984e3;
-        color: #fff;
-    }
+.dashboard-topbar .topbar-menu a.active,
+.dashboard-topbar .topbar-menu a:hover {
+    background: #0984e3;
+    color: #fff;
+}
 
-    .header-right {
-        display: flex;
-        align-items: center;
-        position: relative;
-        gap: 10px;
-    }
+.header-right {
+    display: flex;
+    align-items: center;
+    position: relative;
+    gap: 10px;
+}
 
-    .user-info-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        
-        cursor: pointer;
-    }
+.user-info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    cursor: pointer;
+}
 
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 5px;
+}
+
+.user-avatar span {
+    font-weight: bold;
+    color: #2d3436;
+    font-size: .9rem;
+}
+
+#userName {
+    font-weight: 500;
+    color: #2d3436;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    overflow: hidden;
+    min-width: 200px;
+    z-index: 10;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 10px;
+    color: #2f3640;
+    text-decoration: none;
+}
+
+.user-dropdown a:hover {
+    background: #f1f2f6;
+}
+
+
+.footer {
+
+
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    background: #fff;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+@media(max-width:768px) {
     .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 5px;
+        flex-direction: row;
+        gap: 5px;
     }
-
-    .user-avatar span {
-        font-weight: bold;
-        color: #2d3436;
-        font-size: .9rem;
-    }
-
-    #userName {
-        font-weight: 500;
-        color: #2d3436;
-        font-size: 0.95rem;
-        white-space: nowrap;
-    }
-
-    .user-dropdown {
-        display: none;
-        position: absolute;
-        top: 50px;
-        right: 0;
-        background: #fff;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-        border-radius: 5px;
-        overflow: hidden;
-        min-width: 200px;
-        z-index: 10;
-    }
-
-    .user-dropdown a {
-        display: block;
-        padding: 10px;
-        color: #2f3640;
-        text-decoration: none;
-    }
-
-    .user-dropdown a:hover {
-        background: #f1f2f6;
-    }
+}
 
 
-    .footer {
+/* BUTTONS */
 
-
-        width: 100%;
-        text-align: center;
-        padding: 15px 0;
-        background: #fff;
-        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        font-weight: bold;
-    }
-
-    @media(max-width:768px) {
-        .user-avatar {
-            flex-direction: row;
-            gap: 5px;
-        }
-    }
-
-
-    /* BUTTONS */
-
-    /* button.activeArea.btn.btn-secondary {
-        background-color: #2074ceff !important;
-        
-        color: white !important;
-        
-        border: 2px solid #0056b3 !important;
-        font-weight: bold !important;
-    } */
-
-    .primary-button {
-        background-color: #0d6efd !important;
-        color: white !important;
-        border-color: #0d6efd !important;
-        border-style: solid !important;
-    }
-
-    .primary-button:hover {
-        background-color: #0b5ed7 !important;
-        color: white !important;
-    }
-
-    .success-button {
-        background-color: white !important;
-        color: black !important;
-        border: 2px solid green !important;
-        padding: 8px 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .success-button:hover {
-        background-color: green !important;
-        color: white !important;
-    }
-
-    .danger-button {
-        background-color: white !important;
-        color: black !important;
-        border: 2px solid red !important;
-        padding: 8px 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .danger-button:hover {
-        background-color: red !important;
-        color: white !important;
-    }
-
-
-    .warning-button {
-        background-color: white !important;
-        color: black !important;
-        border: 2px solid orange !important;
-        padding: 8px 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .warning-button:hover {
-        background-color: orange !important;
-        color: white !important;
-    }
-
-
-
-
-
-
-    input {
-        border: 1px solid #ccc !important;
-
-    }
-
-    select {
-        background-color: white !important;
-        border: 1px solid #ccc !important;
-
-        color: black !important;
-    }
-
-    /* BUTTON COLORS */
+/* button.activeArea.btn.btn-secondary {
+    background-color: #2074ceff !important;
     
-    /* Primary Buttons */
-    .btn-primary {
-        background-color: #0d6efd !important;
-        border-color: #0d6efd !important;
-        color: white !important;
-    }
+    color: white !important;
     
-    .btn-primary:hover {
-        background-color: #0b5ed7 !important;
-        border-color: #0a58ca !important;
-        color: white !important;
-    }
-    
-    .btn-outline-primary {
-        color: #0d6efd !important;
-        border-color: #0d6efd !important;
-        background-color: transparent !important;
-    }
-    
-    .btn-outline-primary:hover {
-        background-color: #0d6efd !important;
-        border-color: #0d6efd !important;
-        color: white !important;
-    }
-    
-    /* Danger Buttons */
-    .btn-danger {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: white !important;
-    }
-    
-    .btn-danger:hover {
-        background-color: #bb2d3b !important;
-        border-color: #b02a37 !important;
-        color: white !important;
-    }
-    
-    .btn-outline-danger {
-        color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        background-color: transparent !important;
-    }
-    
-    .btn-outline-danger:hover {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: white !important;
-    }
-    
-    /* Warning Buttons */
-    .btn-warning {
-        background-color: #ffc107 !important;
-        border-color: #ffc107 !important;
-        color: #000 !important;
-    }
-    
-    .btn-warning:hover {
-        background-color: #ffca2c !important;
-        border-color: #ffc720 !important;
-        color: #000 !important;
-    }
-    
-    .btn-outline-warning {
-        color: #ffc107 !important;
-        border-color: #ffc107 !important;
-        background-color: transparent !important;
-    }
-    
-    .btn-outline-warning:hover {
-        background-color: #ffc107 !important;
-        border-color: #ffc107 !important;
-        color: #000 !important;
-    }
-    
-    /* Secondary Buttons */
-    .btn-secondary {
-        background-color: #6c757d !important;
-        border-color: #6c757d !important;
-        color: white !important;
-    }
-    
-    .btn-secondary:hover {
-        background-color: #5c636a !important;
-        border-color: #565e64 !important;
-        color: white !important;
-    }
-    
-    .btn-outline-secondary {
-        color: #6c757d !important;
-        border-color: #6c757d !important;
-        background-color: transparent !important;
-    }
-    
-    .btn-outline-secondary:hover {
-        background-color: #6c757d !important;
-        border-color: #6c757d !important;
-        color: white !important;
-    }
-    
-    /* Success Buttons */
-    .btn-success {
-        background-color: #198754 !important;
-        border-color: #198754 !important;
-        color: white !important;
-    }
-    
-    .btn-success:hover {
-        background-color: #157347 !important;
-        border-color: #146c43 !important;
-        color: white !important;
-    }
-    
-    .btn-outline-success {
-        color: #198754 !important;
-        border-color: #198754 !important;
-        background-color: transparent !important;
-    }
-    
-    .btn-outline-success:hover {
-        background-color: #198754 !important;
-        border-color: #198754 !important;
-        color: white !important;
-    }
+    border: 2px solid #0056b3 !important;
+    font-weight: bold !important;
+} */
 
-    .dashboard-topbar {
-        display: flex;
-        justify-content: center;
-        /* sağa yasla, dilersen center yapabilirsin */
-        align-items: center;
-        /* dikey ortala */
-        padding: 10px 20px;
-        /* background-color: #fff; */
-        /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
-        position: sticky;
-        top: 0;
-        z-index: 999;
-    }
+.primary-button {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-color: #0d6efd !important;
+    border-style: solid !important;
+}
 
-    .header-right {
-        display: flex;
-        align-items: center;
-        /* dikey ortala */
-        justify-content: center;
-        /* yatay ortala */
-        gap: 10px;
-        position: relative;
-    }
+.primary-button:hover {
+    background-color: #0b5ed7 !important;
+    color: white !important;
+}
 
-    .user-avatar {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        /* avatar içindeki svg ortalansın */
-    }
+.success-button {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid green !important;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.success-button:hover {
+    background-color: green !important;
+    color: white !important;
+}
+
+.danger-button {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid red !important;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.danger-button:hover {
+    background-color: red !important;
+    color: white !important;
+}
 
 
-    .user-dropdown {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 0;
-        /* background: #fff; */
-        /* border: 1px solid #ddd; */
-        border-radius: 6px;
-        /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); */
-        min-width: 150px;
-        padding: 5px 0;
-        z-index: 1000;
-    }
+.warning-button {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid orange !important;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
-    .user-dropdown a {
-        display: block;
-        padding: 8px 15px;
-        color: #333;
-        text-decoration: none;
-    }
+.warning-button:hover {
+    background-color: orange !important;
+    color: white !important;
+}
 
-    .user-dropdown a:hover {
-        background-color: #f2f2f2;
-    }
 
-    #loginBtn.btn-login {
-        padding: 8px 15px !important;
-        border: none !important;
-        border-radius: 6px !important;
-        background: #00A4FF !important;
-        color: #fff !important;
-        cursor: pointer !important;
-        font-size: 14px !important;
-    }
 
-    /* ===== Sigorta Plugin Admin: Info List Styling ===== */
-    .sigorta-plugin-info-list {
-        counter-reset: sigortaInfoItem;
-        list-style: none;
-        margin-top: 15px;
-        padding: 0;
-        display: grid;
-        gap: 12px;
-        grid-template-columns: 1fr; /* desktop dahil tek sütun */
-    }
 
-    .sigorta-plugin-info-list li {
-        position: relative;
-        padding: 14px 16px 14px 56px;
-        background: #fff;
-        border: 1px solid #eef0f6;
-        border-radius: 12px;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
-        color: #2f3a66;
-    }
 
-    .sigorta-plugin-info-list li::before {
-        content: counter(sigortaInfoItem, decimal-leading-zero);
-        counter-increment: sigortaInfoItem;
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #2f6fef;
-        color: #fff;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        box-shadow: 0 6px 14px rgba(47, 111, 239, 0.35);
-    }
 
-    .sigorta-plugin-info-list b { color: #1f2a55; }
+input {
+    border: 1px solid #ccc !important;
 
-    /* Bilgiler listesi desktop'ta da tek sütun kalsın */
-    @media (min-width: 768px) {
-        .sigorta-plugin-info-list { grid-template-columns: 1fr; }
-    }
-    @media (min-width: 1280px) {
-        .sigorta-plugin-info-list { grid-template-columns: 1fr; }
-    }
+}
 
-    /* Küçük ekran optimizasyonları */
-    @media (max-width: 767px) {
-        .sigorta-plugin-info-list { gap: 10px; }
-        .sigorta-plugin-info-list li {
-            padding: 12px 14px 12px 52px;
-        }
-        .sigorta-plugin-info-list li::before {
-            width: 26px; height: 26px; font-size: 11px;
-            left: 14px;
-        }
-    }
+select {
+    background-color: white !important;
+    border: 1px solid #ccc !important;
 
-    @media (max-width: 480px) {
-        .sigorta-plugin-info-list li {
-            padding: 10px 12px 10px 48px;
-        }
-        .sigorta-plugin-info-list li::before {
-            width: 24px; height: 24px; font-size: 10px;
-            left: 12px;
-        }
-    }
+    color: black !important;
+}
 
-    @media (prefers-color-scheme: dark) {
-        .sigorta-plugin-info-list li {
-            background: #6f7380;
-            border-color: #6f7380;
-            color: #e9eef7;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-        }
-        .sigorta-plugin-info-list b { color: #fff; }
-    }
+/* BUTTON COLORS */
 
-    /* ===== Plugin Admin Sayfası - Görsel İyileştirmeler ===== */
-    .wrap h2, .wrap h3 {
-        letter-spacing: .2px;
-        color: #1f2a55;
-        margin-top: 0;
-    }
-    .wrap h2 { font-size: 22px; }
-    .wrap h3 { font-size: 18px; }
+/* Primary Buttons */
+.btn-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
 
-    /* Kartlar arası boşluk iyileştirme */
-    .sigorta-card { border: 1px solid #eef0f6; }
+.btn-primary:hover {
+    background-color: #0b5ed7 !important;
+    border-color: #0a58ca !important;
+    color: white !important;
+}
 
-    /* Widefat tablo güzelleştirme (sadece bu sayfada enqueued) */
-    .wrap .widefat {
-        border: 1px solid #e7eaf3;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 6px 24px rgba(0,0,0,0.06);
-    }
-    .wrap .widefat thead th {
-        background: linear-gradient(180deg, #f7f9ff 0%, #eef2ff 100%);
-        color: #2f3a66;
-        border-bottom: 1px solid #e7eaf3;
-        font-weight: 700;
-    }
-    .wrap .widefat tbody tr:nth-child(odd) td { background: #fcfdff; }
-    .wrap .widefat tbody tr:hover td { background: #f4f7ff; }
+.btn-outline-primary {
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    background-color: transparent !important;
+}
 
-    /* Buton görünümleri */
-    .wrap .button.button-primary {
-        background: #2f6fef;
-        border-color: #2f6fef;
-        color: #fff;
-        box-shadow: 0 8px 18px rgba(47,111,239,0.28);
-    }
-    .wrap .button.button-primary:hover { filter: brightness(.95); }
-    .wrap .button {
-        border-radius: 8px;
-    }
+.btn-outline-primary:hover {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
 
-    @media (prefers-color-scheme: dark) {
-        .wrap h2, .wrap h3 { color: #fff; }
-    }
+/* Danger Buttons */
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
 
-    /* ===== Varlık Kartları Tasarımı ===== */
-    .varlik-card {
-        background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        min-width: 150px;
-        text-align: center;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
+.btn-danger:hover {
+    background-color: #bb2d3b !important;
+    border-color: #b02a37 !important;
+    color: white !important;
+}
 
-    .varlik-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
+.btn-outline-danger {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    background-color: transparent !important;
+}
 
-    .varlik-icon {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.3s ease;
-    }
+.btn-outline-danger:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
 
-    .varlik-icon img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        transition: filter 0.3s ease;
-    }
+/* Warning Buttons */
+.btn-warning {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #000 !important;
+}
 
-    .varlik-card:hover .varlik-icon {
-        transform: scale(1.15);
-    }
+.btn-warning:hover {
+    background-color: #ffca2c !important;
+    border-color: #ffc720 !important;
+    color: #000 !important;
+}
 
-    .varlik-card:hover .varlik-icon img {
-        filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(7493%) hue-rotate(213deg) brightness(100%) contrast(100%);
-    }
+.btn-outline-warning {
+    color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    background-color: transparent !important;
+}
 
-    .varlik-title {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2d3436;
-        transition: transform 0.3s ease;
-    }
+.btn-outline-warning:hover {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #000 !important;
+}
 
-    .varlik-card:hover .varlik-title {
-        transform: scale(1.1);
+/* Secondary Buttons */
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a !important;
+    border-color: #565e64 !important;
+    color: white !important;
+}
+
+.btn-outline-secondary {
+    color: #6c757d !important;
+    border-color: #6c757d !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+}
+
+/* Success Buttons */
+.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: white !important;
+}
+
+.btn-outline-success {
+    color: #198754 !important;
+    border-color: #198754 !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-success:hover {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+}
+
+.dashboard-topbar {
+    display: flex;
+    justify-content: center;
+    /* sağa yasla, dilersen center yapabilirsin */
+    align-items: center;
+    /* dikey ortala */
+    padding: 10px 20px;
+    /* background-color: #fff; */
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    /* dikey ortala */
+    justify-content: center;
+    /* yatay ortala */
+    gap: 10px;
+    position: relative;
+}
+
+.user-avatar {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* avatar içindeki svg ortalansın */
+}
+
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    /* background: #fff; */
+    /* border: 1px solid #ddd; */
+    border-radius: 6px;
+    /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); */
+    min-width: 150px;
+    padding: 5px 0;
+    z-index: 1000;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 8px 15px;
+    color: #333;
+    text-decoration: none;
+}
+
+.user-dropdown a:hover {
+    background-color: #f2f2f2;
+}
+@media (max-width: 576px) { /* Küçük ekranlar için */
+#btnLogin, #btnRegister {
+    flex: 1 1 100%; /* Ekran genişliğini kaplasın */
+    font-size: 14px; /* Yazı küçük olsun */
+    padding: 8px 0;  /* Daha dar padding */
+}
+}
+#loginBtn.btn-login {
+    padding: 8px 15px !important;
+    border: none !important;
+    border-radius: 6px !important;
+    background: #00A4FF !important;
+    color: #fff !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+}
+@media (max-width: 600px) {
+#loginBtn.btn-login {
+    padding: 6px 12px !important; /* Buton küçülsün */
+    font-size: 12px !important;   /* Yazı da küçülsün */
+    border-radius: 4px !important; /* Kenarlar biraz daha küçük */
+}
+}
+
+/* ===== InsurUp Connect Admin: Info List Styling ===== */
+.insurup-connection-info-list {
+    counter-reset: insurupInfoItem;
+    list-style: none;
+    margin-top: 15px;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr; /* desktop dahil tek sütun */
+}
+
+.insurup-connection-info-list li {
+    position: relative;
+    padding: 14px 16px 14px 56px;
+    background: #fff;
+    border: 1px solid #eef0f6;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+    color: #2f3a66;
+}
+
+.insurup-connection-info-list li::before {
+    content: counter(insurupInfoItem, decimal-leading-zero);
+    counter-increment: insurupInfoItem;
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #2f6fef;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 6px 14px rgba(47, 111, 239, 0.35);
+}
+
+.insurup-connection-info-list b { color: #1f2a55; }
+
+/* Bilgiler listesi desktop'ta da tek sütun kalsın */
+@media (min-width: 768px) {
+    .insurup-connection-info-list { grid-template-columns: 1fr; }
+}
+@media (min-width: 1280px) {
+    .insurup-connection-info-list { grid-template-columns: 1fr; }
+}
+
+/* Küçük ekran optimizasyonları */
+@media (max-width: 767px) {
+    .insurup-connection-info-list { gap: 10px; }
+    .insurup-connection-info-list li {
+        padding: 12px 14px 12px 52px;
     }
+    .insurup-connection-info-list li::before {
+        width: 26px; height: 26px; font-size: 11px;
+        left: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .insurup-connection-info-list li {
+        padding: 10px 12px 10px 48px;
+    }
+    .insurup-connection-info-list li::before {
+        width: 24px; height: 24px; font-size: 10px;
+        left: 12px;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .insurup-connection-info-list li {
+        background: #6f7380;
+        border-color: #6f7380;
+        color: #e9eef7;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
+    .insurup-connection-info-list b { color: #fff; }
+}
+
+/* ===== Plugin Admin Sayfası - Görsel İyileştirmeler ===== */
+.wrap h2, .wrap h3 {
+    letter-spacing: .2px;
+    color: #1f2a55;
+    margin-top: 0;
+}
+.wrap h2 { font-size: 22px; }
+.wrap h3 { font-size: 18px; }
+
+/* Kartlar arası boşluk iyileştirme */
+.sigorta-card { border: 1px solid #eef0f6; }
+
+/* Widefat tablo güzelleştirme (sadece bu sayfada enqueued) */
+.wrap .widefat {
+    border: 1px solid #e7eaf3;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+}
+.wrap .widefat thead th {
+    background: linear-gradient(180deg, #f7f9ff 0%, #eef2ff 100%);
+    color: #2f3a66;
+    border-bottom: 1px solid #e7eaf3;
+    font-weight: 700;
+}
+.wrap .widefat tbody tr:nth-child(odd) td { background: #fcfdff; }
+.wrap .widefat tbody tr:hover td { background: #f4f7ff; }
+
+/* Buton görünümleri */
+.wrap .button.button-primary {
+    background: #2f6fef;
+    border-color: #2f6fef;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(47,111,239,0.28);
+}
+.wrap .button.button-primary:hover { filter: brightness(.95); }
+.wrap .button {
+    border-radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .wrap h2, .wrap h3 { color: #fff; }
+}
+
+/* ===== Varlık Kartları Tasarımı ===== */
+.varlik-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 150px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.varlik-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.varlik-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.varlik-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: filter 0.3s ease;
+}
+
+.varlik-card:hover .varlik-icon {
+    transform: scale(1.15);
+}
+
+.varlik-card:hover .varlik-icon img {
+    filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(7493%) hue-rotate(213deg) brightness(100%) contrast(100%);
+}
+
+.varlik-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3436;
+    transition: transform 0.3s ease;
+}
+
+.varlik-card:hover .varlik-title {
+    transform: scale(1.1);
+}
