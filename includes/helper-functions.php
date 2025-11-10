@@ -5,6 +5,12 @@ if (!defined('ABSPATH')) {
 
 
 function sigorta_get_customer_id() {
+    // WordPress'te session kullanımı için güvenli kontrol
+    if (session_status() === PHP_SESSION_NONE) {
+        if (!headers_sent()) {
+            session_start();
+        }
+    }
     return isset($_SESSION['insurup_customerId']) ? $_SESSION['insurup_customerId'] : null;
 }
 

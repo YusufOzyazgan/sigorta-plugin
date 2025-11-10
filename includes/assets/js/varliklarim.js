@@ -1279,11 +1279,12 @@ async function createVehicle() {
         if (isPlakasiz) {
             formData = {
                 customerId: currentId,
-                accessories: accessoriesPlakasiz.length > 0 ? accessoriesPlakasiz : null,
+                accessories: accessoriesPlakasiz.length > 0 ? accessoriesPlakasiz : [],
                 plate: {
                     city: parseInt(citySelect.value),
-                    code: "",
+                    code: null,
                 },
+                documentSerial: null,
                 brandReference: brandSelect.value,
                 modelTypeReference: modelSelect.value,
                 modelYear: parseInt(document.getElementById("yearInput").value),
@@ -1304,9 +1305,9 @@ async function createVehicle() {
                     : null
             };
         } else {
-            // Plakalı form
+            
             formData = {
-                customerId: currentId, // Submit anındaki ID'yi kullan
+                customerId: currentId, 
                 plate: {
                     city: parseInt(document.getElementById("citySelectPlakali").value),
                     code: document.getElementById("plateInput").value
@@ -1316,10 +1317,10 @@ async function createVehicle() {
                     number: document.getElementById("documentNo").value
                 },
                 brandReference: brandSelectPlakali.value,
-                // === YAZIM HATASI DÜZELTMESİ ===
+                
                 modelTypeReference: document.getElementById("modelSelectPlakali").value,
-                // === YAZIM HATASI DÜZELTMESİ SONU ===
-                modelYear: document.getElementById("yearInputPlakali").value,
+                
+                modelYear: parseInt(document.getElementById("yearInputPlakali").value),
                 utilizationStyle: vehicleTypesSelectPlakali.value || null,
                 engine: document.getElementById("engineInputPlakali").value,
                 chassis: document.getElementById("chassisInputPlakali").value,
@@ -1332,7 +1333,7 @@ async function createVehicle() {
                 seatCount: parseInt(document.getElementById("seatCountPlakali").value),
                 kaskoOldPolicy: null,
                 trafikOldPolicy: null,
-                accessories: accessories.length > 0 ? accessories : null,
+                accessories: accessories.length > 0 ? accessories : [],
                 lossPayeeClause: (lossPayeeTypePlakali || lossPayeeNamePlakali)
                     ? { type: lossPayeeTypePlakali, name: lossPayeeNamePlakali }
                     : null

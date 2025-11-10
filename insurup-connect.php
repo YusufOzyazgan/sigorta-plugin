@@ -9,12 +9,138 @@ Author: WithSolver
 if (!defined('ABSPATH'))
     exit;
 
+// 
+function sp_check_license() {
+    // Domain belirleme - WordPress fonksiyonlarını kullanarak daha güvenli
+    // Önce WordPress'in home_url() fonksiyonunu kullan (daha güvenilir)
+    if (function_exists('home_url')) {
+        $home_url = home_url();
+        $parsed_url = parse_url($home_url);
+        $domain = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        
+        // Port numarasını temizle (eğer varsa)
+        if (strpos($domain, ':') !== false) {
+            $domain = explode(':', $domain)[0];
+        }
+    }
+    
+    // Eğer WordPress fonksiyonu çalışmadıysa fallback olarak HTTP_HOST kullan
+    if (empty($domain)) {
+        $domain = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field($_SERVER['HTTP_HOST']) : 'unknown';
+        // Port numarasını temizle
+        if (strpos($domain, ':') !== false) {
+            $domain = explode(':', $domain)[0];
+        }
+    }
+    
+    // Domain'i temizle ve normalize et
+    $domain = strtolower(trim($domain));
+    
+    // Localhost veya IP adresi kontrolü (development ortamları için)
+    if (in_array($domain, ['localhost', '127.0.0.1', '::1']) || filter_var($domain, FILTER_VALIDATE_IP)) {
+        // Development ortamında lisans kontrolünü atla (opsiyonel)
+        // Eğer production'da çalışmasını istiyorsanız bu kısmı kaldırın
+        // return true; // Development için geçici olarak true döndür
+    }
+
+    $url = 'https://withsolver.com/updates/lisance-check.php?domain=' . urlencode($domain);
+
+    $response = wp_remote_get($url, ['timeout' => 10]);
+
+    // Hata varsa lisans geçersiz say
+    if (is_wp_error($response)) {
+        error_log('InsurUp Connect - Lisans kontrolü başarısız: ' . $response->get_error_message());
+        return false;
+    }  
+    
+    $body = wp_remote_retrieve_body($response);
+    $is_valid = trim($body) === 'OK';
+    
+    return $is_valid;
+}
+
+// Admin panelde lisans hatası uyarısı (her zaman tanımlı olmalı)
+function insurup_license_invalid_notice() {
+    ?>
+    <div class="notice notice-error is-dismissible">
+        <p><strong>InsurUp Connect:</strong> Lisansınız geçersiz veya süresi dolmuş. Lütfen <a href="https://withsolver.com" target="_blank">WithSolver</a> ile iletişime geçin. Eklenti devre dışı bırakıldı.</p>
+    </div>
+    <?php
+}
+
+// Eklentiler sayfasında eklentinin altında lisans uyarısı göster (her zaman tanımlı olmalı)
+function insurup_plugin_row_notice($plugin_file) {
+    // Sadece bu eklenti için göster
+    if ($plugin_file !== plugin_basename(__FILE__)) {
+        return;
+    }
+    
+    // Lisans kontrolü
+    if (sp_check_license()) {
+        return; // Lisans geçerliyse uyarı gösterme
+    }
+    
+    ?>
+    <tr class="plugin-update-tr active">
+        <td colspan="3" class="plugin-update colspanchange">
+            <div class="update-message notice inline notice-error notice-alt">
+                <p>
+                    <strong>⚠️ Lisans Uyarısı:</strong> 
+                    InsurUp Connect eklentisinin lisansı geçersiz veya süresi dolmuş. 
+                    Eklenti devre dışı bırakıldı. 
+                    Lütfen <a href="https://withsolver.com" target="_blank">WithSolver</a> ile iletişime geçin.
+                </p>
+            </div>
+        </td>
+    </tr>
+    <?php
+}
+
+// Plugin yüklenirken lisans kontrolü
+$insurup_license_valid = sp_check_license();
+
+// Eklentiler sayfasında uyarı göster (her zaman aktif, lisans kontrolü fonksiyon içinde yapılıyor)
+add_action('after_plugin_row', 'insurup_plugin_row_notice', 10, 1);
+
+// Lisans geçersizse plugin'i durdur
+if (!$insurup_license_valid) {
+    // Admin panelde uyarı göster
+    add_action('admin_notices', 'insurup_license_invalid_notice');
+    add_action('network_admin_notices', 'insurup_license_invalid_notice');
+    
+    // Tüm plugin fonksiyonlarını durdur
+    return;
+}
+
+// 🔹 Plugin Update Checker (sadece lisans geçerliyse)
+if (file_exists(plugin_dir_path(__FILE__) . 'plugin-update-checker/plugin-update-checker.php')) {
+    require plugin_dir_path(__FILE__) . 'plugin-update-checker/plugin-update-checker.php';
+    // Yeni namespace ile class kontrolü
+    if (class_exists('YahnisElsts\PluginUpdateChecker\v5\PucFactory')) {
+        $updateChecker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+            'https://withsolver.com/updates/insurup-connect.json', 
+            __FILE__, 
+            'insurup-connect' 
+        );
+    } elseif (class_exists('Puc_v5_Factory')) {
+        // Eski versiyon için backward compatibility
+        $updateChecker = Puc_v5_Factory::buildUpdateChecker(
+            'https://withsolver.com/updates/insurup-connect.json', 
+            __FILE__, 
+            'insurup-connect' 
+        );
+    }
+}
+
+
 
 function sigorta_enqueue_scripts()
 {
-    // if (!sp_check_license()) {
-    //     wp_die('Lisansınız geçersiz. Lütfen WithSolver ile iletişime geçin.');
-    // }
+    // Lisans kontrolü - global değişken kontrolü
+    global $insurup_license_valid;
+    if (!isset($insurup_license_valid) || !$insurup_license_valid) {
+        return; // Script'leri yükleme
+    }
 
     // Elementor editörde çalışmayı durdur
     if (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->editor->is_edit_mode()) {
@@ -61,8 +187,14 @@ add_action('wp_ajax_nopriv_sigorta_get_data', 'sigorta_get_data');
 // Admin sayfasında plugin CSS'ini yükle
 function sigorta_enqueue_admin_assets($hook_suffix)
 {
+    // Lisans kontrolü
+    global $insurup_license_valid;
+    if (!isset($insurup_license_valid) || !$insurup_license_valid) {
+        return; // Admin asset'lerini yükleme
+    }
+    
     // Sadece eklenti admin sayfasında yükle
-    $is_insurup_admin = isset($_GET['page']) && $_GET['page'] === 'insurup-connection-welcome';
+    $is_insurup_admin = isset($_GET['page']) && $_GET['page'] === 'insurup-connect-welcome';
     if (!$is_insurup_admin) {
         return;
     }
@@ -82,6 +214,12 @@ add_action('admin_enqueue_scripts', 'sigorta_enqueue_admin_assets');
 
 function sigorta_get_data()
 {
+    // Lisans kontrolü
+    global $insurup_license_valid;
+    if (!isset($insurup_license_valid) || !$insurup_license_valid) {
+        wp_send_json_error(['message' => 'Lisans geçersiz. Lütfen WithSolver ile iletişime geçin.']);
+        wp_die();
+    }
 
     // Elementor editörde JSON göndermeyi engelle
     if (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->editor->is_edit_mode()) {
@@ -98,44 +236,46 @@ function sigorta_get_data()
     wp_send_json_success($data);
     wp_die();
 }
-function sp_check_license() {
-    $domain = $_SERVER['Buraya server name gelecek'];
-    $res = wp_remote_get('https://withsolver.com/insurup-connection/includes/license-check.php?domain=' . $domain, ['timeout' => 5]);
-    if (is_wp_error($res)) return false;
-    return wp_remote_retrieve_body($res) === 'OK';
+
+
+/**
+ * Yardımcı fonksiyonlar ve sayfalar - Sadece lisans geçerliyse yükle
+ */
+if ($insurup_license_valid) {
+    require_once plugin_dir_path(__FILE__) . 'includes/helper-functions.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/login-register.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/bilgilerim.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/tekliflerim.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/policelerim.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/varliklarim.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/trafik.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/tss.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/dask.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/konut.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/kasko.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/callback.php';
+
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/dashboard.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/loginMenu.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/assets/components/warrantiesModal.php';
 }
 
-/**
- * Yardımcı fonksiyonlar ve sayfalar
- */
-require_once plugin_dir_path(__FILE__) . 'includes/helper-functions.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/login-register.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/bilgilerim.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/tekliflerim.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/policelerim.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/varliklarim.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/trafik.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/tss.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/dask.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/konut.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/kasko.php';
-require_once plugin_dir_path(__FILE__) . 'includes/pages/callback.php';
-
-require_once plugin_dir_path(__FILE__) . 'includes/pages/dashboard.php';
-require_once plugin_dir_path(__FILE__) . 'includes/loginMenu.php';
-require_once plugin_dir_path(__FILE__) . 'includes/assets/components/warrantiesModal.php';
-
 
 /**
- * Admin: Karşılama ve Shortcodes sayfası
+ * Admin: Karşılama ve Shortcodes sayfası - Sadece lisans geçerliyse
  */
 function sigorta_plugin_register_admin_page()
 {
+    global $insurup_license_valid;
+    if (!isset($insurup_license_valid) || !$insurup_license_valid) {
+        return; // Admin menüsünü ekleme
+    }
+    
     add_menu_page(
         'InsurUp Connect',
         'InsurUp Connect',
         'manage_options',
-        'insurup-connection-welcome',
+        'insurup-connect-welcome',
         'sigorta_plugin_render_admin_page',
         'dashicons-shield',
         56
@@ -143,11 +283,11 @@ function sigorta_plugin_register_admin_page()
     
     // Bekleyen Teklifler alt menüsü
     add_submenu_page(
-        'insurup-connection-welcome',
+        'insurup-connect-welcome',
         'Bekleyen Teklifler',
         'Bekleyen Teklifler',
         'manage_options',
-        'insurup-connection-bekleyen-teklifler',
+        'insurup-connect-bekleyen-teklifler',
         'sigorta_bekleyen_teklifler_render_page'
     );
     
@@ -158,7 +298,7 @@ function sigorta_plugin_register_admin_page()
             'Tablo Oluştur',
             'Tablo Oluştur',
             'manage_options',
-            'insurup-connection-create-table',
+            'insurup-connect-create-table',
             'sigorta_create_table_manual'
         );
     }
@@ -312,7 +452,7 @@ function sigorta_plugin_render_admin_page()
                 <!-- Admin sayfasında sadece kendi ekranında info kutusu göster -->
                  <hr style="margin-top:15px;">
                 <h2 style="margin-top:30px;">Bilgiler</h2>
-                <ol class="insurup-connection-info-list">
+                <ol class="insurup-connect-info-list">
                     <li>
                         <b>Eklenti, WordPress sitenizde sitenizin seçili yazı tipini (fontunu) otomatik olarak kullanır.</b><br>
                         Tasarım bütünlüğünü bozmadan, mevcut tema tipografisi ile uyumlu şekilde çalışır. Ekstra bir ayar yapmanıza gerek yoktur.
@@ -409,14 +549,16 @@ function sigorta_plugin_render_admin_page()
     <?php
 }
 
-// Plugin aktif edildiğinde tabloyu oluştur
-register_activation_hook(__FILE__, 'sigorta_create_bekleyen_teklifler_table');
+// Plugin aktif edildiğinde tabloyu oluştur - Sadece lisans geçerliyse
+if ($insurup_license_valid) {
+    register_activation_hook(__FILE__, 'sigorta_create_bekleyen_teklifler_table');
 
-// Plugin her yüklendiğinde tabloyu kontrol et ve yoksa oluştur
-add_action('plugins_loaded', 'sigorta_create_bekleyen_teklifler_table');
+    // Plugin her yüklendiğinde tabloyu kontrol et ve yoksa oluştur
+    add_action('plugins_loaded', 'sigorta_create_bekleyen_teklifler_table');
 
-// Admin init'te de kontrol et (ekstra güvenlik için)
-add_action('admin_init', 'sigorta_create_bekleyen_teklifler_table');
+    // Admin init'te de kontrol et (ekstra güvenlik için)
+    add_action('admin_init', 'sigorta_create_bekleyen_teklifler_table');
+}
 
 // Admin sayfası render fonksiyonu
 function sigorta_bekleyen_teklifler_render_page() {
@@ -447,7 +589,7 @@ function sigorta_bekleyen_teklifler_render_page() {
                 <p>Tablo Adı: <code><?php echo esc_html($table_name); ?></code></p>
                 <p>Hata: <code><?php echo esc_html($wpdb->last_error ?: 'Bilinmeyen hata'); ?></code></p>
                 <p>
-                    <a href="<?php echo admin_url('admin.php?page=insurup-connection-create-table'); ?>" class="button">
+                    <a href="<?php echo admin_url('admin.php?page=insurup-connect-create-table'); ?>" class="button">
                         Tabloyu Manuel Oluşturmayı Dene
                     </a>
                 </p>
@@ -719,6 +861,13 @@ function sigorta_bekleyen_teklifler_render_page() {
  * AJAX: Bekleyen teklif kaydet
  */
 function sigorta_save_bekleyen_teklif() {
+    // Lisans kontrolü
+    global $insurup_license_valid;
+    if (!isset($insurup_license_valid) || !$insurup_license_valid || !sp_check_license()) {
+        wp_send_json_error(['message' => 'Lisans geçersiz. Lütfen WithSolver ile iletişime geçin.']);
+        wp_die();
+    }
+    
     global $wpdb;
     
     // Önce tabloyu kontrol et ve yoksa oluştur
@@ -792,6 +941,13 @@ add_action('wp_ajax_nopriv_sigorta_save_bekleyen_teklif', 'sigorta_save_bekleyen
  * AJAX: Toplu status güncelle
  */
 function sigorta_bulk_update_status() {
+    // Lisans kontrolü
+    global $insurup_license_valid;
+    if (!isset($insurup_license_valid) || !$insurup_license_valid || !sp_check_license()) {
+        wp_send_json_error(['message' => 'Lisans geçersiz. Lütfen WithSolver ile iletişime geçin.']);
+        wp_die();
+    }
+    
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'sigorta_bulk_update')) {
         wp_send_json_error(['message' => 'Güvenlik kontrolü başarısız']);
     }
@@ -878,7 +1034,7 @@ function sigorta_create_table_manual() {
                 <li><strong>Veritabanı Hatası:</strong> <?php echo esc_html($wpdb->last_error ?: 'Yok'); ?></li>
             </ul>
             <p>
-                <a href="<?php echo admin_url('admin.php?page=insurup-connection-bekleyen-teklifler'); ?>" class="button button-primary">
+                <a href="<?php echo admin_url('admin.php?page=insurup-connect-bekleyen-teklifler'); ?>" class="button button-primary">
                     Bekleyen Teklifler Sayfasına Dön
                 </a>
             </p>
