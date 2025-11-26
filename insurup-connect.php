@@ -24,10 +24,10 @@ function sp_check_license() {
         }
     }
     
-    // Eğer WordPress fonksiyonu çalışmadıysa fallback olarak HTTP_HOST kullan
+    // Eğer WordPress fonksiyonu çalışmadıysa fallback olarak HTTP_HOST kullandık
     if (empty($domain)) {
         $domain = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field($_SERVER['HTTP_HOST']) : 'unknown';
-        // Port numarasını temizle
+        // Port numarasını temizleme
         if (strpos($domain, ':') !== false) {
             $domain = explode(':', $domain)[0];
         }
