@@ -793,3 +793,113 @@ window.showWarrantiesModal = async function(proposalId, productId) {
         `;
     }
 };
+
+// Acente ID helper fonksiyonu
+function getInsurupAgentId() {
+    if (typeof insurupAgentId !== 'undefined' && insurupAgentId.isSet && insurupAgentId.id) {
+        return insurupAgentId.id;
+    }
+    return null;
+}
+
+// Acente ID kontrolü ve uyarı
+async function checkAndGetAgentId() {
+    const agentId = getInsurupAgentId();
+    if (!agentId) {
+        await showMessage('Acente ID ayarlanmamış. Lütfen WordPress admin panelinden Acente ID\'yi girin.', "error");
+        return null;
+    }
+    return agentId;
+}
+
+// Telefon formatı: 555 555 55 55
+function formatPhoneNumber(value) {
+    if (!value) return '';
+    // Sadece rakamları al
+    const numbers = value.replace(/\D/g, '');
+    // 0 ile başlıyorsa kaldır
+    const cleanNumbers = numbers.startsWith('0') ? numbers.substring(1) : numbers;
+    // Maksimum 10 hane
+    const limitedNumbers = cleanNumbers.substring(0, 10);
+    
+    // Format: 555 555 55 55
+    if (limitedNumbers.length <= 3) {
+        return limitedNumbers;
+    } else if (limitedNumbers.length <= 6) {
+        return limitedNumbers.substring(0, 3) + ' ' + limitedNumbers.substring(3);
+    } else if (limitedNumbers.length <= 8) {
+        return limitedNumbers.substring(0, 3) + ' ' + limitedNumbers.substring(3, 6) + ' ' + limitedNumbers.substring(6);
+    } else {
+        return limitedNumbers.substring(0, 3) + ' ' + limitedNumbers.substring(3, 6) + ' ' + limitedNumbers.substring(6, 8) + ' ' + limitedNumbers.substring(8, 10);
+    }
+}
+
+// Telefon numarasından formatı temizle (sadece rakamlar)
+function cleanPhoneNumber(value) {
+    if (!value) return '';
+    // Sadece rakamları al ve 0 ile başlıyorsa kaldır
+    const numbers = value.replace(/\D/g, '');
+    return numbers.startsWith('0') ? numbers.substring(1) : numbers;
+}
+
+// Telefon inputlarına format ekle
+function setupPhoneFormatting(input) {
+    if (!input) return;
+    
+    // maxlength'i kaldır (formatlanmış numara 13 karakter olacak)
+    input.removeAttribute('maxlength');
+    
+    input.addEventListener('input', function(e) {
+        const cursorPosition = e.target.selectionStart;
+        const oldValue = e.target.value;
+        const newValue = formatPhoneNumber(e.target.value);
+        
+        // Cursor pozisyonunu koru - formatlanmış numarada doğru pozisyonu hesapla
+        const oldNumbersBeforeCursor = oldValue.substring(0, cursorPosition).replace(/\D/g, '').length;
+        let newCursorPosition = 0;
+        let numbersCount = 0;
+        
+        for (let i = 0; i < newValue.length; i++) {
+            if (/\d/.test(newValue[i])) {
+                numbersCount++;
+                if (numbersCount > oldNumbersBeforeCursor) {
+                    newCursorPosition = i;
+                    break;
+                }
+            }
+            if (numbersCount === oldNumbersBeforeCursor) {
+                newCursorPosition = i + 1;
+            }
+        }
+        
+        // Eğer sona geldiyse, sona koy
+        if (oldNumbersBeforeCursor >= newValue.replace(/\D/g, '').length) {
+            newCursorPosition = newValue.length;
+        }
+        
+        e.target.value = newValue;
+        e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+    });
+    
+    // Paste event'i için
+    input.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const formatted = formatPhoneNumber(pastedText);
+        input.value = formatted;
+    });
+}
+
+// Tüm telefon inputlarını bul ve format ekle
+function setupAllPhoneInputs() {
+    // Telefon inputlarını bul (id veya name ile)
+    const phoneInputs = document.querySelectorAll('input[type="text"][id*="phone"], input[type="text"][id*="Phone"], input[type="tel"], input[name*="phone"], input[name*="Phone"]');
+    
+    phoneInputs.forEach(input => {
+        // Zaten format eklenmiş mi kontrol et
+        if (input.dataset.phoneFormatted === 'true') return;
+        
+        setupPhoneFormatting(input);
+        input.dataset.phoneFormatted = 'true';
+    });
+}

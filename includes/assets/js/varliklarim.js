@@ -544,9 +544,9 @@ window.loadVarliklarimModule = async function (container) {
 }; // === loadVarliklarimModule Bitişi ===
 
 
-// ====================================================================
+
 // (3) ARAÇ DÜZENLEME (EDIT) Listener (Global Kapsamda)
-// ====================================================================
+
 document.addEventListener("click", async function (e) {
     const editBtn = e.target.closest(".editVehicleBtn");
     if (!editBtn) return;
@@ -565,6 +565,7 @@ document.addEventListener("click", async function (e) {
     try {
         // HTML'den okunan veriyi JSON objesine çevir
         vehicle = JSON.parse(vehicleDataString);
+        console.log(vehicle);
     } catch (parseError) {
         console.error("Araç verisi parse edilemedi:", parseError, vehicleDataString);
         await showMessage("Araç bilgileri okunamadı (JSON hatası).", "error");
@@ -1033,12 +1034,12 @@ async function createVehicle() {
         plakasizForm.style.display = 'block'; 
         plakaliForm.style.display = 'none';
         // Buton stillerini güncelle
-        plakasizTab.classList.remove('btn-outline-success');
-        plakasizTab.classList.add('btn-success');
-        plakasizTab.classList.add('border-0'); // Aktif için border-0 ekle
-        plakaliTab.classList.remove('btn-success');
-        plakaliTab.classList.remove('border-0'); // Pasif için border-0'ı kaldır (outline görünsün)
-        plakaliTab.classList.add('btn-outline-success');
+        plakasizTab.style.background = 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)';
+        plakasizTab.style.color = 'white';
+        plakasizTab.style.boxShadow = '0 4px 15px rgba(13, 110, 253, 0.4)';
+        plakaliTab.style.background = 'transparent';
+        plakaliTab.style.color = '#6c757d';
+        plakaliTab.style.boxShadow = 'none';
     });
     plakaliTab.addEventListener('click', () => { 
         plakaliTab.classList.add('activeArea'); 
@@ -1046,12 +1047,12 @@ async function createVehicle() {
         plakaliForm.style.display = 'block'; 
         plakasizForm.style.display = 'none';
         // Buton stillerini güncelle
-        plakaliTab.classList.remove('btn-outline-success');
-        plakaliTab.classList.add('btn-success');
-        plakaliTab.classList.add('border-0'); // Aktif için border-0 ekle
-        plakasizTab.classList.remove('btn-success');
-        plakasizTab.classList.remove('border-0'); // Pasif için border-0'ı kaldır (outline görünsün)
-        plakasizTab.classList.add('btn-outline-success');
+        plakaliTab.style.background = 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)';
+        plakaliTab.style.color = 'white';
+        plakaliTab.style.boxShadow = '0 4px 15px rgba(13, 110, 253, 0.4)';
+        plakasizTab.style.background = 'transparent';
+        plakasizTab.style.color = '#6c757d';
+        plakasizTab.style.boxShadow = 'none';
     });
 
     // --- 3. Radio Buton Listener'larını Ekle ---
@@ -1060,12 +1061,26 @@ async function createVehicle() {
 
     radios.forEach(radio => {
         radio.addEventListener('change', () => {
+            // Radio buton stillerini güncelle
+            document.querySelectorAll('input[name="lienType"]').forEach(r => {
+                const label = document.querySelector(`label[for="${r.id}"]`);
+                if (label) {
+                    if (r.checked) {
+                        label.style.background = '#0d6efd';
+                        label.style.color = 'white';
+                    } else {
+                        label.style.background = 'transparent';
+                        label.style.color = '#6c757d';
+                    }
+                }
+            });
+            
             if (radio.value === "1") {
-                lossPayee.innerHTML = `<input type="text" id="lossPayeeClauseInput" class="form-control" placeholder="Banka Adı">`;
+                lossPayee.innerHTML = `<input type="text" id="lossPayeeClauseInput" class="form-control border-0" placeholder="Banka Adı" style="box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-radius: 8px; padding: 10px 14px; margin-top: 12px;">`;
             } else if (radio.value === "2") {
-                lossPayee.innerHTML = `<input type="text" id="lossPayeeClauseInput" class="form-control" placeholder="Kurum Adı">`;
+                lossPayee.innerHTML = `<input type="text" id="lossPayeeClauseInput" class="form-control border-0" placeholder="Kurum Adı" style="box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-radius: 8px; padding: 10px 14px; margin-top: 12px;">`;
             } else {
-                lossPayee.innerHTML = "";
+                lossPayeePlakali.innerHTML = "";
             }
         });
     });
@@ -1075,14 +1090,60 @@ async function createVehicle() {
 
     radiosPlakali.forEach(radio => {
         radio.addEventListener('change', () => {
+            // Radio buton stillerini güncelle
+            document.querySelectorAll('input[name="lienTypePlakali"]').forEach(r => {
+                const label = document.querySelector(`label[for="${r.id}"]`);
+                if (label) {
+                    if (r.checked) {
+                        label.style.background = '#0d6efd';
+                        label.style.color = 'white';
+                    } else {
+                        label.style.background = 'transparent';
+                        label.style.color = '#6c757d';
+                    }
+                }
+            });
+            
             if (radio.value === "1") {
-                lossPayeePlakali.innerHTML = `<input type="text" id="lossPayeeClauseInputPlakali" class="form-control" placeholder="Banka Adı">`;
+                lossPayeePlakali.innerHTML = `<input type="text" id="lossPayeeClauseInputPlakali" class="form-control border-0" placeholder="Banka Adı" style="box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-radius: 8px; padding: 10px 14px; margin-top: 12px;">`;
             } else if (radio.value === "2") {
-                lossPayeePlakali.innerHTML = `<input type="text" id="lossPayeeClauseInputPlakali" class="form-control" placeholder="Kurum Adı">`;
+                lossPayeePlakali.innerHTML = `<input type="text" id="lossPayeeClauseInputPlakali" class="form-control border-0" placeholder="Kurum Adı" style="box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-radius: 8px; padding: 10px 14px; margin-top: 12px;">`;
             } else {
-                lossPayee.innerHTML = "";
+                lossPayeePlakali.innerHTML = "";
             }
         });
+    });
+    
+    // Başlangıç durumunu ayarla - Plakasız tab aktif
+    if (plakasizTab) {
+        plakasizTab.style.background = 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)';
+        plakasizTab.style.color = 'white';
+        plakasizTab.style.boxShadow = '0 4px 15px rgba(13, 110, 253, 0.4)';
+    }
+    if (plakaliTab) {
+        plakaliTab.style.background = 'transparent';
+        plakaliTab.style.color = '#6c757d';
+        plakaliTab.style.boxShadow = 'none';
+    }
+    
+    // Başlangıç durumunu ayarla - Radio butonlar
+    document.querySelectorAll('input[name="lienType"]').forEach(r => {
+        if (r.checked) {
+            const label = document.querySelector(`label[for="${r.id}"]`);
+            if (label) {
+                label.style.background = '#0d6efd';
+                label.style.color = 'white';
+            }
+        }
+    });
+    document.querySelectorAll('input[name="lienTypePlakali"]').forEach(r => {
+        if (r.checked) {
+            const label = document.querySelector(`label[for="${r.id}"]`);
+            if (label) {
+                label.style.background = '#0d6efd';
+                label.style.color = 'white';
+            }
+        }
     });
 
 
@@ -1330,7 +1391,7 @@ async function createVehicle() {
                     customLpgPrice: null
                 },
                 registrationDate: document.getElementById("registrationDatePlakali").value,
-                seatCount: parseInt(document.getElementById("seatCountPlakali").value),
+                seatNumber: parseInt(document.getElementById("seatCountPlakali").value),
                 kaskoOldPolicy: null,
                 trafikOldPolicy: null,
                 accessories: accessories.length > 0 ? accessories : [],
@@ -1406,6 +1467,7 @@ async function createVehicle() {
 
             // Dönen verileri formda göster
             if (response) {
+                console.log(response);
                 // Marka seçimi
                 if (response.model?.brand?.value) {
                     jQuery('#brandSelectPlakali').val(response.model.brand.value);

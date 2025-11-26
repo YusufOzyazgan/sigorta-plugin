@@ -412,6 +412,7 @@ select {
     color: #fff !important;
     cursor: pointer !important;
     font-size: 14px !important;
+    text-transform: none !important;
 }
 @media (max-width: 600px) {
 #loginBtn.btn-login {
@@ -601,4 +602,187 @@ select {
 
 .varlik-card:hover .varlik-title {
     transform: scale(1.1);
+}
+
+/* Araç Ekleme Modal Styling */
+#vehicleModal {
+    backdrop-filter: blur(4px);
+}
+
+#vehicleModal > div {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form Input Focus States */
+#vehicleModal .form-control:focus,
+#vehicleModal select:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+    outline: none;
+}
+
+/* Selectpicker Styling */
+#vehicleModal .bootstrap-select .dropdown-toggle {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    border-radius: 8px !important;
+    border: none !important;
+    padding: 10px 14px !important;
+}
+
+#vehicleModal .bootstrap-select .dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Tab Buttons Hover */
+#tabPlakasiz:hover,
+#tabPlakali:hover {
+    transform: translateY(-1px);
+    transition: all 0.3s;
+}
+
+/* Radio Button Labels */
+#vehicleModal input[type="radio"]:checked + label {
+    background: #0d6efd !important;
+    color: white !important;
+}
+
+#vehicleModal input[type="radio"] + label:hover {
+    background: #e9ecef !important;
+    transition: all 0.3s;
+}
+
+/* Submit Button Hover */
+#vehicleForm button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.5) !important;
+}
+
+/* Section Headers */
+#vehicleModal h5 {
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #vehicleModal > div {
+        width: 95% !important;
+        margin: 10px auto;
+        padding: 0 !important;
+    }
+    
+    #vehicleModal .card-body {
+        padding: 20px !important;
+    }
+    
+    #vehicleModal h2 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Login/Register Form Styling */
+#idTypeToggle:hover {
+    background: #e9ecef !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#idTypeToggle[style*="linear-gradient"]:hover {
+    background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+#btnLogin:hover, #btnRegister:hover {
+    transform: translateY(-2px);
+}
+
+#submitBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.5) !important;
+}
+
+.form-control:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+#mfaCode:focus {
+    letter-spacing: 8px;
+}
+
+/* Müşteri Tipi Toggle Butonları */
+.btn-group[role="group"][aria-label="Customer Type"] {
+    background: #f8f9fa;
+    padding: 6px;
+    border-radius: 12px;
+    display: flex;
+    gap: 4px;
+}
+
+.btn-group[role="group"][aria-label="Customer Type"] .btn-check {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.btn-group[role="group"][aria-label="Customer Type"] .btn {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px;
+    transition: all 0.3s;
+    border: none;
+    flex: 1;
+    cursor: pointer;
+    user-select: none;
+}
+
+.btn-group[role="group"][aria-label="Customer Type"] .btn-check:checked + .btn {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4) !important;
+}
+
+.btn-group[role="group"][aria-label="Customer Type"] .btn-check:not(:checked) + .btn {
+    background: transparent !important;
+    color: #6c757d !important;
+}
+
+.btn-group[role="group"][aria-label="Customer Type"] .btn:hover {
+    background: #e9ecef !important;
+    color: #495057 !important;
+}
+
+.btn-group[role="group"][aria-label="Customer Type"] .btn-check:checked + .btn:hover {
+    background: linear-gradient(135deg, #0a58ca 0%, #084298 100%) !important;
+    color: white !important;
+}
+
+/* Personal Form Modern Styling */
+#personalForm .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    border-color: #0d6efd !important;
+}
+
+#personalForm .form-label {
+    transition: color 0.3s;
+}
+
+#personalForm .form-control {
+    transition: all 0.3s;
+}
+
+#personalForm .form-control:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
 }

@@ -176,6 +176,13 @@ function sigorta_enqueue_scripts()
         true
     );
 
+    // Acente ID'yi JS'e gönder
+    $agent_id = get_option('insurup_agent_id', '');
+    wp_localize_script('sigorta-functions', 'insurupAgentId', array(
+        'id' => $agent_id,
+        'isSet' => !empty($agent_id)
+    ));
+
   
 }
 add_action('wp_enqueue_scripts', 'sigorta_enqueue_scripts');
@@ -253,6 +260,7 @@ if ($insurup_license_valid) {
     require_once plugin_dir_path(__FILE__) . 'includes/pages/dask.php';
     require_once plugin_dir_path(__FILE__) . 'includes/pages/konut.php';
     require_once plugin_dir_path(__FILE__) . 'includes/pages/kasko.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/pages/imm.php';
     require_once plugin_dir_path(__FILE__) . 'includes/pages/callback.php';
 
     require_once plugin_dir_path(__FILE__) . 'includes/pages/dashboard.php';
@@ -260,6 +268,30 @@ if ($insurup_license_valid) {
     require_once plugin_dir_path(__FILE__) . 'includes/assets/components/warrantiesModal.php';
 }
 
+
+/**
+ * Admin: Acente ID uyarısı
+ */
+function insurup_agent_id_admin_notice() {
+    global $insurup_license_valid;
+    if (!isset($insurup_license_valid) || !$insurup_license_valid) {
+        return;
+    }
+    
+    $agent_id = get_option('insurup_agent_id', '');
+    if (empty($agent_id)) {
+        $screen = get_current_screen();
+        if ($screen && $screen->id === 'toplevel_page_insurup-connect-welcome') {
+            return; // Kendi sayfasında zaten gösteriyoruz
+        }
+        ?>
+        <div class="notice notice-warning is-dismissible">
+            <p><strong>InsurUp Connect:</strong> Acente ID girilmemiş! Lütfen <a href="<?php echo admin_url('admin.php?page=insurup-connect-welcome#insurup-settings'); ?>">InsurUp Connect ayarlarından</a> Acente ID'nizi girin. Aksi halde kullanıcı kayıt işlemleri çalışmayabilir.</p>
+        </div>
+        <?php
+    }
+}
+add_action('admin_notices', 'insurup_agent_id_admin_notice');
 
 /**
  * Admin: Karşılama ve Shortcodes sayfası - Sadece lisans geçerliyse
@@ -310,18 +342,16 @@ function sigorta_plugin_render_admin_page()
     ?>
     <div class="wrap" style="font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
         <style>
-            /* Bu sayfada admin uyarıları (Elementor güncelle vb.) gizle */
-            #wpbody-content > .notice,
+            /* Bu sayfada admin uyarıları (Elementor güncelle vb.) gizle - ama kendi uyarılarımızı göster */
             #wpbody-content > .update-nag,
-            #wpbody-content > .updated,
-            #wpbody-content > .error,
             #wpbody-content > .welcome-panel,
             #wpbody-content .e-notice,
             #wpbody-content .elementor-message,
             #wpbody-content .elementor-update-message,
-            #footer-thankyou,
-            .wrap .notice,
-            .wrap .update-nag { display: none !important; }
+            #footer-thankyou { display: none !important; }
+            /* Sadece belirli notice'ları gizle */
+            #wpbody-content > .notice:not(.notice-warning):not(.notice-success):not(.notice-error),
+            .wrap > .notice:not(.notice-warning):not(.notice-success):not(.notice-error) { display: none !important; }
             /* Footer'ı aşağı sabitle ve içerik çakışmasını önle */
             #wpcontent { padding-bottom: 60px !important; }
             #wpfooter { position: fixed; left: 0; right: 0; bottom: 0; }
@@ -339,6 +369,28 @@ function sigorta_plugin_render_admin_page()
             .shortcode-cell { display:flex; align-items:center; gap:8px; }
         </style>
 
+        <?php
+        // Acente ID ayarını kaydet
+        if (isset($_POST['save_agent_id']) && check_admin_referer('insurup_save_agent_id')) {
+            $agent_id = sanitize_text_field($_POST['insurup_agent_id']);
+            $agent_id = trim($agent_id);
+            
+            if (empty($agent_id)) {
+                echo '<div class="notice notice-error is-dismissible" style="background-color: #f8d7da !important; border-left-color: #dc3545 !important;"><p style="color: #721c24 !important;">Acente ID boş olamaz! Lütfen geçerli bir Acente ID girin.</p></div>';
+            } else {
+                update_option('insurup_agent_id', $agent_id);
+                echo '<div class="notice notice-success is-dismissible" style="background-color: #d1e7dd !important; border-left-color: #28a745 !important;"><p style="color: #0f5132 !important;">Acente ID başarıyla kaydedildi!</p></div>';
+            }
+        }
+        $saved_agent_id = get_option('insurup_agent_id', '');
+        ?>
+        
+        <?php if (empty($saved_agent_id)): ?>
+        <div class="notice notice-warning is-dismissible" style="margin-top: 20px; background-color: #fff3cd !important; border-left-color: #ffc107 !important;">
+            <p style="color: #856404 !important;"><strong>⚠️ Uyarı:</strong> Acente ID girilmemiş! Lütfen aşağıdaki ayarlar bölümünden Acente ID'nizi girin. Aksi halde kullanıcı kayıt işlemleri çalışmayabilir.</p>
+        </div>
+        <?php endif; ?>
+
         <div class="sigorta-hero" style="margin-bottom:18px; margin-top:8px;">
             <div>
                 <div class="sigorta-kv"><span class="dashicons dashicons-shield" style="font-size:28px;"></span><strong>InsurUp Connect</strong></div>
@@ -347,11 +399,40 @@ function sigorta_plugin_render_admin_page()
                 <div class="sigorta-actions">
                     <a href="post-new.php?post_type=page" class="button button-primary">Yeni Sayfa Oluştur</a>
                     <a href="#insurup-shortcodes" class="button">Shortcodes Bölümüne Git</a>
+                    <a href="#insurup-settings" class="button">Ayarlar</a>
                 </div>
             </div>
             <div style="opacity:.9;">
                 <span class="dashicons dashicons-admin-site-alt3" style="font-size:56px;"></span>
             </div>
+        </div>
+        
+        <div class="sigorta-card" style="margin-bottom: 20px;">
+            <h2 id="insurup-settings" style="margin-top:0;">Ayarlar</h2>
+            <form method="post" action="">
+                <?php wp_nonce_field('insurup_save_agent_id'); ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="insurup_agent_id">Acente ID</label>
+                        </th>
+                        <td>
+                            <input type="text" 
+                                   id="insurup_agent_id" 
+                                   name="insurup_agent_id" 
+                                   value="<?php echo esc_attr($saved_agent_id); ?>" 
+                                   class="regular-text" >
+                            <p class="description">InsurUp API'den aldığınız Acente ID'yi buraya girin. Bu ID, kullanıcı kayıt ve giriş işlemlerinde kullanılacaktır.</p>
+                            <?php if (empty($saved_agent_id)): ?>
+                                <p class="description" style="color: #d63638; font-weight: 600;">⚠️ Acente ID girilmedi! Lütfen ID'nizi girin.</p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                </table>
+                <p class="submit">
+                    <input type="submit" name="save_agent_id" class="button button-primary" value="Acente ID'yi Kaydet">
+                </p>
+            </form>
         </div>
 
         <div class="sigorta-grid">
@@ -395,6 +476,11 @@ function sigorta_plugin_render_admin_page()
                         <td class="shortcode-cell"><code>[kasko]</code> <span class="copy-badge" data-copy="[kasko]">Kopyala</span></td>
                         <td>Kasko Teklifi</td>
                         <td>Kasko <strong>teklif</strong> formu.</td>
+                    </tr>
+                    <tr>
+                        <td class="shortcode-cell"><code>[imm]</code> <span class="copy-badge" data-copy="[imm]">Kopyala</span></td>
+                        <td>IMM Teklifi</td>
+                        <td>IMM <strong>teklif</strong> formu.</td>
                     </tr>
                     <tr>
                         <td class="shortcode-cell"><code>[konut]</code> <span class="copy-badge" data-copy="[konut]">Kopyala</span></td>
@@ -445,7 +531,7 @@ function sigorta_plugin_render_admin_page()
                 <ul style="margin-top:6px;">
                     <li>Giriş: <code>[tc_phone_login]</code></li>
                     <li>Panel: <code>[panel]</code></li>
-                    <li>Trafik/Kasko/Konut/DASK/TSS Teklif: <code>[trafik]</code>, <code>[kasko]</code>, <code>[konut]</code>, <code>[dask]</code>, <code>[tss_form]</code></li>
+                    <li>Trafik/Kasko/IMM/Konut/DASK/TSS Teklif: <code>[trafik]</code>, <code>[kasko]</code>, <code>[imm]</code>, <code>[konut]</code>, <code>[dask]</code>, <code>[tss_form]</code></li>
                     <li>Tekliflerim/Policelerim: <code>[tekliflerim]</code>, <code>[policelerim]</code></li>
                     <li>Varlıklarım/Hesabım: <code>[varliklarim]</code>, <code>[bilgilerim]</code></li>
                 </ul>

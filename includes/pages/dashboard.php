@@ -111,6 +111,19 @@ function dashboard_shortcode()
                     </div>
                 </a>
 
+                <a href="/imm/" class="sigorta-card" style="text-decoration: none; color: inherit;">
+                    <div class="sigorta-card-icon imm-icon">
+                        <?php echo call_icon("insurance", 50, 50, "IMM") ?>
+                    </div>
+                    <div class="sigorta-card-content">
+                        <h3 class="sigorta-card-title">IMM</h3>
+                        <p class="sigorta-card-description">İşyeriniz için kapsamlı IMM sigortası teklifi alın</p>
+                        <div class="sigorta-card-footer">
+                            <span class="sigorta-card-action">Teklif Al <i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </div>
+                </a>
+
                 <a href="/tamamlayici-saglik-sigortasi/" class="sigorta-card" style="text-decoration: none; color: inherit;">
                     <div class="sigorta-card-icon tss-icon">
                         <?php echo call_icon("insurance", 50, 50, "TSS") ?>

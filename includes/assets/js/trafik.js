@@ -581,12 +581,176 @@ async function firstStep() {
     const vehiclesList = document.getElementById('vehiclesList');
     const addVehicleBtn = document.getElementById('addVehicleBtn');
     const backStepBtn = document.getElementById('backStepBtn');
-    const tcInput = document.getElementById('tc');
-    const phoneInput = document.getElementById('phone');
+    const tcInputNoLogin = document.getElementById('tcNoLogin');
+    const phoneInputNoLogin = document.getElementById('phoneNoLogin');
+    const tcInputLoggedIn = document.getElementById('tcLoggedIn');
+    const phoneInputLoggedIn = document.getElementById('phoneLoggedIn');
     const emailInput = document.getElementById('email');
+    const emailNoLoginInput = document.getElementById('emailNoLogin');
     const birthDateInput = document.getElementById('birthDate');
+    const birthDateNoLoginInput = document.getElementById('birthDateNoLogin');
     const fullNameInput = document.getElementById('fullName');
+    
+    // Müşteri tipi toggle
+    const customerTypeIndividual = document.getElementById('customerTypeIndividual');
+    const customerTypeCorporate = document.getElementById('customerTypeCorporate');
+    const labelIndividual = document.getElementById('labelIndividual');
+    const labelCorporate = document.getElementById('labelCorporate');
+    
+    // Müşteri tipini radio button'dan al
+    function getCustomerType() {
+        if (customerTypeCorporate && customerTypeCorporate.checked) {
+            return 'corporate';
+        }
+        return 'individual';
+    }
+    
+    // Müşteri tipi değişikliği
+    function updateCustomerTypeUI() {
+        const isCorporateCustomer = getCustomerType() === 'corporate';
+        const birthDateLoggedInContainer = document.getElementById('birthDateLoggedInContainer');
+        const birthDateNoLoginContainer = document.getElementById('birthDateNoLoginContainer');
+        const birthDateRow = document.getElementById('birthDateRow');
+        const emailRowNoLogin = document.getElementById('emailRowNoLogin');
+        const emailRow = document.getElementById('emailRow');
+        const phoneRowLoggedInElement = document.getElementById('phoneRowLoggedIn');
+        const customerTypeToggle = document.getElementById('customerTypeToggle');
+        
+        // Giriş yapılmış mı kontrol et
+        const isLoggedIn = phoneRowLoggedInElement && 
+                          window.getComputedStyle(phoneRowLoggedInElement).display !== 'none' &&
+                          phoneRowLoggedInElement.offsetParent !== null;
+        
+        // Giriş yapılmışsa müşteri tipi toggle'ını gizle
+        if (isLoggedIn && customerTypeToggle) {
+            customerTypeToggle.style.display = 'none';
+        } else if (!isLoggedIn && customerTypeToggle) {
+            customerTypeToggle.style.display = 'block';
+        }
+        
+        // Giriş yapılmışsa hem e-posta hem doğum tarihi göster, müşteri tipine göre değişiklik yapma
+        if (isLoggedIn) {
+            if (emailRow) emailRow.style.display = 'flex';
+            if (birthDateLoggedInContainer) birthDateLoggedInContainer.style.display = 'block';
+            if (emailInput) emailInput.setAttribute('required', 'required');
+            if (birthDateInput) birthDateInput.setAttribute('required', 'required');
+            return; // Giriş yapılmışsa müşteri tipine göre değişiklik yapma
+        }
+        
+        if (isCorporateCustomer) {
+            // Kurumsal müşteri: Doğum tarihi gizle, E-posta göster
+            if (birthDateLoggedInContainer) birthDateLoggedInContainer.style.display = 'none';
+            if (birthDateNoLoginContainer) birthDateNoLoginContainer.style.display = 'none';
+            if (birthDateRow) {
+                birthDateRow.style.display = 'none';
+                birthDateRow.style.setProperty('display', 'none', 'important');
+            }
+            if (emailRowNoLogin) {
+                emailRowNoLogin.style.display = 'flex';
+                emailRowNoLogin.style.setProperty('display', 'flex', 'important');
+            }
+            if (birthDateInput) {
+                birthDateInput.removeAttribute('required');
+                birthDateInput.value = ''; // Değeri temizle
+            }
+            if (birthDateNoLoginInput) {
+                birthDateNoLoginInput.removeAttribute('required');
+                birthDateNoLoginInput.value = ''; // Değeri temizle
+            }
+            // required attribute'larını kaldır, manuel validasyon yapacağız
+            if (emailInput) emailInput.removeAttribute('required');
+            if (emailNoLoginInput) emailNoLoginInput.removeAttribute('required');
+            
+            // Radio buton stilleri
+            if (labelIndividual) {
+                labelIndividual.style.background = 'transparent';
+                labelIndividual.style.color = '#6c757d';
+            }
+            if (labelCorporate) {
+                labelCorporate.style.background = '#0d6efd';
+                labelCorporate.style.color = 'white';
+            }
+        } else {
+            // Bireysel müşteri: E-posta gizle, Doğum tarihi göster
+            if (birthDateLoggedInContainer) birthDateLoggedInContainer.style.display = 'block';
+            if (birthDateNoLoginContainer) birthDateNoLoginContainer.style.display = 'block';
+            if (birthDateRow) {
+                birthDateRow.style.display = 'flex';
+                birthDateRow.style.setProperty('display', 'flex', 'important');
+            }
+            if (emailRowNoLogin) {
+                emailRowNoLogin.style.display = 'none';
+                emailRowNoLogin.style.setProperty('display', 'none', 'important');
+            }
+            // required attribute'larını kaldır, manuel validasyon yapacağız
+            if (birthDateInput) birthDateInput.removeAttribute('required');
+            if (birthDateNoLoginInput) birthDateNoLoginInput.removeAttribute('required');
+            if (emailInput) {
+                emailInput.removeAttribute('required');
+                emailInput.value = ''; // Değeri temizle
+            }
+            if (emailNoLoginInput) {
+                emailNoLoginInput.removeAttribute('required');
+                emailNoLoginInput.value = ''; // Değeri temizle
+            }
+            
+            // Radio buton stilleri
+            if (labelIndividual) {
+                labelIndividual.style.background = '#0d6efd';
+                labelIndividual.style.color = 'white';
+            }
+            if (labelCorporate) {
+                labelCorporate.style.background = 'transparent';
+                labelCorporate.style.color = '#6c757d';
+            }
+        }
+    }
+    
+    // Radio button değişikliklerini dinle
+    if (customerTypeIndividual) {
+        customerTypeIndividual.addEventListener('change', () => {
+            updateCustomerTypeUI();
+        });
+    }
+    
+    if (customerTypeCorporate) {
+        customerTypeCorporate.addEventListener('change', () => {
+            updateCustomerTypeUI();
+        });
+    }
+    
+    // Başlangıç durumunu ayarla
+    updateCustomerTypeUI();
+    
+    // Başlangıçta gizli olan inputların required attribute'unu kaldır
+    // phoneRowLoggedIn başlangıçta gizli olduğu için
+    if (tcInputLoggedIn) tcInputLoggedIn.removeAttribute('required');
+    if (phoneInputLoggedIn) phoneInputLoggedIn.removeAttribute('required');
+    
+    // Her iki telefon inputuna da format ekle (functions.js'ten)
+    setupPhoneFormatting(phoneInputNoLogin);
+    setupPhoneFormatting(phoneInputLoggedIn);
+    
+    // Aktif inputları belirlemek için helper fonksiyon
+    function getActiveInputs() {
+        // phoneRowLoggedIn görünürse giriş yapılmış demektir
+        const isLoggedIn = phoneRowLoggedIn && 
+                          window.getComputedStyle(phoneRowLoggedIn).display !== 'none' &&
+                          phoneRowLoggedIn.offsetParent !== null;
+        return {
+            tc: isLoggedIn ? tcInputLoggedIn : tcInputNoLogin,
+            phone: isLoggedIn ? phoneInputLoggedIn : phoneInputNoLogin
+        };
+    }
     const infoAfterLogin = document.getElementById('infoAfterLogin');
+    const phoneRowNoLogin = document.getElementById('phoneRowNoLogin');
+    const phoneRowLoggedIn = document.getElementById('phoneRowLoggedIn');
+    const emailRow = document.getElementById('emailRow');
+    const birthDateRow = document.getElementById('birthDateRow');
+    const buttonRowNoLogin = document.getElementById('buttonRowNoLogin');
+    const buttonRowLoggedIn = document.getElementById('buttonRowLoggedIn');
+    const step1SubmitBtn = document.getElementById('step1SubmitBtn');
+    const step1SubmitBtnLoggedIn = document.getElementById('step1SubmitBtnLoggedIn');
 
     const citySelect = document.getElementById("cityTraffic");
     const districtSelect = document.getElementById("districtTraffic");
@@ -605,14 +769,16 @@ async function firstStep() {
     var originalCustomerData = {};
  
     function checkInfoChanged() {
+        const inputs = getActiveInputs();
         const currentData = {
-            identityNumber: parseInt(tcInput.value),
-            phone: phoneInput.value,
-            email: emailInput.value,
-            birthDate: birthDateInput.value,
-            fullName: fullNameInput.value,
-            city: citySelect.value,
-            district: districtSelect.value
+            identityNumber: parseInt(inputs.tc?.value || 0),
+            phone: inputs.phone?.value || '',
+            email: emailInput?.value || emailNoLoginInput?.value || '',
+            birthDate: birthDateInput?.value || birthDateNoLoginInput?.value || '',
+            fullName: fullNameInput?.value || '',
+            city: citySelect?.value || '',
+            district: districtSelect?.value || '',
+            customerType: getCustomerType()
         };
         return JSON.stringify(originalCustomerData) !== JSON.stringify(currentData);
     }
@@ -621,14 +787,35 @@ async function firstStep() {
         customer = await apiGetFetch("customers/me");
 
         if (customer) {
+            // Giriş yapılmışsa: TC/Telefon yan yana, Email/Doğum Tarihi yan yana
+            if (phoneRowNoLogin) phoneRowNoLogin.style.display = "none";
+            if (phoneRowLoggedIn) phoneRowLoggedIn.style.display = "flex";
+            if (emailRow) emailRow.style.display = "flex";
+            if (birthDateRow) birthDateRow.style.display = "none";
+            if (buttonRowNoLogin) buttonRowNoLogin.style.display = "none";
+            if (buttonRowLoggedIn) buttonRowLoggedIn.style.display = "flex";
+            // Giriş yapıldığında TC inputunu disabled yap
+            if (tcInputLoggedIn) tcInputLoggedIn.disabled = true;
+            // Müşteri tipine göre required attribute'ları ayarla
+            // Önce updateCustomerTypeUI'yi çağır, sonra müşteri bilgilerini yükle
+            updateCustomerTypeUI();
+            // Giriş yapıldığında loggedIn inputlarını required yap, noLogin inputlarını kaldır
+            if (tcInputLoggedIn) tcInputLoggedIn.setAttribute('required', 'required');
+            if (phoneInputLoggedIn) phoneInputLoggedIn.setAttribute('required', 'required');
+            if (tcInputNoLogin) tcInputNoLogin.removeAttribute('required');
+            if (phoneInputNoLogin) phoneInputNoLogin.removeAttribute('required');
+            
             infoAfterLogin.style.display = "block";
             // Customer bilgisini parametre olarak geç, gereksiz API çağrısını önle
             loadCities2(customer);
-            tcInput.value = customer.identityNumber || '';
-            phoneInput.value = customer.primaryPhoneNumber?.number || '';
-            emailInput.value = customer.primaryEmail || '';
-            birthDateInput.value = customer.birthDate || '';
-            fullNameInput.value = customer.fullName || '';
+            if (tcInputLoggedIn) tcInputLoggedIn.value = customer.identityNumber || '';
+            if (phoneInputLoggedIn) {
+                const phoneNumber = customer.primaryPhoneNumber?.number || '';
+                phoneInputLoggedIn.value = phoneNumber ? formatPhoneNumber(phoneNumber) : '';
+            }
+            if (emailInput) emailInput.value = customer.primaryEmail || '';
+            if (birthDateInput) birthDateInput.value = customer.birthDate || '';
+            if (fullNameInput) fullNameInput.value = customer.fullName || '';
             originalCustomerData = {
                 identityNumber: customer.identityNumber,
                 phone: customer.primaryPhoneNumber?.number,
@@ -641,8 +828,8 @@ async function firstStep() {
 
 
 
+            // Bilgiler tam doluysa otomatik olarak ikinci adıma geç (bildirim gösterme)
             if (customer.identityNumber && customer.fullName && customer.primaryPhoneNumber?.number && customer.primaryEmail && customer.birthDate && customer.city?.value) {
-                await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
                 await showStep(step2);
                 // showVehicles artık showStep içinde çağrılıyor (lazy loading)
             }
@@ -653,10 +840,31 @@ async function firstStep() {
             });
         }
     } else {
+        // Giriş yapılmamışsa: TC, Telefon alt alta
+        if (phoneRowNoLogin) phoneRowNoLogin.style.display = "flex";
+        if (phoneRowLoggedIn) phoneRowLoggedIn.style.display = "none";
+        if (emailRow) emailRow.style.display = "none";
+        if (buttonRowNoLogin) buttonRowNoLogin.style.display = "flex";
+        if (buttonRowLoggedIn) buttonRowLoggedIn.style.display = "none";
+        // Müşteri tipine göre required attribute'ları ayarla
+        // updateCustomerTypeUI() birthDateRow'u da kontrol edecek
+        updateCustomerTypeUI();
+        // Giriş yapılmamışsa loggedIn inputlarının required'ını kaldır
+        if (tcInputLoggedIn) tcInputLoggedIn.removeAttribute('required');
+        if (phoneInputLoggedIn) phoneInputLoggedIn.removeAttribute('required');
 
-        tcInput.disabled = false;
-        phoneInput.disabled = false;
+        if (tcInputNoLogin) tcInputNoLogin.disabled = false;
+        if (phoneInputNoLogin) phoneInputNoLogin.disabled = false;
         
+        // Doğum tarihi inputlarını senkronize et
+        if (birthDateNoLoginInput && birthDateInput) {
+            birthDateNoLoginInput.addEventListener('change', function() {
+                birthDateInput.value = this.value;
+            });
+            birthDateInput.addEventListener('change', function() {
+                birthDateNoLoginInput.value = this.value;
+            });
+        }
     }
 
 
@@ -681,6 +889,133 @@ async function firstStep() {
     personalForm.addEventListener('submit', async e => {
         
         e.preventDefault();
+        
+        // Gizli olan required inputların required attribute'unu kaldır
+        // offsetParent null ise element gizlidir
+        function isElementVisible(element) {
+            if (!element) return false;
+            
+            // Element'in kendisini kontrol et
+            const elementStyle = window.getComputedStyle(element);
+            if (elementStyle.display === 'none' || 
+                elementStyle.visibility === 'hidden' || 
+                element.offsetParent === null) {
+                return false;
+            }
+            
+            // Parent container'ları kontrol et
+            let parent = element.parentElement;
+            while (parent && parent !== personalForm) {
+                const parentStyle = window.getComputedStyle(parent);
+                if (parentStyle.display === 'none' || 
+                    parentStyle.visibility === 'hidden') {
+                    return false;
+                }
+                parent = parent.parentElement;
+            }
+            
+            return true;
+        }
+        
+        // Tüm inputları kontrol et ve görünmeyenlerin required'ını kaldır
+        const allInputs = personalForm.querySelectorAll('input[required]');
+        allInputs.forEach(input => {
+            if (!isElementVisible(input)) {
+                input.removeAttribute('required');
+                console.log('Removed required from hidden input:', input.id);
+            }
+        });
+        
+        // Özellikle TC ve Phone inputlarını kontrol et (aynı ID sorunu nedeniyle)
+        if (tcInputNoLogin && !isElementVisible(tcInputNoLogin)) {
+            tcInputNoLogin.removeAttribute('required');
+        }
+        if (tcInputLoggedIn && !isElementVisible(tcInputLoggedIn)) {
+            tcInputLoggedIn.removeAttribute('required');
+        }
+        if (phoneInputNoLogin && !isElementVisible(phoneInputNoLogin)) {
+            phoneInputNoLogin.removeAttribute('required');
+        }
+        if (phoneInputLoggedIn && !isElementVisible(phoneInputLoggedIn)) {
+            phoneInputLoggedIn.removeAttribute('required');
+        }
+        
+        // Doğum tarihi ve email inputlarını kontrol et
+        // Özellikle birthDateNoLogin için parent container'ları kontrol et
+        const birthDateRow = document.getElementById('birthDateRow');
+        const birthDateNoLoginContainer = document.getElementById('birthDateNoLoginContainer');
+        
+        if (birthDateInput && !isElementVisible(birthDateInput)) {
+            birthDateInput.removeAttribute('required');
+            console.log('Removed required from birthDateInput (hidden)');
+        }
+        if (birthDateNoLoginInput) {
+            // birthDateRow veya birthDateNoLoginContainer gizliyse required'ı kaldır
+            const isBirthDateRowVisible = birthDateRow && 
+                window.getComputedStyle(birthDateRow).display !== 'none' &&
+                birthDateRow.offsetParent !== null;
+            const isBirthDateContainerVisible = birthDateNoLoginContainer && 
+                window.getComputedStyle(birthDateNoLoginContainer).display !== 'none' &&
+                birthDateNoLoginContainer.offsetParent !== null;
+            
+            if (!isElementVisible(birthDateNoLoginInput) || !isBirthDateRowVisible || !isBirthDateContainerVisible) {
+                birthDateNoLoginInput.removeAttribute('required');
+                console.log('Removed required from birthDateNoLoginInput (hidden or parent hidden)');
+            }
+        }
+        if (emailInput && !isElementVisible(emailInput)) {
+            emailInput.removeAttribute('required');
+            console.log('Removed required from emailInput (hidden)');
+        }
+        if (emailNoLoginInput && !isElementVisible(emailNoLoginInput)) {
+            emailNoLoginInput.removeAttribute('required');
+            console.log('Removed required from emailNoLoginInput (hidden)');
+        }
+        
+        // Son bir kontrol: Tüm required inputları tekrar kontrol et
+        const remainingRequiredInputs = personalForm.querySelectorAll('input[required]');
+        remainingRequiredInputs.forEach(input => {
+            if (!isElementVisible(input)) {
+                input.removeAttribute('required');
+                console.log('Final check - Removed required from:', input.id);
+            }
+        });
+        
+        // Özellikle birthDateNoLogin için bir kez daha kontrol et
+        if (birthDateNoLoginInput && birthDateNoLoginInput.hasAttribute('required')) {
+            const birthDateRowCheck = document.getElementById('birthDateRow');
+            if (birthDateRowCheck && (window.getComputedStyle(birthDateRowCheck).display === 'none' || birthDateRowCheck.offsetParent === null)) {
+                birthDateNoLoginInput.removeAttribute('required');
+                console.log('Final check - Removed required from birthDateNoLoginInput (birthDateRow is hidden)');
+            }
+        }
+        
+        // Manuel validasyon: Giriş yapılmamışsa müşteri tipine göre kontrol et
+        const phoneRowLoggedInElement = document.getElementById('phoneRowLoggedIn');
+        const isLoggedIn = phoneRowLoggedInElement && 
+                          window.getComputedStyle(phoneRowLoggedInElement).display !== 'none' &&
+                          phoneRowLoggedInElement.offsetParent !== null;
+        
+        if (!isLoggedIn) {
+            const isCorporateCustomer = getCustomerType() === 'corporate';
+            const birthDateRow = document.getElementById('birthDateRow');
+            const emailRowNoLogin = document.getElementById('emailRowNoLogin');
+            
+            if (isCorporateCustomer) {
+                // Kurumsal müşteri: E-posta zorunlu
+                const emailValue = emailNoLoginInput?.value || '';
+                if (!emailValue || emailValue.trim() === '') {
+                    return await showMessage("E-posta adresi gereklidir!", "error");
+                }
+            } else {
+                // Bireysel müşteri: Doğum tarihi zorunlu
+                const birthDateValue = birthDateNoLoginInput?.value || '';
+                if (!birthDateValue || birthDateValue.trim() === '') {
+                    return await showMessage("Doğum tarihi gereklidir!", "error");
+                }
+            }
+        }
+        
         isInfoChange = checkInfoChanged();
         if (customer) {
             if (!citySelect || !districtSelect || !fullNameInput) {
@@ -688,7 +1023,10 @@ async function firstStep() {
             }
 
             if (!isInfoChange) {
-
+                // Bilgiler tam doluysa bildirim göster
+                if (customer.identityNumber && customer.fullName && customer.primaryPhoneNumber?.number && customer.primaryEmail && customer.birthDate && customer.city?.value) {
+                    await showMessage('Bilgiler olduğu için ikinci adıma geçildi.', "success");
+                }
                 await showStep(step2);
 
             }
@@ -704,15 +1042,15 @@ async function firstStep() {
                     "job": 0,
                     "primaryEmail": emailInput.value,
                     "primaryPhoneNumber": {
-                        "number": phoneInput.value,
+                        "number": cleanPhoneNumber(phoneInputLoggedIn?.value || ''),
                         "countryCode": 90
                     },
                     "cityReference": document.getElementById('cityTraffic').value,
                     "districtReference": document.getElementById('districtTraffic').value,
                 };
                 originalCustomerData = {
-                    identityNumber: parseInt(tcInput.value),
-                    phone: phoneInput.value,
+                    identityNumber: parseInt(tcInputLoggedIn?.value || 0),
+                    phone: cleanPhoneNumber(phoneInputLoggedIn?.value || ''),
                     email: emailInput.value,
                     birthDate: birthDateInput.value,
                     fullName: fullNameInput.value,
@@ -750,7 +1088,7 @@ async function firstStep() {
                             user: {
                                 custumerId: null,
                                 fullName: null,
-                                phone: phoneInput || null
+                                phone: phoneInputNoLogin?.value || phoneInputLoggedIn?.value || null
                             }
                         };
 
@@ -775,6 +1113,23 @@ async function firstStep() {
                         //
                         mfaAreaTraffic.style.display = "none";
                         infoAfterLogin.style.display = "block";
+                        // Giriş yapıldıktan sonra email row'u göster
+                        // Giriş yapıldıktan sonra: TC/Telefon yan yana, Email/Doğum Tarihi yan yana
+                        if (phoneRowNoLogin) phoneRowNoLogin.style.display = "none";
+                        if (phoneRowLoggedIn) phoneRowLoggedIn.style.display = "flex";
+                        if (emailRow) emailRow.style.display = "flex";
+                        if (birthDateRow) birthDateRow.style.display = "none";
+                        if (buttonRowNoLogin) buttonRowNoLogin.style.display = "none";
+                        if (buttonRowLoggedIn) buttonRowLoggedIn.style.display = "flex";
+                        // Giriş yapıldıktan sonra TC inputunu disabled yap
+                        if (tcInputLoggedIn) tcInputLoggedIn.disabled = true;
+                        // Müşteri tipine göre required attribute'ları ayarla
+                        updateCustomerTypeUI();
+                        // Giriş yapıldığında loggedIn inputlarını required yap, noLogin inputlarını kaldır
+                        if (tcInputLoggedIn) tcInputLoggedIn.setAttribute('required', 'required');
+                        if (phoneInputLoggedIn) phoneInputLoggedIn.setAttribute('required', 'required');
+                        if (tcInputNoLogin) tcInputNoLogin.removeAttribute('required');
+                        if (phoneInputNoLogin) phoneInputNoLogin.removeAttribute('required');
                         // loadCities2();
                         await window.loginMenuModule();
                         firstStep();
@@ -790,13 +1145,47 @@ async function firstStep() {
                 return;
             }
 
-            const postData = {
-                "$type": "individual",
-                "identityNumber": Number(tcInput.value),
-                "birthDate": birthDateInput.value,
-                "phoneNumber": { number: phoneInput.value, countryCode: 90 },
-                "agentId": "0198a25c-1a13-7965-bd4b-61c2c703333a"
-            };
+            // Acente ID kontrolü
+            const agentId = await checkAndGetAgentId();
+            if (!agentId) {
+                return;
+            }
+            
+            const inputs = getActiveInputs();
+            const isCorporateCustomer = getCustomerType() === 'corporate';
+            
+            // $type property'si JSON objesinin ilk property'si olmalı
+            let postData = {};
+            
+            if (isCorporateCustomer) {
+                // Kurumsal müşteri
+                const emailValue = emailInput?.value || emailNoLoginInput?.value || '';
+                if (!emailValue) {
+                    return await showMessage("E-posta adresi gereklidir!", "error");
+                }
+                postData = {
+                    "$type": "corporate",
+                    "taxNumber": Number(inputs.tc?.value || 0),
+                    "email": emailValue,
+                    "phoneNumber": { number: cleanPhoneNumber(inputs.phone?.value || ''), countryCode: 90 },
+                    "agentId": agentId
+                };
+            } else {
+                // Bireysel müşteri
+                const birthDateValue = birthDateInput?.value || birthDateNoLoginInput?.value || '';
+                if (!birthDateValue) {
+                    return await showMessage("Doğum tarihi gereklidir!", "error");
+                }
+                postData = {
+                    "$type": "individual",
+                    "identityNumber": Number(inputs.tc?.value || 0),
+                    "birthDate": birthDateValue,
+                    "phoneNumber": { number: cleanPhoneNumber(inputs.phone?.value || ''), countryCode: 90 },
+                    "agentId": agentId
+                };
+            }
+            
+            console.log('API Request Data:', postData);
 
             try {
                 const res = await fetch('https://api.insurup.com/api/auth/customer/login-or-register', {

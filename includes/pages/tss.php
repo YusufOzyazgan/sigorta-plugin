@@ -31,7 +31,7 @@ function tss_form_shortcode()
     ob_start();
     ?>
     <div id="tssModuleContainer">
-        <h2 class="text-center mb-4">Tamamlayıcı Sağlık Sigortası ile Ek Masraflara Son</h2>
+        <h2 class="text-center mb-4">Tamamlayıcı Sağlık Sigortası ile Ek Masraflara Son Ver</h2>
         <div class="d-flex justify-content-between mb-4" id="stepProgress">
             <div class="step active" data-step="1">
                 <div class="step-icon">1</div>

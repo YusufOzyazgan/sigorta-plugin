@@ -48,7 +48,7 @@ function user_avatar_dropdown_shortcode()
             </div>
 
             <div id="onLogout" style="display:none;">
-                <button  id="loginBtn" class="btn-login">Giriş Yap  Kayıt Ol</button>
+                <button  id="loginBtn" class="btn-login">Giriş Yap<br><hr class="my-1">Üye Ol</button>
             </div>
         </div>
     </div>
@@ -58,7 +58,7 @@ function user_avatar_dropdown_shortcode()
             if (await window.loginMenuModule) {
               await  window.loginMenuModule();
             } else {
-                console.error("loginMenuModule tanımlı değil!");
+                console.error("loginMenuModule tanımlı değil!");    
             }
         });
     </script>

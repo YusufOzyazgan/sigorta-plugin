@@ -218,6 +218,10 @@
     background: linear-gradient(135deg, #55efc4, #00b894);
 }
 
+.imm-icon {
+    background: linear-gradient(135deg, #ff7675, #d63031);
+}
+
 .tss-icon {
     background: linear-gradient(135deg, #fdcb6e, #e17055);
 }

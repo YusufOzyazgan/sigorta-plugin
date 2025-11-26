@@ -38,7 +38,7 @@ window.loadBilgilerimModule = async function (container) {
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Telefon</label>
-                    <input type="text" id="phoneNumber" maxlength="10" class="form-control" value="${data.primaryPhoneNumber?.number || ''}">
+                    <input type="text" id="phoneNumber" class="form-control" value="${data.primaryPhoneNumber?.number ? formatPhoneNumber(data.primaryPhoneNumber.number) : ''}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">E-posta</label>
@@ -130,6 +130,12 @@ window.loadBilgilerimModule = async function (container) {
     });
 
     loadCities();
+    
+    // Telefon inputuna format ekle
+    const phoneInput = document.getElementById('phoneNumber');
+    if (phoneInput) {
+        setupPhoneFormatting(phoneInput);
+    }
 
     // Form gönderme
     document.querySelector('#informations-form').addEventListener('submit', async function (e) {
@@ -145,7 +151,7 @@ window.loadBilgilerimModule = async function (container) {
             "job": 0,
             "primaryEmail": document.getElementById('myEmail').value || null,
             "primaryPhoneNumber": {
-                "number": document.getElementById('phoneNumber').value,
+                "number": cleanPhoneNumber(document.getElementById('phoneNumber').value),
                 "countryCode": 90
             },
             "cityReference": document.getElementById('city').value || null,
